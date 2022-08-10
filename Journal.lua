@@ -45,6 +45,7 @@ function journal:init()
 		filters.selected = setmetatable(filters.selected or {}, filtersMeta)
 		filters.sources = setmetatable(filters.sources or {}, filtersMeta)
 		filters.factions = setmetatable(filters.factions or {}, filtersMeta)
+		filters.pet = setmetatable(filters.pet or {}, filtersMeta)
 		filters.expansions = setmetatable(filters.expansions or {}, filtersMeta)
 		filters.mountsWeight = filters.mountsWeight or {
 			-- sign = nil,
@@ -1786,22 +1787,26 @@ function journal:filterDropDown_Initialize(btn, level, value)
 		info.value = 4
 		btn:ddAddButton(info, level)
 
-		info.text = L["expansions"]
+		info.text = PET
 		info.value = 5
 		btn:ddAddButton(info, level)
 
-		info.text = L["Chance of summoning"]
+		info.text = L["expansions"]
 		info.value = 6
 		btn:ddAddButton(info, level)
 
-		info.text = L["tags"]
+		info.text = L["Chance of summoning"]
 		info.value = 7
+		btn:ddAddButton(info, level)
+
+		info.text = L["tags"]
+		info.value = 8
 		btn:ddAddButton(info, level)
 
 		btn:ddAddSpace(level)
 
 		info.text = L["sorting"]
-		info.value = 8
+		info.value = 9
 		btn:ddAddButton(info, level)
 
 		btn:ddAddSpace(level)
@@ -1945,7 +1950,35 @@ function journal:filterDropDown_Initialize(btn, level, value)
 				info.checked = function() return factions[i] end
 				btn:ddAddButton(info, level)
 			end
-		elseif value == 5 then -- EXPANSIONS
+		elseif value == 5 then -- PET
+			info.text = CHECK_ALL
+			info.func = function()
+				self:setAllFilters("pet", true)
+				self:updateMountsList()
+				btn:ddRefresh(level)
+			end
+			btn:ddAddButton(info, level)
+
+			info.text = UNCHECK_ALL
+			info.func = function()
+				self:setAllFilters("pet", false)
+				self:updateMountsList()
+				btn:ddRefresh(level)
+			end
+			btn:ddAddButton(info, level)
+
+			info.notCheckable = nil
+			local pet = mounts.filters.pet
+			for i = 2, 4 do
+				info.text = L["PET_"..i]
+				info.func = function(_,_,_, value)
+					pet[i] = value
+					self:updateMountsList()
+				end
+				info.checked = function() return pet[i] end
+				btn:ddAddButton(info, level)
+			end
+		elseif value == 6 then -- EXPANSIONS
 			info.text = CHECK_ALL
 			info.func = function()
 				self:setAllFilters("expansions", true)
@@ -1973,7 +2006,7 @@ function journal:filterDropDown_Initialize(btn, level, value)
 				info.checked = function() return expansions[i] end
 				btn:ddAddButton(info, level)
 			end
-		elseif value == 6 then -- CHANCE OF SUMMONING
+		elseif value == 7 then -- CHANCE OF SUMMONING
 			local filterWeight = mounts.filters.mountsWeight
 
 			info.notCheckable = nil
@@ -2018,7 +2051,7 @@ function journal:filterDropDown_Initialize(btn, level, value)
 				end
 			end
 			btn:ddAddButton(info, level)
-		elseif value == 7 then -- TAGS
+		elseif value == 8 then -- TAGS
 			local filterTags = self.tags.filter
 
 			info.notCheckable = nil
@@ -2438,8 +2471,8 @@ end
 
 
 function journal:updateMountsList()
-	local filters, list, indexBySpellID, mountsDB, tags, GetSpellInfo = mounts.filters, self.list, mounts.indexBySpellID, mounts.mountsDB, self.tags, GetSpellInfo
-	local sources, selected, factions, types, expansions = filters.sources, filters.selected, filters.factions, filters.types, filters.expansions
+	local filters, list, indexBySpellID, mountsDB, tags, GetSpellInfo, unpack = mounts.filters, self.list, mounts.indexBySpellID, mounts.mountsDB, self.tags, GetSpellInfo, unpack
+	local sources, selected, factions, pet, types, expansions = filters.sources, filters.selected, filters.factions, filters.pet, filters.types, filters.expansions
 	local text = util.cleanText(self.searchBox:GetText())
 	wipe(self.displayedMounts)
 
@@ -2448,6 +2481,7 @@ function journal:updateMountsList()
 		local name = GetSpellInfo(spellID)
 		local isCollected = indexBySpellID[spellID]
 		local isMountHidden = self:isMountHidden(spellID)
+		local petID = self.petForMount[spellID]
 
 		-- HIDDEN BY PLAYER
 		if (not isMountHidden or filters.hiddenByPlayer)
@@ -2475,6 +2509,8 @@ function journal:updateMountsList()
 		  or selected[4] and not (list and (list.fly[spellID]
 		                                 or list.ground[spellID]
 		                                 or list.swimming[spellID])))
+		-- PET
+		and pet[petID and (type(petID) == "boolean" and 2 or 3) or 4]
 		-- MOUNTS WEIGHT
 		and self:getFilterWeight(spellID)
 		-- TAGS

@@ -248,7 +248,6 @@ function mounts:summonPet(spellID)
 		return
 	end
 
-	-- if InCombatLockdown() then return end
 	if type(petID) == "number" then
 		local petIndex = mounts.indexPetBySpellID[petID]
 		if not petIndex then return end
