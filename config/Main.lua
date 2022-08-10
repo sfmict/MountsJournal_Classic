@@ -167,13 +167,23 @@ config:SetScript("OnShow", function(self)
 	self.rightPanelScroll:SetPoint("TOPLEFT", self.rightPanel, 4, -6)
 	self.rightPanelScroll:SetPoint("BOTTOMRIGHT", self.rightPanel, -26, 5)
 
+	-- SHOW MINIMAP BUTTON
+	self.showMinimapButton = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
+	self.showMinimapButton:SetPoint("TOPLEFT", self.rightPanelScroll.child, "BOTTOMLEFT", 9, -9)
+	self.showMinimapButton.Text:SetText(L["Show Minimap Button"])
+	self.showMinimapButton:HookScript("OnClick", applyEnable)
+
+	-- LOCK MINIMAP BUTTON
+	self.lockMinimapButton = util.createCheckboxChild(L["Lock Minimap Button"], self.showMinimapButton)
+	self.lockMinimapButton:HookScript("OnClick", applyEnable)
+
 	-- USE REPAIR MOUNTS
 	self.useRepairMounts = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
-	self.useRepairMounts:SetPoint("TOPLEFT", self.rightPanelScroll.child, "BOTTOMLEFT", 9, -9)
+	self.useRepairMounts:SetPoint("TOPLEFT", self.lockMinimapButton, "BOTTOMLEFT", -20, -15)
 	self.useRepairMounts.Text:SetText(L["If item durability is less than"])
 	self.useRepairMounts.tooltipText = L["If item durability is less than"]
 	self.useRepairMounts.tooltipRequirement = L["UseRepairMountsDescription"]
-	self.useRepairMounts:HookScript("OnClick", function(btn) applyEnable() end)
+	self.useRepairMounts:HookScript("OnClick", applyEnable)
 
 	-- editbox
 	self.repairPercent = CreateFrame("Editbox", nil, self.rightPanelScroll.child, "MJNumberTextBox")
@@ -214,6 +224,7 @@ config:SetScript("OnShow", function(self)
 	end
 	self.repairFlyable:HookScript("OnEnable", self.repairFlyable.setEnabledFunc)
 	self.repairFlyable:HookScript("OnDisable", self.repairFlyable.setEnabledFunc)
+	self.repairFlyable:HookScript("OnClick", applyEnable)
 
 	-- editbox
 	self.repairFlyablePercent = CreateFrame("Editbox", nil, self.rightPanelScroll.child, "MJNumberTextBox")
@@ -356,6 +367,8 @@ config:SetScript("OnShow", function(self)
 		binding.unboundMessage:Hide()
 		modifierCombobox:ddSetSelectedValue(mounts.config.modifier)
 		modifierCombobox:ddSetSelectedText(_G[mounts.config.modifier.."_KEY"])
+		self.showMinimapButton:SetChecked(not mounts.config.omb.hide)
+		self.lockMinimapButton:SetChecked(mounts.config.omb.lock)
 		self.useRepairMounts:SetChecked(mounts.config.useRepairMounts)
 		self.repairFlyable:SetChecked(mounts.config.useRepairFlyable)
 		self.repairPercent:SetNumber(tonumber(mounts.config.useRepairMountsDurability) or 0)
@@ -433,6 +446,18 @@ config.okay = function(self)
 	binding.unboundMessage:Hide()
 	mounts:setModifier(self.modifierCombobox.selectedValue)
 	binding:saveBinding()
+	local ldbi = LibStub("LibDBIcon-1.0")
+	mounts.config.omb.hide = not self.showMinimapButton:GetChecked()
+	if mounts.config.omb.hide then
+		ldbi:Hide(addon)
+	else
+		ldbi:Show(addon)
+	end
+	if self.lockMinimapButton:GetChecked() then
+		ldbi:Lock(addon)
+	else
+		ldbi:Unlock(addon)
+	end
 	mounts.config.useRepairMounts = self.useRepairMounts:GetChecked()
 	mounts.config.useRepairMountsDurability = tonumber(self.repairPercent:GetText()) or 0
 	mounts.config.useRepairFlyable = self.repairFlyable:GetChecked()

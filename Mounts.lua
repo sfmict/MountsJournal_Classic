@@ -1,4 +1,4 @@
-local addon = ...
+local addon, L = ...
 local C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff = C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff
 local util = MountsJournalUtil
 local mounts = CreateFrame("Frame", "MountsJournal")
@@ -101,11 +101,11 @@ function mounts:ADDON_LOADED(addonName)
 					MountsJournalConfig:openConfig()
 				end
 			end,
-			OnEnter = function(self)
-				-- GameTooltip:SetOwner(self)
-			end,
-			OnLeave = function(self)
-				-- GameTooltip:Hide()
+			OnTooltipShow = function(tooltip)
+				tooltip:SetText(("%s (|cffff7f3f%s|r)"):format(addon, GetAddOnMetadata(addon, "Version")))
+				tooltip:AddLine("\n")
+				tooltip:AddLine(L["|cffff7f3fClick|r to open %s"]:format(addon), .5, .8, .5, false)
+				tooltip:AddLine(L["|cffff7f3fRight-Click|r to open Settings"], .5, .8, .5, false)
 			end,
 		})
 
