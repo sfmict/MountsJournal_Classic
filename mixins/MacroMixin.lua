@@ -309,7 +309,7 @@ do
 			local aquaticForm = self:getSpellName(1066, ...)
 			local catForm = self:getSpellName(768, ...)
 			local travelForm = self:getSpellName(783, ...)
-			local flightFrom = IsSpellKnown(40120) and self:getSpellName(40120, ...) or IsSpellKnown(40120) and self:getSpellName(33943)
+			local flightFrom = IsSpellKnown(40120) and self:getSpellName(40120, ...) or IsSpellKnown(33943) and self:getSpellName(33943)
 
 			if catForm and travelForm then
 				return ("/cast [swimming]%s;[indoors]%s;[flyable]%s;%s"):format(aquaticForm, catForm, flightFrom or travelForm, travelForm)
