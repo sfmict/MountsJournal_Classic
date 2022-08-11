@@ -5,6 +5,13 @@ local util = MountsJournalUtil
 MountsJournalFrame:on("MODULES_INIT", function(journal)
 	local dd = LibStub("LibSFDropDown-1.4"):CreateStretchButtonOriginal(journal.bgFrame, 130, 22)
 	dd:SetPoint("LEFT", journal.summonButton, "RIGHT", 4, 0)
+	dd:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 0)
+		GameTooltip:SetText(self.Text:GetText())
+		GameTooltip:AddLine(L["ProfilesTooltipDescription"], 1, 1, 1, true)
+		GameTooltip:Show()
+	end)
+
 	util.setEventsMixin(dd)
 	journal.bgFrame.profilesMenu = dd
 

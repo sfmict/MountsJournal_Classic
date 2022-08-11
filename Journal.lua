@@ -160,6 +160,15 @@ function journal:init()
 	self:updateCountMounts()
 	self:RegisterEvent("COMPANION_LEARNED")
 
+	-- HINT
+	self.bgFrame.hint:SetScript("OnEnter", function(hint)
+		hint.highlight:Show()
+		GameTooltip:SetOwner(self.scrollFrame, "ANCHOR_NONE")
+		GameTooltip:SetPoint("TOPLEFT", self.scrollFrame, "TOPRIGHT", 0, -5)
+		GameTooltip:SetText(L["ButtonsSelectedTooltipDescription"]:format(addon), nil, nil, nil, nil, true)
+		GameTooltip:Show()
+	end)
+
 	-- MACRO BUTTONS
 	local summon1 = self.bgFrame.summon1
 	summon1:SetNormalTexture(303868)
@@ -819,12 +828,6 @@ function journal:init()
 	end)
 
 	-- SUMMON BUTTON
-	self.summonButton:SetScript("OnEnter", function(btn)
-		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
-		GameTooltip:SetText(btn:GetText(), HIGHLIGHT_FONT_COLOR:GetRGB())
-		GameTooltip_AddNormalLine(GameTooltip, MOUNT_SUMMON_TOOLTIP, true)
-		GameTooltip:Show()
-	end)
 	self.summonButton:SetScript("OnClick", function()
 		if self.selectedSpellID then
 			self:useMount(self.selectedSpellID)

@@ -54,6 +54,12 @@
 				</Layers>
 			</Frame>
 
+			<Frame parentKey="hint" inherits="MJHelpPlate">
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.mountCount" relativePoint="RIGHT" x="-14" y="0"/>
+				</Anchors>
+			</Frame>
+
 			<Button parentKey="summon2" inherits="MJMacroButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPRIGHT" x="-7" y="-25"/>
@@ -755,9 +761,6 @@
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="4" y="4"/>
 				</Anchors>
-				<Scripts>
-					<OnLeave function="GameTooltip_Hide"/>
-				</Scripts>
 			</Button>
 
 			<Button parentKey="btnConfig" inherits="UIPanelButtonTemplate">
