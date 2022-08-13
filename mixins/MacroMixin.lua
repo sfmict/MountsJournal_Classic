@@ -89,15 +89,15 @@ function macroFrame:PLAYER_LOGIN()
 			if self.classConfig.useCrusaderAura then
 				local spellID = getAuraSpellID()
 
-				if self.classConfig.returnLastAura and self.lastAuraSpellID and self.sFlags.isMounted then
-					return self:addLine(self:getDismountMacro(), "/cast !"..self:getSpellName(self.lastAuraSpellID))
+				if self.classConfig.returnLastAura and self.charMacrosConfig.lastAuraSpellID and self.sFlags.isMounted then
+					return self:addLine(self:getDismountMacro(), "/cast !"..self:getSpellName(self.charMacrosConfig.lastAuraSpellID))
 				end
 
 				if spellID and spellID ~= 32223 then
-					self.lastAuraSpellID = spellID
+					self.charMacrosConfig.lastAuraSpellID = spellID
 					self.lastAuraTime = GetTime()
 				elseif not spellID and GetTime() - (self.lastAuraTime or 0) > 1 then
-					self.lastAuraSpellID = nil
+					self.charMacrosConfig.lastAuraSpellID = nil
 				end
 			end
 		]]
@@ -168,7 +168,7 @@ function macroFrame:PLAYER_LOGIN()
 			if self.classConfig.useLastDruidForm then
 				local spellID = getFormSpellID()
 
-				if self.lastDruidFormSpellID
+				if self.charMacrosConfig.lastDruidFormSpellID
 				and spellID ~= 24858
 				and (self.sFlags.isMounted
 					  or self.sFlags.inVehicle
@@ -177,14 +177,14 @@ function macroFrame:PLAYER_LOGIN()
 					  or spellID == 33943
 					  or spellID == 40120
 					  or self.sFlags.isIndoors and spellID == 768) then
-					return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..self:getSpellName(self.lastDruidFormSpellID))
+					return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..self:getSpellName(self.charMacrosConfig.lastDruidFormSpellID))
 				end
 
 				if spellID and spellID ~= 783 and spellID ~= 1066 and spellID ~= 33943 and spellID ~= 40120 then
-					self.lastDruidFormSpellID = spellID
+					self.charMacrosConfig.lastDruidFormSpellID = spellID
 					self.lastDruidFormTime = GetTime()
 				elseif not spellID and GetTime() - (self.lastDruidFormTime or 0) > 1 then
-					self.lastDruidFormSpellID = nil
+					self.charMacrosConfig.lastDruidFormSpellID = nil
 				end
 			end
 		]]
