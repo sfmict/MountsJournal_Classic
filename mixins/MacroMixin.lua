@@ -45,7 +45,7 @@ function macroFrame:PLAYER_LOGIN()
 
 	if self.class == "PALADIN" then
 		classOptionMacro = classOptionMacro..[[
-			local GetShapeshiftForm, GetShapeshiftFormInfo = GetShapeshiftForm, GetShapeshiftFormInfo
+			local GetShapeshiftForm, GetShapeshiftFormInfo, GetTime = GetShapeshiftForm, GetShapeshiftFormInfo, GetTime
 
 			local function getAuraSpellID()
 				local shapeshiftIndex = GetShapeshiftForm()
@@ -93,8 +93,11 @@ function macroFrame:PLAYER_LOGIN()
 					return self:addLine(self:getDismountMacro(), "/cast !"..self:getSpellName(self.lastAuraSpellID))
 				end
 
-				if spellID ~= 32223 then
+				if spellID and spellID ~= 32223 then
 					self.lastAuraSpellID = spellID
+					self.lastAuraTime = GetTime()
+				elseif not spellID and GetTime() - (self.lastAuraTime or 0) > 1 then
+					self.lastAuraSpellID = nil
 				end
 			end
 		]]
@@ -173,11 +176,11 @@ function macroFrame:PLAYER_LOGIN()
 					  or spellID == 1066
 					  or spellID == 33943
 					  or spellID == 40120
-					  or self.sFlags.isIndoors and spellID == 1066) then
+					  or self.sFlags.isIndoors and spellID == 768) then
 					return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..self:getSpellName(self.lastDruidFormSpellID))
 				end
 
-				if spellID and spellID ~= 783 then
+				if spellID and spellID ~= 783 and spellID ~= 1066 and spellID ~= 33943 and spellID ~= 40120 then
 					self.lastDruidFormSpellID = spellID
 					self.lastDruidFormTime = GetTime()
 				elseif not spellID and GetTime() - (self.lastDruidFormTime or 0) > 1 then
