@@ -192,7 +192,7 @@ function tags:mountOptionsMenu_Init(btn, level)
 			info.OnLoad = nil
 		end
 
-		info.disabled = not isCollected
+		info.disabled = nil
 		if mounts.mountFavoritesList[self.menuSpellID] then
 			info.text = BATTLE_PET_UNFAVORITE
 			info.func = function()
@@ -208,7 +208,6 @@ function tags:mountOptionsMenu_Init(btn, level)
 		end
 		btn:ddAddButton(info, level)
 
-		info.disabled = nil
 		info.keepShownOnClick = true
 		info.hasArrow = true
 		info.func = nil

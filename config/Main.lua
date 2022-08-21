@@ -465,10 +465,6 @@ config.okay = function(self)
 	mounts:UPDATE_INVENTORY_DURABILITY()
 	mounts.config.repairSelectedMount = self.repairMountsCombobox.selectedValue
 	mounts.config.useMagicBroom = self.useMagicBroom:GetChecked()
-	if self.useUnderlightAngler then
-		mounts.config.useUnderlightAngler = self.useUnderlightAngler:GetChecked()
-		mounts.config.autoUseUnderlightAngler = self.autoUseUnderlightAngler:GetChecked()
-	end
 	mounts.config.noPetInRaid = self.noPetInRaid:GetChecked()
 	mounts.config.noPetInGroup = self.noPetInGroup:GetChecked()
 	mounts.config.copyMountTarget = self.copyMountTarget:GetChecked()

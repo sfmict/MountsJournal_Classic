@@ -66,7 +66,7 @@ local menuBackdrop = {
 	tile = true, edgeSize = 1 * scale, tileSize = 5 * scale,
 }
 local lsfdd = LibStub("LibSFDropDown-1.4")
-	lsfdd:CreateMenuStyle(addon, function(parent)
+lsfdd:CreateMenuStyle(addon, function(parent)
 	local f = CreateFrame("FRAME", nil, parent, "BackdropTemplate")
 	f:SetBackdrop(menuBackdrop)
 	f:SetBackdropColor(.06, .06, .1, .9)
