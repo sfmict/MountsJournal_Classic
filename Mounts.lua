@@ -372,7 +372,7 @@ function mounts:addMountToList(list, spellID)
 		mountType = "swimming"
 	end
 
-	list[mountType][mountID] = true
+	list[mountType][spellID] = true
 end
 
 

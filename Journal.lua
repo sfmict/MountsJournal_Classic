@@ -1102,7 +1102,7 @@ function journal:grid3UpdateMountList(scrollFrame)
 				g3btn.icon:SetVertexColor(1, 1, 1)
 				g3btn:Enable()
 				g3btn.selectedTexture:SetShown(spellID == self.selectedSpellID)
-				g3btn.hidden:SetShown(self:isMountHidden(mountID))
+				g3btn.hidden:SetShown(self:isMountHidden(spellID))
 				g3btn.favorite:SetShown(mounts.mountFavoritesList[spellID])
 
 				local mountWeight = self.mountsWeight[spellID]
@@ -1661,7 +1661,7 @@ end
 
 
 do
-	local function getMountButtonByMountID(spellID)
+	local function getMountButtonBySpellID(spellID)
 		local buttons = journal.scrollFrame.buttons
 		for i = 1, #buttons do
 			local button = buttons[i]
@@ -1687,7 +1687,7 @@ do
 		self:updateMountDisplay()
 
 		if not button then
-			button = getMountButtonByMountID(spellID)
+			button = getMountButtonBySpellID(spellID)
 		end
 		if not button or (self.scrollFrame:GetBottom() or 0) >= (button:GetTop() or 0) then
 			if not index then
@@ -2445,17 +2445,17 @@ function journal:updateBtnFilters()
 end
 
 
-function journal:isMountHidden(mountID)
-	return mounts.globalDB.hiddenMounts and mounts.globalDB.hiddenMounts[mountID]
+function journal:isMountHidden(spellID)
+	return mounts.globalDB.hiddenMounts and mounts.globalDB.hiddenMounts[spellID]
 end
 
 
-function journal:getFilterWeight(mountID)
+function journal:getFilterWeight(spellID)
 	local filter = mounts.filters.mountsWeight
 	if not filter.sign then
 		return true
 	else
-		local mountWeight = self.mountsWeight[mountID] or 100
+		local mountWeight = self.mountsWeight[spellID] or 100
 		if filter.sign == ">" then
 			return mountWeight > filter.weight
 		elseif filter.sign == "<" then
