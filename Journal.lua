@@ -645,10 +645,6 @@ function journal:init()
 		end
 	end
 
-	-- for i = 1, 100000 do
-	-- 	if C_ModelInfo.GetModelSceneCameraInfoByID(i) then fprint(i) end
-	-- end
-
 	-- MODEL SCENE CAMERA
 	hooksecurefunc(self.modelScene, "SetActiveCamera", function(self)
 		journal:event("SET_ACTIVE_CAMERA", self.activeCamera)

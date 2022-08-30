@@ -172,6 +172,25 @@ test:RegisterEvent("UI_MODEL_SCENE_INFO_UPDATED")
 function test:PLAYER_ENTERING_WORLD()
 	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 
+	-- local ids = {}
+	-- local function tooLong(start, stop, func)
+	-- 	local max = start + 5000000
+	-- 	fprint(start, max)
+	-- 	if max > stop then max = stop end
+	-- 	for i = start, max do func(i) end
+	-- 	fprint(dump, ids)
+	-- 	if max < stop then
+	-- 		C_Timer.After(0, function() tooLong(max + 1, stop, func) end)
+	-- 	end
+	-- end
+
+	-- tooLong(0, 4294967295, function(i)
+	-- 	if C_ModelInfo.GetModelSceneCameraInfoByID(i) then
+	-- 		fprint(i)
+	-- 		ids[#ids + 1] = i
+	-- 	end
+	-- end)
+
 	-- for i = 1, 500000 do
 	-- 	local name = GetSpellInfo(i)
 	-- 	if IsSpellKnown(i) then
