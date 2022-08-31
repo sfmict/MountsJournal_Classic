@@ -352,10 +352,18 @@ do
 		[575] = true,
 	}
 
+	local canUseMounts = {
+		[48025] = true,
+		[71342] = true,
+		[72286] = true,
+		[75614] = true,
+		[372677] = true,
+	}
+
 	function mounts:isUsable(spellID)
 		if not self.indexBySpellID[spellID] then return false end
 		local faction, creatureID, mountType = util.getMountInfoBySpellID(spellID)
-		if mountType == 1 and not canUseInstances[self.instanceID] then return false end
+		if mountType == 1 and not canUseInstances[self.instanceID] and not canUseMounts[spellID] then return false end
 		return true
 	end
 end
