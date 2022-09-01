@@ -150,6 +150,7 @@ function mounts:PLAYER_LOGIN()
 	self:updateIndexBySpellID()
 	self:updateIndexPetBySpellID()
 	self:setUsableRepairMounts()
+	self:updateProfessionsRank()
 	self:init()
 
 	-- MAP CHANGED
@@ -160,6 +161,9 @@ function mounts:PLAYER_LOGIN()
 
 	-- INSTANCE INFO UPDATE
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+	-- PROFESSION CHANGED
+	self:RegisterEvent("SKILL_LINES_CHANGED")
 
 	-- MOUNT ADDED
 	self:RegisterEvent("COMPANION_UPDATE")
@@ -314,6 +318,22 @@ end
 mounts.COMPANION_UPDATE = mounts.COMPANION_LEARNED
 
 
+function mounts:updateProfessionsRank()
+	local engineeringName = GetSpellInfo(4036)
+	local tailoringName = GetSpellInfo(3908)
+
+	for i = 1, GetNumSkillLines() do
+		local skillName, _,_, skillRank = GetSkillLineInfo(i)
+		if skillName == engineeringName then
+			self.engineeringRank = skillRank
+		elseif skillName == tailoringName then
+			self.tailoringRank = skillRank
+		end
+	end
+end
+mounts.SKILL_LINES_CHANGED = mounts.updateProfessionsRank
+
+
 do
 	local canUseInstances = {
 		[530] = true,
@@ -360,11 +380,23 @@ do
 		[372677] = true,
 	}
 
+	local mountsRequiringProf = {
+		[44151] = {"engineeringRank", 375},
+		[44153] = {"engineeringRank", 300},
+		[61309] = {"tailoringRank", 425},
+		[61451] = {"tailoringRank", 300},
+		[75596] = {"tailoringRank", 425},
+	}
+
 	function mounts:isUsable(spellID)
 		if not self.indexBySpellID[spellID] then return false end
+
+		local prof = mountsRequiringProf[spellID]
+		if prof and (self[prof[1]] or 0) < prof[2] then return false end
+
 		local faction, creatureID, mountType = util.getMountInfoBySpellID(spellID)
-		if mountType == 1 and not canUseInstances[self.instanceID] and not canUseMounts[spellID] then return false end
-		return true
+		if mountType ~= 1 or canUseInstances[self.instanceID] or canUseMounts[spellID] then return true end
+		return false
 	end
 end
 
