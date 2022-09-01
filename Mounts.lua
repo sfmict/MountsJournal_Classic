@@ -184,6 +184,7 @@ do
 		INVSLOT_FEET,
 		INVSLOT_MAINHAND,
 		INVSLOT_OFFHAND,
+		INVSLOT_RANGED,
 	}
 	function mounts:UPDATE_INVENTORY_DURABILITY()
 		local percent = (tonumber(self.config.useRepairMountsDurability) or 0) / 100
