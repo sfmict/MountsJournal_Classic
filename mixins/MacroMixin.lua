@@ -45,7 +45,18 @@ function macroFrame:PLAYER_LOGIN()
 
 	if self.class == "PALADIN" then
 		classOptionMacro = classOptionMacro..[[
-			local GetShapeshiftForm, GetShapeshiftFormInfo, GetTime = GetShapeshiftForm, GetShapeshiftFormInfo, GetTime
+			local GetShapeshiftForm, GetShapeshiftFormInfo = GetShapeshiftForm, GetShapeshiftFormInfo
+
+			local function getAuraSpellID()
+				local shapeshiftIndex = GetShapeshiftForm()
+				if shapeshiftIndex > 0 then
+					local _,_,_, spellID = GetShapeshiftFormInfo(shapeshiftIndex)
+					return spellID
+				end
+			end
+		]]
+		defMacro = defMacro..[[
+			local GetShapeshiftForm, GetShapeshiftFormInfo = GetShapeshiftForm, GetShapeshiftFormInfo
 
 			local function getAuraSpellID()
 				local shapeshiftIndex = GetShapeshiftForm()
@@ -89,19 +100,20 @@ function macroFrame:PLAYER_LOGIN()
 			if self.classConfig.useCrusaderAura then
 				local spellID = getAuraSpellID()
 
-				if self.classConfig.returnLastAura and self.charMacrosConfig.lastAuraSpellID and self.sFlags.isMounted then
-					return self:addLine(self:getDismountMacro(), "/cast !"..self:getSpellName(self.charMacrosConfig.lastAuraSpellID))
-				end
-
 				if spellID and spellID ~= 32223 then
 					self.charMacrosConfig.lastAuraSpellID = spellID
 				elseif self.sFlags.isMounted and spellID == 32223 then
+
+					if self.classConfig.returnLastAura and self.charMacrosConfig.lastAuraSpellID then
+						return self:addLine(self:getDismountMacro(), "/cast !"..self:getSpellName(self.charMacrosConfig.lastAuraSpellID))
+					end
+
 					self.charMacrosConfig.lastAuraSpellID = nil
 				end
 			end
 		]]
 		defMacro = defMacro..[[
-			if self.classConfig.useCrusaderAura then
+			if self.classConfig.useCrusaderAura and getAuraSpellID() ~= 32223 then
 				macro = self:addLine(macro, "/cast !"..self:getSpellName(32223))
 			end
 		]]
