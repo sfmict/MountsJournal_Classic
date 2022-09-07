@@ -95,14 +95,15 @@ function macroFrame:PLAYER_LOGIN()
 
 				if spellID and spellID ~= 32223 then
 					self.charMacrosConfig.lastAuraSpellID = spellID
-					self.lastAuraTime = GetTime()
-				elseif not spellID and GetTime() - (self.lastAuraTime or 0) > 1 then
+				elseif self.sFlags.isMounted and spellID == 32223 then
 					self.charMacrosConfig.lastAuraSpellID = nil
 				end
 			end
 		]]
 		defMacro = defMacro..[[
-			macro = self:addLine(macro, "/cast !"..self:getSpellName(32223))
+			if self.classConfig.useCrusaderAura then
+				macro = self:addLine(macro, "/cast !"..self:getSpellName(32223))
+			end
 		]]
 	elseif self.class == "PRIEST" then
 		classOptionMacro = classOptionMacro..[[

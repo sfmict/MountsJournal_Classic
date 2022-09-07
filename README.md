@@ -5,7 +5,7 @@
 Addon makes it possible to sort mounts on waterfowl, flying, ground and allows to use in suitable conditions.<br>
 (Random mount summoning)
 
-[![](https://github.com/sfmict/MountsJournal_Classic/workflows/Build/badge.svg?branch=main)](https://github.com/sfmict/MountsJournal_Classic/releases/latest)
+[![](https://github.com/sfmict/MountsJournal_Classic/actions/workflows/build.yml/badge.svg)](https://github.com/sfmict/MountsJournal_Classic/releases/latest)
 [![](http://cf.way2muchnoise.eu/full_657952_downloads.svg)](https://www.curseforge.com/wow/addons/mountsjournal_classic)
 </div>
 

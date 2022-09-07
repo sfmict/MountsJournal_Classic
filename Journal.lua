@@ -2531,10 +2531,10 @@ end
 
 
 function journal:showToggle()
-	if journal.init then
-		journal:init()
+	if self.init then
+		self:init()
 	else
-		journal.bgFrame:SetShown(not journal.bgFrame:IsShown())
+		self.bgFrame:SetShown(not self.bgFrame:IsShown())
 	end
 end
 
