@@ -7,9 +7,10 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
 
 		local spellID
 		if linkType == "item" then
-			spellID = mounts.itemIDToSpellID[tonumber(linkID)]
+			linkID = mounts.itemIDToSpellID[tonumber(linkID)]
+			spellID = MountsJournalUtil.getMountInfoBySpellID(linkID) and linkID
 		elseif linkType == "spell" then
-			local linkID = tonumber(linkID)
+			linkID = tonumber(linkID)
 			spellID = MountsJournalUtil.getMountInfoBySpellID(linkID) and linkID
 		end
 

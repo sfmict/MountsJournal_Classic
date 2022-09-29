@@ -132,7 +132,7 @@ config:SetScript("OnShow", function(self)
 	-- SUMMON 2
 	local summon2 = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	summon2:SetPoint("TOPLEFT", modifierText, "BOTTOMLEFT", 0, -20)
-	summon2:SetText(SUMMONS.." 2")
+	summon2:SetText(SUMMON.." 2")
 
 	-- CREATE SECOND MACRO
 	self.createSecondMacroBtn = CreateFrame("BUTTON", nil, self.leftPanel, "UIPanelButtonTemplate")

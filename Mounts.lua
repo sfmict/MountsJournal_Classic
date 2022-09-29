@@ -1,5 +1,5 @@
 local addon, L = ...
-local C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, GetCompanionInfo, CallCompanion = C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, GetCompanionInfo, CallCompanion
+local C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, GetCompanionInfo, CallCompanion, GetSubZoneText = C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, GetCompanionInfo, CallCompanion, GetSubZoneText
 local util = MountsJournalUtil
 local mounts = CreateFrame("Frame", "MountsJournal")
 
@@ -108,8 +108,32 @@ function mounts:ADDON_LOADED(addonName)
 				tooltip:AddLine(L["|cffff7f3fRight-Click|r to open Settings"], .5, .8, .5, false)
 			end,
 		})
-
 		LibStub("LibDBIcon-1.0"):Register(addon, ldb_icon, mounts.config.omb)
+
+		local locale = GetLocale()
+		if locale == "deDE" then
+			self.krasusLanding = "Krasus' Landeplatz"
+		elseif locale == "esES" then
+			self.krasusLanding = "Alto de Krasus"
+		elseif locale == "esMX" then
+			self.krasusLanding = "Alto de Kraus"
+		elseif locale == "frFR" then
+			self.krasusLanding = "Aire de Krasus"
+		elseif locale == "itIT" then
+			self.krasusLanding = "Terrazza di Krasus"
+		elseif locale == "koKR" then
+			self.krasusLanding = "크라서스 착륙장"
+		elseif locale == "ptBR" then
+			self.krasusLanding = "Plataforma de Krasus"
+		elseif locale == "ruRU" then
+			self.krasusLanding = "Площадка Краса"
+		elseif locale == "zhCN" then
+			self.krasusLanding = "克拉苏斯平台"
+		elseif locale == "zhTW" then
+			self.krasusLanding = "卡薩斯平臺"
+		else
+			self.krasusLanding = "Krasus' Landing"
+		end
 
 		-- TEMP
 		-- for i, t in ipairs(self.mountsDB) do
@@ -572,6 +596,7 @@ function mounts:setFlags()
 	local modifier = self.modifier() or flags.forceModifier
 	local isFlyableLocation = IsFlyableArea()
 	                          and not (self.mapFlags and self.mapFlags.groundOnly)
+	                          and (self.mapInfo.mapID ~= 125 or GetSubZoneText() == self.krasusLanding)
 
 	flags.isSubmerged = IsSubmerged()
 	flags.isIndoors = IsIndoors()
