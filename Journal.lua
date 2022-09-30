@@ -2543,6 +2543,6 @@ function journal:showToggle()
 end
 
 
-SLASH_MOUNTSCONFIG1 = "/mountsjournal"
-SLASH_MOUNTSCONFIG2 = "/mj"
-SlashCmdList["MOUNTSCONFIG"] = function() journal:showToggle() end
+SLASH_MOUNTSJOURNALFRAME1 = "/mountsjournal"
+SLASH_MOUNTSJOURNALFRAME2 = "/mj"
+SlashCmdList["MOUNTSJOURNALFRAME"] = function() journal:showToggle() end
