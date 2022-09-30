@@ -1652,7 +1652,7 @@ function journal:useMount(spellID)
 	local creatureID, creatureName, spellID, icon, active = GetCompanionInfo("MOUNT", index)
 	if active then
 		DismissCompanion("MOUNT")
-	else
+	elseif mounts:isUsable(spellID, mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())) then
 		mounts:summonPet(spellID)
 		CallCompanion("MOUNT", index)
 	end
@@ -1971,7 +1971,7 @@ function journal:filterDropDown_Initialize(btn, level, value)
 
 			info.notCheckable = nil
 			local pet = mounts.filters.pet
-			for i = 2, 4 do
+			for i = 1, 4 do
 				info.text = L["PET_"..i]
 				info.func = function(_,_,_, value)
 					pet[i] = value
@@ -2520,7 +2520,7 @@ function journal:updateMountsList()
 		                                 or list.ground[spellID]
 		                                 or list.swimming[spellID])))
 		-- PET
-		and pet[petID and (type(petID) == "boolean" and 2 or 3) or 4]
+		and pet[petID ~= nil and (type(petID) == "number" and 3 or petID and 2 or 1) or 4]
 		-- MOUNTS WEIGHT
 		and self:getFilterWeight(spellID)
 		-- TAGS

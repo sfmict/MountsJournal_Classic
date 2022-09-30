@@ -78,6 +78,7 @@ function mounts:ADDON_LOADED(addonName)
 		self.charDB = MountsJournalChar
 		self.charDB.macrosConfig = self.charDB.macrosConfig or {}
 		self.charDB.profileBySpecializationPVP = self.charDB.profileBySpecializationPVP or {}
+		self.charDB.petFavoritesList = self.charDB.petFavoritesList or {}
 
 		-- Списки
 		self.indexBySpellID = {}
@@ -269,7 +270,7 @@ end
 
 function mounts:summonPet(spellID)
 	local petID = self.petForMount[spellID]
-	if not petID or InCombatLockdown() then return end
+	if petID == nil or InCombatLockdown() then return end
 
 	local groupType = util.getGroupType()
 	if self.config.noPetInRaid and groupType == "raid"
@@ -283,7 +284,7 @@ function mounts:summonPet(spellID)
 
 		local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", petIndex)
 		if not isSummoned then CallCompanion("CRITTER", petIndex) end
-	else
+	elseif petID then
 		local num = GetNumCompanions("CRITTER")
 		if num == 0 then return end
 		local petIndex
@@ -291,11 +292,38 @@ function mounts:summonPet(spellID)
 		if num > 1 then
 			petIndex = random(num)
 			local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", petIndex)
-			if isSummoned then petIndex = petIndex + 1 end
-			if petIndex > num then petIndex = 1 end
+			if isSummoned then
+				petIndex = petIndex + 1
+				if petIndex > num then petIndex = 1 end
+			end
 		else
 			local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", 1)
 			if not isSummoned then petIndex = 1 end
+		end
+
+		if petIndex then CallCompanion("CRITTER", petIndex) end
+	else
+		local favoriteslist = {}
+		for petSpellID in next, self.charDB.petFavoritesList do
+			favoriteslist[#favoriteslist + 1] = self.indexPetBySpellID[petSpellID]
+		end
+
+		local num = #favoriteslist
+		if num == 0 then return end
+		local petIndex
+
+		if num > 1 then
+			local rNum = random(num)
+			petIndex = favoriteslist[rNum]
+			local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", petIndex)
+			if isSummoned then
+				rNum = rNum + 1
+				if rNum > num then rNum = 1 end
+				petIndex = favoriteslist[rNum]
+			end
+		else
+			local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", favoriteslist[1])
+			if not isSummoned then petIndex = favoriteslist[1] end
 		end
 
 		if petIndex then CallCompanion("CRITTER", petIndex) end
