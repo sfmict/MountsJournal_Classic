@@ -15,16 +15,18 @@ function MJSetPetMixin:onLoad()
 		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 		GameTooltip:SetText(L["Summonable Battle Pet"])
 		local description
-		if self.id then
+		if self.id ~= nil then
 			if type(self.id) == "number" then
 				description = self.name
-			else
+			elseif self.id then
 				description = L["Summon Random Battle Pet"]
+			else
+				description = PET_JOURNAL_SUMMON_RANDOM_FAVORITE_PET
 			end
 		else
 			description = L["No Battle Pet"]
 		end
-		GameTooltip:AddLine(description, 1, 1, 1)
+		GameTooltip:AddLine(description, 1, 1, 1, false)
 		GameTooltip:Show()
 	end)
 	self:SetScript("OnLeave", function(self)
@@ -276,8 +278,7 @@ end
 
 function MJCompanionsPanelMixin:COMPANION_LEARNED(companionType)
 	if not companionType then
-		num = GetNumCompanions("CRITTER")
-		if num ~= #self.petList then
+		if GetNumCompanions("CRITTER") ~= #self.petList then
 			self:petListUpdate()
 		end
 	end
