@@ -973,6 +973,7 @@ end
 function journal:defaultUpdateMountList(scrollFrame)
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
 	local numDisplayedMounts = #self.displayedMounts
+	local canUseFlying = mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())
 
 	for i = 1, #scrollFrame.buttons do
 		local index = offset + i
@@ -1020,7 +1021,7 @@ function journal:defaultUpdateMountList(scrollFrame)
 				dlist.btn.factionIcon:Hide()
 			end
 
-			if mounts:isUsable(spellID) then
+			if mounts:isUsable(spellID, canUseFlying) then
 				dlist.dragButton:Enable()
 				dlist.dragButton.icon:SetDesaturated()
 				dlist.dragButton.icon:SetAlpha(1)
@@ -1074,6 +1075,7 @@ end
 function journal:grid3UpdateMountList(scrollFrame)
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
 	local numDisplayedMounts = #self.displayedMounts
+	local canUseFlying = mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())
 
 	for i = 1, #scrollFrame.buttons do
 		local grid3Buttons = scrollFrame.buttons[i].grid3List.mounts
@@ -1111,7 +1113,7 @@ function journal:grid3UpdateMountList(scrollFrame)
 					g3btn.mountWeightBG:Hide()
 				end
 
-				if mounts:isUsable(spellID) then
+				if mounts:isUsable(spellID, canUseFlying) then
 					g3btn.icon:SetDesaturated()
 					g3btn.icon:SetAlpha(1)
 				elseif isCollected then
@@ -1586,7 +1588,8 @@ do
 		local info = self.mountDisplay.info
 		if self.selectedSpellID then
 			local creatureName, _, icon = GetSpellInfo(self.selectedSpellID)
-			local isUsable = mounts:isUsable(self.selectedSpellID)
+			local canUseFlying = mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())
+			local isUsable = mounts:isUsable(self.selectedSpellID, canUseFlying)
 			local mountIndex, active = mounts.indexBySpellID[self.selectedSpellID]
 			if mountIndex then
 				local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("MOUNT", mountIndex)
@@ -2479,6 +2482,7 @@ end
 function journal:updateMountsList()
 	local filters, list, indexBySpellID, mountsDB, tags, GetSpellInfo, unpack = mounts.filters, self.list, mounts.indexBySpellID, mounts.mountsDB, self.tags, GetSpellInfo, unpack
 	local sources, selected, factions, pet, types, expansions = filters.sources, filters.selected, filters.factions, filters.pet, filters.types, filters.expansions
+	local canUseFlying = mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())
 	local text = util.cleanText(self.searchBox:GetText())
 	wipe(self.displayedMounts)
 
@@ -2495,7 +2499,7 @@ function journal:updateMountsList()
 		-- COLLECTED
 		and (isCollected and filters.collected or not isCollected and filters.notCollected)
 		-- UNUSABLE
-		and (mounts:isUsable(spellID) or not isCollected or filters.unusable)
+		and (mounts:isUsable(spellID, canUseFlying) or not isCollected or filters.unusable)
 		-- EXPANSIONS
 		and expansions[expansion]
 		-- SOURCES
