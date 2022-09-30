@@ -360,43 +360,75 @@ mounts.SKILL_LINES_CHANGED = mounts.updateProfessionsRank
 
 
 do
-	local canUseInstances = {
-		[530] = true,
-		[571] = true,
-		[558] = true,
-		[543] = true,
-		[585] = true,
-		[557] = true,
-		[560] = true,
-		[556] = true,
-		[555] = true,
-		[552] = true,
-		[269] = true,
-		[542] = true,
-		[553] = true,
-		[554] = true,
-		[540] = true,
-		[547] = true,
-		[545] = true,
-		[546] = true,
-		[619] = true,
-		[601] = true,
-		[600] = true,
-		[604] = true,
-		[602] = true,
-		[668] = true,
-		[599] = true,
-		[658] = true,
-		[595] = true,
-		[632] = true,
-		[576] = true,
-		[578] = true,
-		[608] = true,
-		[650] = true,
-		[574] = true,
-		[575] = true,
+	local bcInstaces = {
+		[530] = true, -- Outland
+		-- DUNGEONS
+		[269] = true, -- The Black Morass
+		[540] = true, -- The Shattered Halls
+		[542] = true, -- The Blood Furnace
+		[543] = true, -- Hellfire Ramparts
+		[545] = true, -- The Steamvault
+		[546] = true, -- The Underbog
+		[547] = true, -- The Slave Pens
+		[552] = true, -- The Arcatraz
+		[553] = true, -- The Botanica
+		[554] = true, -- The Mechanar
+		[555] = true, -- Shadow Labyrinth
+		[556] = true, -- Sethekk Halls
+		[557] = true, -- Mana-Tombs
+		[558] = true, -- Auchenai Crypts
+		[560] = true, -- Old Hillsbrad Foothills
+		[585] = true, -- Magisters' Terrace
+		-- RAIDS
+		[532] = true, -- Karazhan
+		[534] = true, -- Hyjal Summit
+		[544] = true, -- Magtheridon's Lair
+		[548] = true, -- Serpentshrine Cavern
+		[550] = true, -- Tempest Keep
+		[564] = true, -- Black Temple
+		[565] = true, -- Gruul's Lair
+		[580] = true, -- Sunwell Plateau
 	}
 
+	local wotlkInstances = {
+		[571] = true, -- Northrend
+		-- DUNGEONS
+		[574] = true, --Utgarde Keep
+		[575] = true, --Utgarde Pinnacle
+		[576] = true, --The Nexus
+		[578] = true, --The Oculus
+		[595] = true, --The Culling of Stratholme
+		[599] = true, --Halls of Stone
+		[600] = true, --Drak'Tharon Keep
+		[601] = true, --Azjol-Nerub
+		[602] = true, --Halls of Lightning
+		[604] = true, --Gundrak
+		[608] = true, --The Violet Hold
+		[619] = true, --Ahn'kahet: The Old Kingdom
+		[632] = true, --The Forge of Souls
+		[650] = true, --Trial of the Champion
+		[658] = true, --Pit of Saron
+		[668] = true, --Halls of Reflection
+		-- RAIDS
+		[249] = true, -- Onyxia's Lair
+		[533] = true, -- Naxxramas
+		[603] = true, -- Ulduar
+		[615] = true, -- The Obsidian Sanctum
+		[616] = true, -- The Eye of Eternity
+		[624] = true, -- Vault of Archavon
+		[631] = true, -- Icecrown Citadel
+		[649] = true, -- Trial of the Crusader
+		[724] = true, -- The Ruby Sanctum
+	}
+
+	function mounts:isCanUseFlying(mapID)
+		return bcInstaces[self.instanceID]
+		    or wotlkInstances[self.instanceID] and IsSpellKnown(54197) and (mapID ~= 125 or GetSubZoneText() == self.krasusLanding)
+	end
+end
+
+
+do
 	local canUseMounts = {
 		[48025] = true,
 		[71342] = true,
@@ -413,14 +445,14 @@ do
 		[75596] = {"tailoringRank", 425},
 	}
 
-	function mounts:isUsable(spellID)
+	function mounts:isUsable(spellID, canUseFlying)
 		if not self.indexBySpellID[spellID] then return false end
 
 		local prof = mountsRequiringProf[spellID]
 		if prof and (self[prof[1]] or 0) < prof[2] then return false end
 
 		local faction, creatureID, mountType = util.getMountInfoBySpellID(spellID)
-		if mountType ~= 1 or canUseInstances[self.instanceID] or canUseMounts[spellID] then return true end
+		if mountType ~= 1 or canUseFlying or canUseMounts[spellID] then return true end
 		return false
 	end
 end
@@ -544,11 +576,12 @@ function mounts:summonTarget()
 			if spellID then
 				local index = self.indexBySpellID[spellID]
 				if index then
-					if self:isUsable(spellID) then
+					if self:isUsable(spellID, self.sFlags.canUseFlying) then
 						self:summonPet(spellID)
 						CallCompanion("MOUNT", index)
+						return true
 					end
-					return true
+					break
 				end
 				i = i + 1
 			end
@@ -560,9 +593,9 @@ end
 do
 	local usableIDs = {}
 	function mounts:summon(ids)
-		local weight = 0
+		local weight, canUseFlying = 0, self.sFlags.canUseFlying
 		for spellID in next, ids do
-			if self:isUsable(spellID) then
+			if self:isUsable(spellID, canUseFlying) then
 				weight = weight + (self.mountsWeight[spellID] or 100)
 				usableIDs[weight] = spellID
 			end
@@ -596,7 +629,6 @@ function mounts:setFlags()
 	local modifier = self.modifier() or flags.forceModifier
 	local isFlyableLocation = IsFlyableArea()
 	                          and not (self.mapFlags and self.mapFlags.groundOnly)
-	                          and (self.mapInfo.mapID ~= 125 or GetSubZoneText() == self.krasusLanding)
 
 	flags.isSubmerged = IsSubmerged()
 	flags.isIndoors = IsIndoors()
@@ -604,7 +636,9 @@ function mounts:setFlags()
 	flags.isMounted = IsMounted()
 	flags.swimming = flags.isSubmerged
 	                 and not modifier
+	flags.canUseFlying = self:isCanUseFlying(self.mapInfo.mapID)
 	flags.fly = isFlyableLocation
+	            and flags.canUseFlying
 	            and (not modifier or flags.isSubmerged)
 	flags.waterWalk = not isFlyableLocation and modifier
 	                  or self:isWaterWalkLocation()
