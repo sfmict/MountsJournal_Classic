@@ -162,7 +162,7 @@ function tags:mountOptionsMenu_Init(btn, level)
 			info.text = BINDING_NAME_DISMOUNT
 		else
 			info.text = MOUNT
-			info.disabled = not mounts:isUsable(self.menuSpellID, mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer()))
+			info.disabled = not mounts:isUsable(self.menuSpellID, mounts:isCanUseFlying())
 		end
 
 		info.func = function()

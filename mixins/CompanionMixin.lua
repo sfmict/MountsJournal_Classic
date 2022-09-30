@@ -277,10 +277,8 @@ end
 
 
 function MJCompanionsPanelMixin:COMPANION_LEARNED(companionType)
-	if not companionType then
-		if GetNumCompanions("CRITTER") ~= #self.petList then
-			self:petListUpdate()
-		end
+	if not companionType and GetNumCompanions("CRITTER") ~= #self.petList then
+		self:petListUpdate()
 	end
 end
 MJCompanionsPanelMixin.COMPANION_UPDATE = MJCompanionsPanelMixin.COMPANION_LEARNED

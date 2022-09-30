@@ -89,6 +89,11 @@ function journal:init()
 		self:RegisterEvent("COMPANION_UPDATE")
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
+
+		self:RegisterEvent("ZONE_CHANGED")
+		self:RegisterEvent("ZONE_CHANGED_INDOORS")
+		self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+
 		self:updateMountsList()
 		self:updateMountDisplay()
 		self:COMPANION_LEARNED()
@@ -109,6 +114,11 @@ function journal:init()
 		self:UnregisterEvent("COMPANION_UPDATE")
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+
+		self:UnregisterEvent("ZONE_CHANGED")
+		self:UnregisterEvent("ZONE_CHANGED_INDOORS")
+		self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
+
 		self.mountDisplay:Show()
 		self.navBarBtn:SetChecked(false)
 		self.mapSettings:Hide()
@@ -219,7 +229,7 @@ function journal:init()
 	if InCombatLockdown() then
 		summon1.icon:SetDesaturated(true)
 		summon2.icon:SetDesaturated(true)
-	else 
+	else
 		self:createSecureButtons()
 	end
 
@@ -857,6 +867,10 @@ function journal:init()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 
+	self:RegisterEvent("ZONE_CHANGED")
+	self:RegisterEvent("ZONE_CHANGED_INDOORS")
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+
 	self:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
 	self:setEditMountsList()
 	self:updateBtnFilters()
@@ -973,7 +987,7 @@ end
 function journal:defaultUpdateMountList(scrollFrame)
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
 	local numDisplayedMounts = #self.displayedMounts
-	local canUseFlying = mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())
+	local canUseFlying = mounts:isCanUseFlying()
 
 	for i = 1, #scrollFrame.buttons do
 		local index = offset + i
@@ -1075,7 +1089,7 @@ end
 function journal:grid3UpdateMountList(scrollFrame)
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
 	local numDisplayedMounts = #self.displayedMounts
-	local canUseFlying = mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())
+	local canUseFlying = mounts:isCanUseFlying()
 
 	for i = 1, #scrollFrame.buttons do
 		local grid3Buttons = scrollFrame.buttons[i].grid3List.mounts
@@ -1330,6 +1344,9 @@ function journal:PLAYER_ENTERING_WORLD()
 	self:updateMountsList()
 	self:updateMountDisplay()
 end
+journal.ZONE_CHANGED = journal.PLAYER_ENTERING_WORLD
+journal.ZONE_CHANGED_INDOORS = journal.PLAYER_ENTERING_WORLD
+journal.ZONE_CHANGED_NEW_AREA = journal.PLAYER_ENTERING_WORLD
 
 
 function journal:createMountList(mapID)
@@ -1588,7 +1605,7 @@ do
 		local info = self.mountDisplay.info
 		if self.selectedSpellID then
 			local creatureName, _, icon = GetSpellInfo(self.selectedSpellID)
-			local canUseFlying = mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())
+			local canUseFlying = mounts:isCanUseFlying()
 			local isUsable = mounts:isUsable(self.selectedSpellID, canUseFlying)
 			local mountIndex, active = mounts.indexBySpellID[self.selectedSpellID]
 			if mountIndex then
@@ -1652,7 +1669,7 @@ function journal:useMount(spellID)
 	local creatureID, creatureName, spellID, icon, active = GetCompanionInfo("MOUNT", index)
 	if active then
 		DismissCompanion("MOUNT")
-	elseif mounts:isUsable(spellID, mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())) then
+	elseif mounts:isUsable(spellID, mounts:isCanUseFlying()) then
 		mounts:summonPet(spellID)
 		CallCompanion("MOUNT", index)
 	end
@@ -2482,7 +2499,7 @@ end
 function journal:updateMountsList()
 	local filters, list, indexBySpellID, mountsDB, tags, GetSpellInfo, unpack = mounts.filters, self.list, mounts.indexBySpellID, mounts.mountsDB, self.tags, GetSpellInfo, unpack
 	local sources, selected, factions, pet, types, expansions = filters.sources, filters.selected, filters.factions, filters.pet, filters.types, filters.expansions
-	local canUseFlying = mounts:isCanUseFlying(MapUtil.GetDisplayableMapForPlayer())
+	local canUseFlying = mounts:isCanUseFlying()
 	local text = util.cleanText(self.searchBox:GetText())
 	wipe(self.displayedMounts)
 

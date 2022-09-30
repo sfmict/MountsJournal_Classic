@@ -72,7 +72,7 @@ aboutConfig:SetScript("OnShow", function(self)
 	local langs, last = {
 		{"deDE", "SlayerEGT, Asraael, Flammenengel92, fredundaunted"},
 		{"esMX", "Pedrorco"},
-		{"frFR", "Asraael"},
+		{"frFR", "6urvan, Asraael, okaboo"},
 		{"ptBR", "LutzPS"},
 		{"zhCN", "萌丶汉丶纸"},
 		{"zhTW", "BNS333"},
