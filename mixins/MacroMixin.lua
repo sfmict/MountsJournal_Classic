@@ -139,7 +139,8 @@ function macroFrame:PLAYER_LOGIN()
 			if self.classConfig.usePathOfFrost
 			and (not self.classConfig.useOnlyInWaterWalkLocation or self.sFlags.waterWalk)
 			and not self.sFlags.swimming
-			and not self.sFlags.fly then
+			and not self.sFlags.fly
+			then
 				macro = self:addLine(macro, "/cast "..self:getSpellName(3714)) -- Path of Frost
 			end
 		]]
@@ -148,7 +149,8 @@ function macroFrame:PLAYER_LOGIN()
 			if self.classConfig.useWaterWalking
 			and (not self.classConfig.useOnlyInWaterWalkLocation or self.sFlags.waterWalk)
 			and not self.sFlags.swimming
-			and not self.sFlags.fly then
+			and not self.sFlags.fly
+			then
 				macro = self:addLine(macro, "/cast [@player]"..self:getSpellName(546)) -- Water Walking
 			end
 		]]
@@ -189,7 +191,8 @@ function macroFrame:PLAYER_LOGIN()
 					  or spellID == 1066
 					  or spellID == 33943
 					  or spellID == 40120
-					  or self.sFlags.isIndoors and spellID == 768) then
+					  or self.sFlags.isIndoors and spellID == 768)
+				then
 					return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..self:getSpellName(self.charMacrosConfig.lastDruidFormSpellID))
 				end
 
@@ -198,6 +201,20 @@ function macroFrame:PLAYER_LOGIN()
 					self.lastDruidFormTime = GetTime()
 				elseif not spellID and GetTime() - (self.lastDruidFormTime or 0) > 1 then
 					self.charMacrosConfig.lastDruidFormSpellID = nil
+				end
+			end
+
+			if self.classConfig.useTravelIfCantFly
+			and self.macro
+			and not self.sFlags.canUseFlying
+			and not self.sFlags.isIndoors
+			and not self.sFlags.inVehicle
+			and not self.sFlags.isMounted
+			and (self.classConfig.useMacroAlways or not self.magicBroom and (GetUnitSpeed("player") > 0 or IsFalling()))
+			then
+				local spellID = getFormSpellID()
+				if spellID ~= 33943 or spellID ~= 40120 then
+					return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..self:getSpellName(783))
 				end
 			end
 		]]

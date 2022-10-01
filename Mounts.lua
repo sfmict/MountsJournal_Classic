@@ -111,6 +111,7 @@ function mounts:ADDON_LOADED(addonName)
 		})
 		LibStub("LibDBIcon-1.0"):Register(addon, ldb_icon, mounts.config.omb)
 
+		-- Dalaran - Krasus' Landing
 		local locale = GetLocale()
 		if locale == "deDE" then
 			self.krasusLanding = "Krasus' Landeplatz"
@@ -351,8 +352,7 @@ end
 
 function mounts:COMPANION_LEARNED(companionType)
 	if not companionType then
-		local num = GetNumCompanions("MOUNT")
-		if num ~= #self.indexBySpellID then
+		if GetNumCompanions("MOUNT") ~= #self.indexBySpellID then
 			local t = util:copyTable(self.indexBySpellID)
 			self:updateIndexBySpellID()
 			for spellID in pairs(self.indexBySpellID) do
@@ -362,8 +362,7 @@ function mounts:COMPANION_LEARNED(companionType)
 				end
 			end
 		end
-		num = GetNumCompanions("CRITTER")
-		if num ~= #self.indexPetBySpellID then
+		if GetNumCompanions("CRITTER") ~= #self.indexPetBySpellID then
 			self:updateIndexPetBySpellID()
 		end
 	end
@@ -671,6 +670,7 @@ function mounts:setFlags()
 	flags.waterWalk = not isFlyableLocation and modifier
 	                  or self:isWaterWalkLocation()
 end
+
 
 function mounts:errorSummon()
 	UIErrorsFrame:AddMessage(InCombatLockdown() and SPELL_FAILED_AFFECTING_COMBAT or ERR_MOUNT_NO_FAVORITES, 1, .1, .1, 1)

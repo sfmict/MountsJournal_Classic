@@ -252,6 +252,10 @@ do
 				key = "useLastDruidForm",
 			},
 			{
+				key = "useTravelIfCantFly",
+				hlink = GetSpellLink(783),
+			},
+			{
 				key = "useMacroAlways",
 			},
 		},

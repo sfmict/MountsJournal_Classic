@@ -100,6 +100,7 @@ L["CLASS_USEONLYWATERWALKLOCATION"] = "Использовать только в 
 L["PALADIN_USECRUSADERAURA"] = "Использовать %s при вызове средства передвижения"
 L["PALADIN_RETURNLASTAURA"] = "Вернуть последнюю ауру при спешивании"
 L["DRUID_USELASTDRUIDFORM"] = "Вернуть последнюю форму при спешивании"
+L["DRUID_USETRAVELIFCANTFLY"] = "Использовать %s вместо макроса если персонаж не может летать"
 -- L["DRUID_USEDRUIDFORMSPECIALIZATION"] = "Return a specialization form"
 L["DRUID_USEMACROALWAYS"] = "Использовать этот макрос вместо средств передвижения"
 L["Summonable Battle Pet"] = "Призываемый питомец"
