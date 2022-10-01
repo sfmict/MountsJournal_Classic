@@ -208,8 +208,9 @@ function macroFrame:PLAYER_LOGIN()
 			and self.macro
 			and not self.sFlags.canUseFlying
 			and not self.sFlags.isIndoors
-			and not self.sFlags.inVehicle
+			and not self.sFlags.isSubmerged
 			and not self.sFlags.isMounted
+			and not self.sFlags.inVehicle
 			and (self.classConfig.useMacroAlways or not self.magicBroom and (GetUnitSpeed("player") > 0 or IsFalling()))
 			then
 				local spellID = getFormSpellID()
