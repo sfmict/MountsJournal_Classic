@@ -213,7 +213,7 @@ function macroFrame:PLAYER_LOGIN()
 			and (self.classConfig.useMacroAlways or not self.magicBroom and (GetUnitSpeed("player") > 0 or IsFalling()))
 			then
 				local spellID = getFormSpellID()
-				if spellID ~= 33943 or spellID ~= 40120 then
+				if spellID ~= 783 and spellID ~= 33943 and spellID ~= 40120 then
 					return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..self:getSpellName(783))
 				end
 			end
