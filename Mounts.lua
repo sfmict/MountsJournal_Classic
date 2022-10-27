@@ -336,8 +336,12 @@ end
 function mounts:updateIndexBySpellID()
 	wipe(self.indexBySpellID)
 	for i = 1, GetNumCompanions("MOUNT") do
-		local _,_, spellID = GetCompanionInfo("MOUNT", i)
+		local creatureID, _, spellID = GetCompanionInfo("MOUNT", i)
 		self.indexBySpellID[spellID] = i
+
+		if not util.getMountInfoBySpellID(spellID) then
+			util.addNewMount(spellID, creatureID)
+		end
 	end
 end
 
