@@ -507,7 +507,7 @@ end
 mounts.PLAYER_SPECIALIZATION_CHANGED = mounts.setDB
 
 
-function mounts:summonTarget()
+function mounts:getTargetMount()
 	if self.config.copyMountTarget then
 		local i = 1
 		repeat
@@ -515,12 +515,7 @@ function mounts:summonTarget()
 			if spellID then
 				local index = self.indexBySpellID[spellID]
 				if index then
-					if self:isUsable(spellID, self.sFlags.canUseFlying) then
-						self:summonPet(spellID)
-						CallCompanion("MOUNT", index)
-						return true
-					end
-					break
+					return self:isUsable(spellID, self.sFlags.canUseFlying) and spellID
 				end
 				i = i + 1
 			end
@@ -581,6 +576,7 @@ function mounts:setFlags()
 	            and (not modifier or flags.isSubmerged)
 	flags.waterWalk = not isFlyableLocation and modifier
 	                  or self:isWaterWalkLocation()
+	flags.targetMount = self:getTargetMount()
 end
 
 
@@ -604,7 +600,7 @@ function mounts:init()
 		-- repair mounts
 		elseif not ((flags.repair and not flags.fly or flags.flyableRepair and flags.fly) and self:summon(self.usableRepairMounts))
 		-- target's mount
-		and not self:summonTarget()
+		and not (flags.targetMount and (CallCompanion("MOUNT", self.indexBySpellID[flags.targetMount]) or true))
 		-- swimming
 		and not (flags.swimming and self:summon(self.list.swimming))
 		-- fly
