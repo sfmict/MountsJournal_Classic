@@ -15,14 +15,9 @@ externals:
 enable-nolib-creation: no
 
 ignore:
-	- _test.lua
-	- README.md
-	- libs/LibStub/LibStub.toc
+	- _test\.lua
+	- .*\.md$
+	- libs/.*\.toc$
 	- libs/LibStub/tests
-	- libs/LibSFDropDown/LibSFDropDown.toc
-	- libs/LibSFDropDown/LibSFDropDown_TBC.toc
-	- libs/LibSFDropDown/LibSFDropDown_Vanilla.toc
-	- libs/LibSFDropDown/CHANGELOG.md
-	- libs/LibSFDropDown/README.md
-	- libs/LibDataBroker-1.1/README.textile
-	- libs/LibDBIcon-1.0/lib.xml
+	- libs/LibDataBroker-1\.1/README\.textile
+	- libs/LibDBIcon-1\.0/lib\.xml
