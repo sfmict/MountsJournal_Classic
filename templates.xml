@@ -1318,16 +1318,21 @@
 		</Scripts>
 	</Frame>
 
-	<ScrollFrame name="MJPanelScrollFrameTemplate" inherits="UIPanelScrollFrameTemplate" virtual="true">
+	<ScrollFrame name="MJPanelScrollFrameTemplate" virtual="true">
+		<Frames>
+			<EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="6" y="0"/>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="6" y="0"/>
+				</Anchors>
+			</EventFrame>
+			<Frame parentKey="child">
+				<Size x="1" y="1"/>
+			</Frame>
+		</Frames>
 		<Scripts>
 			<OnLoad>
-				ScrollFrame_OnLoad(self)
-				self.ScrollBar.bg = self.ScrollBar:CreateTexture(nil, "BACKGROUND")
-				self.ScrollBar.bg:SetAllPoints()
-				self.ScrollBar.bg:SetTexture("interface/buttons/white8x8")
-				self.ScrollBar.bg:SetVertexColor(0, 0, 0, .2)
-				self.child = CreateFrame("FRAME")
-				self.child:SetSize(1, 1)
+				ScrollUtil.InitScrollFrameWithScrollBar(self, self.ScrollBar)
 				self:SetScrollChild(self.child)
 			</OnLoad>
 		</Scripts>
@@ -1374,30 +1379,45 @@
 		</Scripts>
 	</Frame>
 
-	<CheckButton name="MJBaseCheckButtonTemplate" inherits="OptionsBaseCheckButtonTemplate" virtual="true">
-		<HitRectInsets>
-			<AbsInset left="0" right="0" top="0" bottom="0"/>
-		</HitRectInsets>
+	<CheckButton name="MJBaseCheckButtonTemplate" virtual="true">
+		<Size x="27" y="26"/>
+		<NormalTexture atlas="checkbox-minimal"/>
+		<PushedTexture atlas="checkbox-minimal"/>
+		<CheckedTexture atlas="checkmark-minimal"/>
+		<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD">
+			<Anchors>
+				<Anchor point="TOPLEFT" x="-3" y="5"/>
+				<Anchor point="BOTTOMRIGHT" x="3" y="-7"/>
+			</Anchors>
+		</HighlightTexture>
+		<DisabledCheckedTexture atlas="checkmark-minimal-disabled"/>
 		<Scripts>
 			<OnClick>
 				PlaySound(self:GetChecked() and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
 			</OnClick>
+			<OnEnter>
+				if self.tooltipText then
+					GameTooltip:SetOwner(self, self.tooltipOwnerPoint or "ANCHOR_RIGHT")
+					GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
+				end
+				if self.tooltipRequirement then
+					GameTooltip:AddLine(self.tooltipRequirement, 1, 1, 1, true)
+					GameTooltip:Show()
+				end
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
 		</Scripts>
 	</CheckButton>
 
 	<CheckButton name="MJCheckButtonTemplate" inherits="MJBaseCheckButtonTemplate" virtual="true">
-		<HitRectInsets>
-			<AbsInset left="0" right="-100" top="0" bottom="0"/>
-		</HitRectInsets>
+		<HitRectInsets left="0" right="-100" top="0" bottom="0"/>
 		<Layers>
 			<Layer level="ARTWORK">
 				<FontString inherits="GameFontHighlightLeft" parentKey="Text">
 					<Anchors>
-						<Anchor point="LEFT" relativePoint="RIGHT">
-							<Offset>
-								<AbsDimension x="1" y="0"/>
-							</Offset>
-						</Anchor>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="1" y="-1"/>
 					</Anchors>
 				</FontString>
 			</Layer>
@@ -1495,7 +1515,7 @@
 			<Frame parentKey="editFrame" inherits="ScrollingEditBoxTemplate"/>
 			<CheckButton parentKey="enable" inherits="MJCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativeKey="$parent.background" relativePoint="TOPLEFT" x="10" y="-4"/>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.background" relativePoint="TOPLEFT" x="10" y="-3"/>
 				</Anchors>
 				<Scripts>
 					<OnLoad>self.Text:SetText(ENABLE)</OnLoad>
