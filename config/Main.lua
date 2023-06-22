@@ -515,10 +515,6 @@ function config:createMacro(macroName, buttonName, texture, openMacroFrame, over
 		CreateMacro(macroName, texture, "/click "..buttonName)
 	end
 
-	if MacroFrame and MacroFrame:IsShown() then
-		MacroFrame_Update()
-	end
-
 	if not openMacroFrame then return end
 
 	if not IsAddOnLoaded("Blizzard_MacroUI") then

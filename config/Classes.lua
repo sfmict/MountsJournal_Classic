@@ -131,6 +131,7 @@ classConfig:SetScript("OnShow", function(self)
 	self.moveFallMF = moveFallMF
 	self.macroEditBox = moveFallMF.editFrame
 	moveFallMF:SetPoint("LEFT", 9, 0)
+	moveFallMF:SetPoint("RIGHT", self.rightPanelScroll, -5, 0)
 	moveFallMF.label:SetText(L["HELP_MACRO_MOVE_FALL"])
 	moveFallMF.enable:HookScript("OnClick", function(btn)
 		self.currentMacrosConfig.macroEnable = btn:GetChecked()
@@ -157,6 +158,7 @@ classConfig:SetScript("OnShow", function(self)
 	self.combatMF = combatMF
 	self.combatMacroEditBox = combatMF.editFrame
 	combatMF:SetPoint("TOPLEFT", moveFallMF.background, "BOTTOMLEFT", 0, -50)
+	combatMF:SetPoint("RIGHT", self.rightPanelScroll, -5, 0)
 	combatMF.label:SetText(L["HELP_MACRO_COMBAT"])
 	combatMF.enable:HookScript("OnClick", function(btn)
 		self.currentMacrosConfig.combatMacroEnable = btn:GetChecked()

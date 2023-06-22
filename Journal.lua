@@ -70,16 +70,9 @@ function journal:init()
 	self.bgFrame = CreateFrame("FRAME", "MountsJournalBackground", nil, "MJMountJournalFrameTemplate")
 	local scale = self.bgFrame:GetEffectiveScale()
 	local x, y = mounts.config.journalPosX, mounts.config.journalPosY
-	if x then
-		x = x / scale
-	else
-		x = (UIParent:GetWidth() - self.bgFrame:GetWidth()) / 2
-	end
-	if y then
-		y = y / scale
-	else
-		y = (self.bgFrame:GetHeight() - UIParent:GetHeight()) / 2
-	end
+	x = x and x / scale or (UIParent:GetWidth() - self.bgFrame:GetWidth()) / 2
+	y = y and y / scale or (self.bgFrame:GetHeight() - UIParent:GetHeight()) / 2
+	self.bgFrame:ClearAllPoints()
 	self.bgFrame:SetPoint("TOPLEFT", x, y)
 	self.bgFrame.TitleText:SetText(MOUNTS)
 	SetPortraitToTexture(self.bgFrame.portrait, 303868)
