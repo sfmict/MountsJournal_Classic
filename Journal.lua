@@ -1,5 +1,5 @@
 local addon, L = ...
-local C_Timer, GetSpellInfo, wipe, tinsert, next, pairs, ipairs, select, type, sort = C_Timer, GetSpellInfo, wipe, tinsert, next, pairs, ipairs, select, type, sort
+local C_Timer, GetSpellInfo, wipe, tinsert, next, pairs, ipairs, select, type, sort, math = C_Timer, GetSpellInfo, wipe, tinsert, next, pairs, ipairs, select, type, sort, math
 local util, mounts, config = MountsJournalUtil, MountsJournal, MountsJournalConfig
 local journal = CreateFrame("FRAME", "MountsJournalFrame")
 journal.mountTypes = util.mountTypes
@@ -91,9 +91,11 @@ function journal:init()
 		self:updateMountDisplay()
 
 		if InCombatLockdown() then
+			bgFrame.leftInset:EnableKeyboard(false)
 			bgFrame.summon1.icon:SetDesaturated(true)
 			bgFrame.summon2.icon:SetDesaturated(true)
 		else
+			bgFrame.leftInset:EnableKeyboard(true)
 			bgFrame.summon1.icon:SetDesaturated(false)
 			bgFrame.summon2.icon:SetDesaturated(false)
 			bgFrame.summon1.secure:Show()
@@ -897,6 +899,7 @@ end
 
 
 function journal:PLAYER_REGEN_DISABLED()
+	self.leftInset:EnableKeyboard(false)
 	self.bgFrame.summon1.icon:SetDesaturated(true)
 	self.bgFrame.summon2.icon:SetDesaturated(true)
 	self.bgFrame.summon1.secure:Hide()
@@ -908,6 +911,7 @@ function journal:PLAYER_REGEN_ENABLED()
 	if self.createSecureButtons then
 		self:createSecureButtons()
 	else
+		self.leftInset:EnableKeyboard(true)
 		self.bgFrame.summon1.icon:SetDesaturated(false)
 		self.bgFrame.summon2.icon:SetDesaturated(false)
 		self.bgFrame.summon1.secure:Show()
@@ -980,7 +984,7 @@ end
 
 
 function journal:defaultUpdateMountList(scrollFrame)
-	local offset = HybridScrollFrame_GetOffset(scrollFrame)
+	local offset = math.floor((scrollFrame.offset or 0) + .1)
 	local numDisplayedMounts = #self.displayedMounts
 	local canUseFlying = mounts:isCanUseFlying()
 
@@ -1082,7 +1086,7 @@ end
 
 
 function journal:grid3UpdateMountList(scrollFrame)
-	local offset = HybridScrollFrame_GetOffset(scrollFrame)
+	local offset = math.floor((scrollFrame.offset or 0) + .1)
 	local numDisplayedMounts = #self.displayedMounts
 	local canUseFlying = mounts:isCanUseFlying()
 
