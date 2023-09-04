@@ -267,17 +267,14 @@ config:SetScript("OnShow", function(self)
 		local info = {}
 
 		info.tooltipWhileDisabled = true
-		for i, spellID in ipairs(mounts.repairMounts) do
-			local faction = util.getMountInfoBySpellID(spellID)
-			local playerFaction = UnitFactionGroup("Player")
+		for i, mountID in ipairs(mounts.repairMounts) do
+			local name, spellID, icon, _,_,_,_,_,_, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
-			if faction == 1 and playerFaction == "Horde"
-			or faction == 2 and playerFaction == "Alliance" then
-				local name, _, icon = GetSpellInfo(spellID)
+			if not shouldHideOnChar then
 				info.text = name
 				info.icon = icon
-				info.value = spellID
-				info.disabled = not mounts.indexBySpellID[spellID]
+				info.value = mountID
+				info.disabled = not isCollected
 				info.checked = function(btn) return self.selectedValue == btn.value end
 				info.func = function(btn)
 					self:ddSetSelectedValue(btn.value)
@@ -438,7 +435,7 @@ config:SetScript("OnShow", function(self)
 		self.repairFlyablePercent:SetNumber(tonumber(mounts.config.useRepairFlyableDurability) or 0)
 		self.repairMountsCombobox:ddSetSelectedValue(mounts.config.repairSelectedMount)
 		if mounts.config.repairSelectedMount then
-			local name, _, icon = GetSpellInfo(mounts.config.repairSelectedMount)
+			local name, _, icon = C_MountJournal.GetMountInfoByID(mounts.config.repairSelectedMount)
 			self.repairMountsCombobox:ddSetSelectedText(name, icon)
 		else
 			self.repairMountsCombobox:ddSetSelectedText(L["Random available mount"], 413588)

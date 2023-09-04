@@ -1,61 +1,59 @@
-local GetNumCompanions, GetCompanionInfo, CallCompanion, random, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown = GetNumCompanions, GetCompanionInfo, CallCompanion, random, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown
+local random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown = random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown
 local mounts, util = MountsJournal, MountsJournalUtil
 local pets = CreateFrame("FRAME")
 mounts.pets = pets
+util.setEventsMixin(pets)
+
+
+pets.petJournalFiltersBackup = {
+	types = {},
+	sources = {},
+	search = "",
+}
+pets.list = {}
+pets.favoritesList = {}
+
+
+hooksecurefunc(C_PetJournal, "SetSearchFilter", function(search)
+	if not pets.updatingList then
+		pets.petJournalFiltersBackup.search = search or ""
+	end
+end)
+hooksecurefunc(C_PetJournal, "ClearSearchFilter", function()
+	if not pets.updatingList then
+		pets.petJournalFiltersBackup.search = ""
+	end
+end)
+
+
+pets:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
+pets:RegisterEvent("PET_JOURNAL_LIST_UPDATE")
 
 
 function pets:summon(petID)
-	local petIndex = mounts.indexPetBySpellID[petID]
-	if not petIndex then return end
-
-	local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", petIndex)
-	if not isSummoned then CallCompanion("CRITTER", petIndex) end
+	if C_PetJournal.PetIsSummonable(petID) and C_PetJournal.GetSummonedPetGUID() ~= petID then
+		C_PetJournal.SummonPetByGUID(petID)
+	end
 end
 
 
 function pets:summonRandomPet(isFavorite)
-	local petIndex
+	local list = isFavorite and self.favoritesList or self.list
+	local num = #list
 
-	if isFavorite then
-		local favoriteslist = {}
-		for petSpellID in next, mounts.charDB.petFavoritesList do
-			favoriteslist[#favoriteslist + 1] = mounts.indexPetBySpellID[petSpellID]
-		end
-
-		local num = #favoriteslist
-		if num == 0 then return end
-
-		if num > 1 then
-			local rNum = random(num)
-			petIndex = favoriteslist[rNum]
-			local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", petIndex)
-			if isSummoned then
-				rNum = rNum + 1
-				if rNum > num then rNum = 1 end
-				petIndex = favoriteslist[rNum]
-			end
-		else
-			local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", favoriteslist[1])
-			if not isSummoned then petIndex = favoriteslist[1] end
-		end
+	if num < 1 then return
+	elseif num == 1 then self:summon(list[1])
 	else
-		local num = GetNumCompanions("CRITTER")
-		if num == 0 then return end
-
-		if num > 1 then
-			petIndex = random(num)
-			local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", petIndex)
-			if isSummoned then
-				petIndex = petIndex + 1
-				if petIndex > num then petIndex = 1 end
-			end
-		else
-			local creatureID, creatureName, creatureSpellID, icon, isSummoned = GetCompanionInfo("CRITTER", 1)
-			if not isSummoned then petIndex = 1 end
+		local currentPetID = C_PetJournal.GetSummonedPetGUID()
+		if currentPetID and isFavorite then
+			local _,_,_,_,_,_, favorite = C_PetJournal.GetPetInfoByPetID(currentPetID)
+			if not favorite then currentPetID = nil end
 		end
-	end
 
-	if petIndex then CallCompanion("CRITTER", petIndex) end
+		local petID = list[random(currentPetID and num - 1 or num)]
+		if petID == currentPetID then petID = list[num] end
+		self:summon(petID)
+	end
 end
 
 
@@ -104,7 +102,8 @@ do
 			if not self.ticker then self:setSummonEvery() end
 		end
 	end
-	pets:SetScript("OnEvent", pets.summonByTimer)
+	pets.PLAYER_STARTED_MOVING = pets.summonByTimer
+	pets.PLAYER_REGEN_ENABLED = pets.summonByTimer
 end
 
 
@@ -127,6 +126,66 @@ function pets:setSummonEvery()
 		self:stopTicker()
 	end
 end
+
+
+function pets:setPetJournalFiltersBackup()
+	local backup = self.petJournalFiltersBackup
+	backup.collected = C_PetJournal.IsFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED)
+	backup.notCollected = C_PetJournal.IsFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED)
+	-- for i = 1, C_PetJournal.GetNumPetTypes() do
+	-- 	backup.types[i] = C_PetJournal.IsPetTypeChecked(i)
+	-- end
+	-- for i = 1, C_PetJournal.GetNumPetSources() do
+	-- 	backup.sources[i] = C_PetJournal.IsPetSourceChecked(i)
+	-- end
+	C_PetJournal.ClearSearchFilter()
+	C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED, true)
+	C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED, true)
+	-- C_PetJournal.SetAllPetTypesChecked(true)
+	-- C_PetJournal.SetAllPetSourcesChecked(true)
+end
+
+
+function pets:restorePetJournalFilters()
+	local backup = self.petJournalFiltersBackup
+	C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED, backup.collected)
+	C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED, backup.notCollected)
+	-- for i = 1, C_PetJournal.GetNumPetTypes() do
+	-- 	C_PetJournal.SetPetTypeFilter(i, backup.types[i])
+	-- end
+	-- for i = 1, C_PetJournal.GetNumPetSources() do
+	-- 	C_PetJournal.SetPetSourceChecked(i, backup.sources[i])
+	-- end
+	C_PetJournal.SetSearchFilter(backup.search)
+end
+
+
+function pets:updateList(force)
+	local _, owned = C_PetJournal.GetNumPets()
+	if #self.list ~= owned or force then
+		self.updatingList = true
+		self:setPetJournalFiltersBackup()
+
+		local GetPetInfoByIndex = C_PetJournal.GetPetInfoByIndex
+		wipe(self.list)
+		wipe(self.favoritesList)
+		for i = 1, owned do
+			local petID, _,_,_,_, favorite = GetPetInfoByIndex(i)
+			if petID then
+				self.list[#self.list + 1] = petID
+				if favorite then
+					self.favoritesList[#self.favoritesList + 1] = petID
+				end
+			end
+		end
+
+		self:restorePetJournalFilters()
+		self.updatingList = nil
+	end
+
+	self:event("PET_LIST_UPDATE")
+end
+pets.PET_JOURNAL_LIST_UPDATE = pets.updateList
 
 
 SLASH_MOUNTSJOURNALRANDOMPET1 = "/randompet"

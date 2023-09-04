@@ -88,13 +88,15 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 	dd.customAnimationPanel = CreateFrame("FRAME", nil, journal.modelScene, "MJMountCustomAnimationPanel")
 	dd.customAnimationPanel:SetPoint("BOTTOMRIGHT", dd, "TOPRIGHT", 0, 2)
 
-	journal:on("MOUNT_MODEL_UPDATE", function(journal, mountType, spellID)
-		if spellID == 30174 or spellID == 64731 then
-			dd.currentMountType = 2
-		else
-			dd.currentMountType = mountType
+	journal:on("MOUNT_MODEL_UPDATE", function(journal, mountType)
+		if mountType then
+			if mountType == 231 then
+				dd.currentMountType = 2
+			else
+				dd.currentMountType = journal.mountTypes[mountType]
+			end
+			dd:replayAnimation()
 		end
-		dd:replayAnimation()
 	end)
 
 	function dd:replayAnimation()
