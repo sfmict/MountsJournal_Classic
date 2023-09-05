@@ -385,6 +385,13 @@ config:SetScript("OnShow", function(self)
 	self.openLinks.tooltipRequirement = ("%s+%s %s\n%s+%s+%s %s"):format(dressUpMod, L["Click opens in"], addon, dressUpMod, chatLinkMod, L["Click opens in"], DRESSUP_FRAME)
 	self.openLinks:HookScript("OnClick", enableBtns)
 
+	-- WOWHEAD LINK SHOW
+	self.showWowheadLink = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
+	self.showWowheadLink:SetPoint("TOPLEFT", self.openLinks, "BOTTOMLEFT", 0, -15)
+	self.showWowheadLink.Text:SetPoint("RIGHT", self.rightPanelScroll)
+	self.showWowheadLink.Text:SetText(L["Show wowhead link in mount preview"])
+	self.showWowheadLink:HookScript("OnClick", enableBtns)
+
 		-- CANCEL
 	self.cancelBtn = CreateFrame("BUTTON", nil, self, "UIPanelButtonTemplate")
 	self.cancelBtn:SetSize(96, 22)
@@ -451,6 +458,7 @@ config:SetScript("OnShow", function(self)
 		self.copyMountTarget:SetChecked(mounts.config.copyMountTarget)
 		self.arrowButtons:SetChecked(mounts.config.arrowButtonsBrowse)
 		self.openLinks:SetChecked(mounts.config.openHyperlinks)
+		self.showWowheadLink:SetChecked(mounts.config.showWowheadLink)
 		self.cancelBtn:Disable()
 		self.applyBtn:Disable()
 	end
@@ -474,6 +482,7 @@ config:SetScript("OnShow", function(self)
 		mounts.config.copyMountTarget = self.copyMountTarget:GetChecked()
 		mounts.config.arrowButtonsBrowse = self.arrowButtons:GetChecked()
 		mounts.config.openHyperlinks = self.openLinks:GetChecked()
+		mounts.config.showWowheadLink = self.showWowheadLink:GetChecked()
 
 		binding:saveBinding()
 		mounts:setModifier(self.modifierCombobox.selectedValue)

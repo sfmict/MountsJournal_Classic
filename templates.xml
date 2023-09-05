@@ -437,6 +437,28 @@
 							</Layer>
 						</Layers>
 						<Frames>
+							<EditBox parentKey="link" multiLine="false" autoFocus="false" ignoreArrows="false" alpha=".5">
+								<Size y="20" x="250"/>
+								<Anchors>
+									<Anchor point="TOP" y="5"/>
+								</Anchors>
+								<FontString inherits="GameFontHighlightSmall" justifyH="CENTER"/>
+								<Scripts>
+									<OnEnter>self:SetAlpha(1)</OnEnter>
+									<OnLeave>self:SetAlpha(.5)</OnLeave>
+									<OnEditFocusGained>self:HighlightText()</OnEditFocusGained>
+									<OnEditFocusLost>self:HighlightText(0, 0)</OnEditFocusLost>
+									<OnEscapePressed>self:ClearFocus()</OnEscapePressed>
+									<OnTextChanged>
+										if userInput then
+											self:SetText(self.text or "")
+											self:HighlightText()
+										else
+											self.text = self:GetText()
+										end
+									</OnTextChanged>
+								</Scripts>
+							</EditBox>
 							<Button parentKey="petSelectionBtn" mixin="MJSetPetMixin">
 								<Size x="38" y="38"/>
 								<Anchors>

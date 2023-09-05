@@ -114,10 +114,10 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 				self.journal:createMountList(self.journal.listMapID)
 			end
 
-			for i = 1, GetNumCompanions("MOUNT") do
-				local creatureID, creatureName, spellID, icon, isSummoned = GetCompanionInfo("MOUNT", i)
-				if not onlyFavorites or self.mounts.mountFavoritesList[spellID] then
-					self.mounts:addMountToList(self.journal.list, spellID)
+			for _, mountID in ipairs(self.journal.mountIDs) do
+				local _,_,_,_,_,_, isFavorite, _,_,_, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+				if isCollected and (not onlyFavorites or isFavorite) then
+					self.mounts:addMountToList(self.journal.list, mountID)
 				end
 			end
 			self:event("UPDATE_PROFILE")

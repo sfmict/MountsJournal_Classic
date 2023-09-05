@@ -6,6 +6,9 @@ journal.mountTypes = util.mountTypes
 util.setEventsMixin(journal)
 
 
+hooksecurefunc("CallRestrictedClosure", fprint)
+
+
 -- local COLLECTION_ACHIEVEMENT_CATEGORY = 15246
 -- local MOUNT_ACHIEVEMENT_CATEGORY = 15248
 local NIGHT_FAE_BLUE_COLOR = CreateColor(.5020, .7098, .9922)
@@ -450,6 +453,11 @@ function journal:init()
 		local parent = self:GetParent()
 		parent:GetScript("OnEnter")(parent)
 	end
+	local mountListUpdate = function()
+		self.tags.doNotHideMenu = true
+		self:updateMountsList()
+		self.tags.doNotHideMenu = nil
+	end
 	self.weightFrame:setOnChanged(function(frame, value)
 		frame.setFunc(value)
 		frame.slider.isModified = true
@@ -461,22 +469,19 @@ function journal:init()
 	end)
 	self.weightFrame.slider:HookScript("OnEnter", weightControl_OnEnter)
 	self.weightFrame.slider:HookScript("OnMouseUp", function(slider)
-		journal:updateMountsList()
+		mountListUpdate()
 		slider.isModified = nil
 	end)
 	self.weightFrame.slider:HookScript("OnHide", function(slider)
 		if slider.isModified then
-			journal:updateMountsList()
+			self:updateMountsList()
 			slider.isModified = nil
 		end
 	end)
-	self.weightFrame.slider:HookScript("OnMouseWheel", function()
-		journal:updateMountsList()
-	end)
+	self.weightFrame.slider:HookScript("OnMouseWheel", mountListUpdate)
 	self.weightFrame.edit:HookScript("OnEnter", weightControl_OnEnter)
-	self.weightFrame.edit:HookScript("OnEnterPressed", function()
-		journal:updateMountsList()
-	end)
+	self.weightFrame.edit:HookScript("OnEnterPressed", mountListUpdate)
+	self.weightFrame.edit:HookScript("OnMouseWheel", mountListUpdate)
 
 	-- FILTERS BUTTONS
 	local function filterClick(btn)
@@ -1628,6 +1633,8 @@ function journal:updateMountDisplay(forceSceneChange)
 		if self.mountDisplay.lastMountID ~= self.selectedMountID or forceSceneChange then
 			local creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = C_MountJournal.GetMountInfoExtraByID(self.selectedMountID)
 
+			info.link:SetShown(mounts.config.showWowheadLink)
+			info.link:SetText("wotlk.wowhead.com/spell="..spellID)
 			info.name:SetText(creatureName)
 
 			self.modelScene:TransitionToModelSceneID(modelSceneID, CAMERA_TRANSITION_TYPE_IMMEDIATE, CAMERA_MODIFICATION_TYPE_MAINTAIN, forceSceneChange)
@@ -2679,6 +2686,7 @@ end
 
 
 function journal:showToggle()
+	if InCombatLockdown() then return end
 	if not IsAddOnLoaded("Blizzard_Collections") then
 		LoadAddOn("Blizzard_Collections")
 	end

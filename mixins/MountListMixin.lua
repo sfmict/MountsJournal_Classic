@@ -41,7 +41,7 @@ function MJGrid3MountListMixin:onEnter()
 	self.highlight:Show()
 	GameTooltip:SetOwner(self, "ANCHOR_LEFT")
 	if self.spellID then
-		GameTooltip:SetMountBySpellID(self.spellID)
+		GameTooltip:SetHyperlink("spell:"..self.spellID)
 	end
 end
 

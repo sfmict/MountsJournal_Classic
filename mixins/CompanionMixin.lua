@@ -2,8 +2,6 @@ local addon, L = ...
 local util = MountsJournalUtil
 local petRandomIcon = "Interface/AddOns/MountsJournal/textures/INV_Pet_Achievement_CaptureAPetFromEachFamily_Battle" -- select(3, GetSpellInfo(243819))
 
--- randomFavoritePet = false to 1
--- randomPet = true to 2
 
 MJSetPetMixin = util.createFromEventsMixin()
 

@@ -24,7 +24,6 @@ function mounts:ADDON_LOADED(addonName)
 		self.globalDB.filters = self.globalDB.filters or {}
 		self.globalDB.defFilters = self.globalDB.defFilters or {}
 		self.globalDB.config = self.globalDB.config or {}
-		self.globalDB.mountFavoritesList = self.globalDB.mountFavoritesList or {}
 		self.globalDB.mountAnimations = self.globalDB.mountAnimations or {}
 		self.globalDB.defProfile = self.globalDB.defProfile or {}
 		self.globalDB.mountsProfiles = self.globalDB.mountsProfiles or {}
@@ -37,7 +36,6 @@ function mounts:ADDON_LOADED(addonName)
 		end
 		self.filters = self.globalDB.filters
 		self.defFilters = self.globalDB.defFilters
-		self.mountFavoritesList = self.globalDB.mountFavoritesList
 		self.config = self.globalDB.config
 		if self.config.mountDescriptionToggle == nil then
 			self.config.mountDescriptionToggle = true
@@ -47,6 +45,9 @@ function mounts:ADDON_LOADED(addonName)
 		end
 		if self.config.openHyperlinks == nil then
 			self.config.openHyperlinks = true
+		end
+		if self.config.showWowheadLink == nil then
+			self.config.showWowheadLink = true
 		end
 		self.config.useRepairMountsDurability = self.config.useRepairMountsDurability or 41
 		self.config.useRepairFlyableDurability = self.config.useRepairFlyableDurability or 31
@@ -80,7 +81,6 @@ function mounts:ADDON_LOADED(addonName)
 		self.charDB = MountsJournalChar
 		self.charDB.macrosConfig = self.charDB.macrosConfig or {}
 		self.charDB.profileBySpecializationPVP = self.charDB.profileBySpecializationPVP or {}
-		self.charDB.petFavoritesList = self.charDB.petFavoritesList or {}
 
 		-- Списки
 		self.sFlags = {}
@@ -147,6 +147,8 @@ function mounts:convertOldData()
 	if not self.config.journalPosX then return end
 	self.config.journalPosX = nil
 	self.config.journalPosY = nil
+	self.globalDB.mountFavoritesList = nil
+	self.globalDB.petFavoritesList = nil
 
 	if self.config.repairSelectedMount then
 		self.config.repairSelectedMount = C_MountJournal.GetMountFromSpell(self.config.repairSelectedMount)
