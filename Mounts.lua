@@ -3,6 +3,7 @@ local C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, I
 local util = MountsJournalUtil
 local mounts = CreateFrame("Frame", "MountsJournal")
 util.setEventsMixin(mounts)
+assert(select(4, GetBuildInfo()) > 30402, "MountsJournal: Wrong Game Version!!!")
 
 
 mounts:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
