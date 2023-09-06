@@ -6,9 +6,6 @@ journal.mountTypes = util.mountTypes
 util.setEventsMixin(journal)
 
 
-hooksecurefunc("CallRestrictedClosure", fprint)
-
-
 -- local COLLECTION_ACHIEVEMENT_CATEGORY = 15246
 -- local MOUNT_ACHIEVEMENT_CATEGORY = 15248
 local NIGHT_FAE_BLUE_COLOR = CreateColor(.5020, .7098, .9922)
@@ -146,6 +143,7 @@ function journal:init()
 	self.useMountsJournalButton:SetFrameLevel(self.bgFrame:GetFrameLevel() + 10)
 	self.useMountsJournalButton:SetScript("OnShow", nil)
 	self.useMountsJournalButton:SetScript("OnHide", nil)
+	self.useMountsJournalButton:SetProtected(true)
 
 	-- SECURE FRAMES
 	local sMountJournal = CreateFrame("FRAME", nil, self.MountJournal, "SecureHandlerShowHideTemplate")
@@ -192,10 +190,9 @@ function journal:init()
 	sMountsJournalButton:SetScript("OnMouseUp", function()
 		self.useMountsJournalButton:GetPushedTexture():Hide()
 	end)
-	sMountsJournalButton:SetFrameRef("useMountsJournalButton", self.useMountsJournalButton)
 	sMountsJournalButton:SetFrameRef("s", sMountJournal)
 	sMountsJournalButton:SetAttribute("_onclick", [[
-		self:GetFrameRef("useMountsJournalButton"):CallMethod("Click")
+		self:GetParent():CallMethod("Click")
 		local frame = self:GetFrameRef("s")
 		frame:SetAttribute("useDefaultJournal", not frame:GetAttribute("useDefaultJournal"))
 		frame:RunAttribute("update")
