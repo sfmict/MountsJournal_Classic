@@ -1,5 +1,5 @@
 local addon, L = ...
-local C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, GetSubZoneText, SecureCmdOptionParse = C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, GetSubZoneText, SecureCmdOptionParse
+local C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, IsUsableSpell, GetSubZoneText, SecureCmdOptionParse = C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, IsUsableSpell, GetSubZoneText, SecureCmdOptionParse
 local util = MountsJournalUtil
 local mounts = CreateFrame("Frame", "MountsJournal")
 util.setEventsMixin(mounts)
@@ -108,6 +108,9 @@ function mounts:ADDON_LOADED(addonName)
 				tooltip:AddLine("\n")
 				tooltip:AddLine(L["|cffff7f3fClick|r to open %s"]:format(addon), .5, .8, .5, false)
 				tooltip:AddLine(L["|cffff7f3fRight-Click|r to open Settings"], .5, .8, .5, false)
+				if InCombatLockdown() then
+					GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
+				end
 			end,
 		})
 		LibStub("LibDBIcon-1.0"):Register(addon, ldb_icon, mounts.config.omb)
@@ -119,7 +122,7 @@ function mounts:ADDON_LOADED(addonName)
 		elseif locale == "esES" then
 			self.krasusLanding = "Alto de Krasus"
 		elseif locale == "esMX" then
-			self.krasusLanding = "Alto de Kraus"
+			self.krasusLanding = "Alto de Krasus"
 		elseif locale == "frFR" then
 			self.krasusLanding = "Aire de Krasus"
 		elseif locale == "itIT" then
@@ -442,8 +445,6 @@ do
 	}
 
 	function mounts:isUsable(mountID, mType, canUseFlying)
-		if IsIndoors() then return false end
-
 		local prof = mountsRequiringProf[mountID]
 		if prof and (self[prof[1]] or 0) < prof[2] then return false end
 
@@ -451,8 +452,6 @@ do
 			local _,_,_,_, mountType = C_MountJournal.GetMountInfoExtraByID(mountID)
 			mType = util.mountTypes[mountType]
 		end
-
-		if mType == 1 and IsSubmerged() then return false end
 
 		if not canUseFlying then
 			canUseFlying = self:isCanUseFlying()
@@ -584,8 +583,8 @@ function mounts:getTargetMount()
 			if spellID then
 				local mountID = C_MountJournal.GetMountFromSpell(spellID)
 				if mountID then
-					local _,_,_,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
-					if isUsable then
+					local _, spellID, _,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
+					if isUsable and IsUsableSpell(spellID) then
 						return self:isUsable(spellID, nil ,self.sFlags.canUseFlying) and mountID
 					end
 					break
@@ -602,8 +601,8 @@ do
 	function mounts:summon(ids)
 		local weight, canUseFlying = 0, self.sFlags.canUseFlying
 		for mountID in next, ids do
-			local _,_,_,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
-			if isUsable then
+			local _, spellID, _,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
+			if isUsable and IsUsableSpell(spellID) then
 				if self:isUsable(mountID, nil, canUseFlying) then
 					weight = weight + (self.mountsWeight[mountID] or 100)
 					usableIDs[weight] = mountID

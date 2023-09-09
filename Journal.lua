@@ -1,5 +1,5 @@
 local addon, L = ...
-local C_MountJournal, C_PetJournal, wipe, tinsert, next, pairs, ipairs, select, type, sort, math = C_MountJournal, C_PetJournal, wipe, tinsert, next, pairs, ipairs, select, type, sort, math
+local C_MountJournal, C_PetJournal, IsUsableSpell, wipe, tinsert, next, pairs, ipairs, select, type, sort, math = C_MountJournal, C_PetJournal, IsUsableSpell, wipe, tinsert, next, pairs, ipairs, select, type, sort, math
 local util, mounts, config = MountsJournalUtil, MountsJournal, MountsJournalConfig
 local journal = CreateFrame("FRAME", "MountsJournalFrame")
 journal.mountTypes = util.mountTypes
@@ -74,15 +74,10 @@ function journal:init()
 	SetPortraitToTexture(self.bgFrame.portrait, 303868)
 
 	self.bgFrame:SetScript("OnShow", function(bgFrame)
-		self:RegisterEvent("PLAYER_ENTERING_WORLD")
 		self:RegisterEvent("COMPANION_UPDATE")
+		self:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-
-		self:RegisterEvent("ZONE_CHANGED")
-		self:RegisterEvent("ZONE_CHANGED_INDOORS")
-		self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-		self:RegisterEvent("ACTIONBAR_UPDATE_USABLE")
 
 		self.leftInset:EnableKeyboard(not InCombatLockdown())
 		self:updateMountsList()
@@ -90,15 +85,10 @@ function journal:init()
 	end)
 
 	self.bgFrame:SetScript("OnHide", function()
-		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		self:UnregisterEvent("COMPANION_UPDATE")
+		self:UnregisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-
-		self:UnregisterEvent("ZONE_CHANGED")
-		self:UnregisterEvent("ZONE_CHANGED_INDOORS")
-		self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
-		self:UnregisterEvent("ACTIONBAR_UPDATE_USABLE")
 
 		self.mountDisplay:Show()
 		self.navBarBtn:SetChecked(false)
@@ -233,9 +223,6 @@ function journal:init()
 		GameTooltip_SetTitle(GameTooltip, addon.." \""..SUMMONS.." 1\"")
 		GameTooltip:AddLine(L["Normal mount summon"])
 		GameTooltip_AddColoredLine(GameTooltip, "\nMacro: /click "..config.secureButtonNameMount, NIGHT_FAE_BLUE_COLOR, false)
-		if InCombatLockdown() then
-			GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
-		end
 		GameTooltip:Show()
 	end)
 
@@ -255,9 +242,6 @@ function journal:init()
 		GameTooltip_SetTitle(GameTooltip, addon.." \""..SUMMONS.." 2\"")
 		GameTooltip_AddNormalLine(GameTooltip, L["SecondMountTooltipDescription"]:gsub("\n\n", "\n"))
 		GameTooltip_AddColoredLine(GameTooltip, "\nMacro: /click "..config.secureButtonNameSecondMount, NIGHT_FAE_BLUE_COLOR, false)
-		if InCombatLockdown() then
-			GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
-		end
 		GameTooltip:Show()
 	end)
 
@@ -782,15 +766,8 @@ function journal:init()
 	self:event("MODULES_INIT"):off("MODULES_INIT")
 
 	-- INIT
-	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("COMPANION_UPDATE")
-	self:RegisterEvent("PLAYER_REGEN_DISABLED")
-	self:RegisterEvent("PLAYER_REGEN_ENABLED")
-
-	self:RegisterEvent("ZONE_CHANGED")
-	self:RegisterEvent("ZONE_CHANGED_INDOORS")
-	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-	self:RegisterEvent("ACTIONBAR_UPDATE_USABLE")
+	self:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
 
 	self:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
 	self:setMJFiltersBackup()
@@ -1094,7 +1071,7 @@ function journal:defaultInitMountButton(btn, data)
 		btn.factionIcon:Hide()
 	end
 
-	if isUsable and mounts:isUsable(data.mountID) or needsFanfare then
+	if isUsable and IsUsableSpell(spellID) and mounts:isUsable(data.mountID) or needsFanfare then
 		btn.dragButton:Enable()
 		btn.dragButton.icon:SetDesaturated()
 		btn.dragButton.icon:SetAlpha(1)
@@ -1148,7 +1125,7 @@ function journal:grid3InitMountButton(btn, data)
 				g3btn.mountWeightBG:Hide()
 			end
 
-			if isUsable and mounts:isUsable(mountID, nil, canUseFlying) or needsFanfare then
+			if isUsable and IsUsableSpell(spellID) and mounts:isUsable(mountID, nil, canUseFlying) or needsFanfare then
 				g3btn.icon:SetDesaturated()
 				g3btn.icon:SetAlpha(1)
 			elseif isCollected then
@@ -1411,14 +1388,10 @@ end
 
 
 -- isUsable FLAG CHANGED
-function journal:PLAYER_ENTERING_WORLD()
+function journal:MOUNT_JOURNAL_USABILITY_CHANGED()
 	self:updateMountsList()
 	self:updateMountDisplay()
 end
-journal.ZONE_CHANGED = journal.PLAYER_ENTERING_WORLD
-journal.ZONE_CHANGED_INDOORS = journal.PLAYER_ENTERING_WORLD
-journal.ZONE_CHANGED_NEW_AREA = journal.PLAYER_ENTERING_WORLD
-journal.ACTIONBAR_UPDATE_USABLE = journal.PLAYER_ENTERING_WORLD
 
 
 function journal:createMountList(mapID)
@@ -1625,7 +1598,7 @@ function journal:updateMountDisplay(forceSceneChange)
 	if self.selectedMountID then
 		local creatureName, spellID, icon, active, isUsable = C_MountJournal.GetMountInfoByID(self.selectedMountID)
 		local needsFanfare = C_MountJournal.NeedsFanfare(self.selectedMountID)
-		if isUsable then isUsable = mounts:isUsable(self.selectedMountID) end
+		if isUsable then isUsable = IsUsableSpell(spellID) and mounts:isUsable(self.selectedMountID) end
 
 		if self.mountDisplay.lastMountID ~= self.selectedMountID or forceSceneChange then
 			local creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = C_MountJournal.GetMountInfoExtraByID(self.selectedMountID)
@@ -2637,7 +2610,7 @@ function journal:updateMountsList()
 		-- COLLECTED
 		and (isCollected and filters.collected or not isCollected and filters.notCollected)
 		-- UNUSABLE
-		and (filters.unusable or not isCollected or isUsable and mounts:isUsable(mountID, mType, canUseFlying))
+		and (filters.unusable or not isCollected or isUsable and IsUsableSpell(spellID) and mounts:isUsable(mountID, mType, canUseFlying))
 		-- EXPANSIONS
 		and expansions[mountDB[2]]
 		-- SOURCES

@@ -156,7 +156,7 @@ function tags:mountOptionsMenu_Init(btn, level)
 	local realIndex = journal.indexByMountID[self.menuMountID]
 
 	if level == 1 then
-		local _,_,_, active, isUsable ,_, isFavorite, _,_,_, isCollected = C_MountJournal.GetMountInfoByID(self.menuMountID)
+		local _, spellID, _, active, isUsable ,_, isFavorite, _,_,_, isCollected = C_MountJournal.GetMountInfoByID(self.menuMountID)
 		local needsFanfare = C_MountJournal.NeedsFanfare(self.menuMountID)
 		info.notCheckable = true
 
@@ -166,7 +166,7 @@ function tags:mountOptionsMenu_Init(btn, level)
 			info.text = BINDING_NAME_DISMOUNT
 		else
 			info.text = MOUNT
-			info.disabled = not (isUsable and mounts:isUsable(self.menuMountID))
+			info.disabled = not (isUsable and IsUsableSpell(spellID) and mounts:isUsable(self.menuMountID))
 		end
 
 		info.func = function()
