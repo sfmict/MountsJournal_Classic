@@ -602,11 +602,9 @@ do
 		local weight, canUseFlying = 0, self.sFlags.canUseFlying
 		for mountID in next, ids do
 			local _, spellID, _,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
-			if isUsable and IsUsableSpell(spellID) then
-				if self:isUsable(mountID, nil, canUseFlying) then
-					weight = weight + (self.mountsWeight[mountID] or 100)
-					usableIDs[weight] = mountID
-				end
+			if isUsable and IsUsableSpell(spellID) and self:isUsable(mountID, nil, canUseFlying) then
+				weight = weight + (self.mountsWeight[mountID] or 100)
+				usableIDs[weight] = mountID
 			end
 		end
 		if weight > 0 then

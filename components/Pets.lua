@@ -1,4 +1,4 @@
-local random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown = random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown
+local random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown, UnitIsAFK, DoEmote = random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown, UnitIsAFK, DoEmote
 local mounts, util = MountsJournal, MountsJournalUtil
 local pets = CreateFrame("FRAME")
 mounts.pets = pets
@@ -24,14 +24,18 @@ hooksecurefunc(C_PetJournal, "ClearSearchFilter", function()
 		pets.petJournalFiltersBackup.search = ""
 	end
 end)
+hooksecurefunc(C_PetJournal, "SetFavorite", function(petID, value)
+	pets:updateList(true)
+end)
 
 
 pets:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 pets:RegisterEvent("PET_JOURNAL_LIST_UPDATE")
+pets:RegisterEvent("UI_ERROR_MESSAGE")
 
 
 function pets:summon(petID)
-	if C_PetJournal.PetIsSummonable(petID) and C_PetJournal.GetSummonedPetGUID() ~= petID then
+	if C_PetJournal.PetIsSummonable(petID) and not self:isPetSummoned(petID) then
 		C_PetJournal.SummonPetByGUID(petID)
 	end
 end
@@ -44,16 +48,21 @@ function pets:summonRandomPet(isFavorite)
 	if num < 1 then return
 	elseif num == 1 then self:summon(list[1])
 	else
-		local currentPetID = C_PetJournal.GetSummonedPetGUID()
-		if currentPetID and isFavorite then
-			local _,_,_,_,_,_, favorite = C_PetJournal.GetPetInfoByPetID(currentPetID)
-			if not favorite then currentPetID = nil end
+		local petID = list[random(num)]
+
+		if self:isPetSummoned(petID) then
+			local newPetID = list[random(num - 1)]
+			petID = newPetID == petID and list[num] or newPetID
 		end
 
-		local petID = list[random(currentPetID and num - 1 or num)]
-		if petID == currentPetID then petID = list[num] end
 		self:summon(petID)
 	end
+end
+
+
+function pets:isPetSummoned(petID)
+	local speciesID = C_PetJournal.GetPetInfoByPetID(petID)
+	return C_PetJournal.IsCurrentlySummoned(speciesID)
 end
 
 
@@ -98,12 +107,25 @@ do
 		else
 			self:UnregisterEvent("PLAYER_STARTED_MOVING")
 			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+			if UnitIsAFK("player") then DoEmote("STAND") end
 			self:summonRandomPet(mounts.config.summonPetOnlyFavorites)
 			if not self.ticker then self:setSummonEvery() end
 		end
 	end
 	pets.PLAYER_STARTED_MOVING = pets.summonByTimer
 	pets.PLAYER_REGEN_ENABLED = pets.summonByTimer
+end
+
+
+function pets:UI_ERROR_MESSAGE(errType, message)
+	if errType == 51
+	and message == SPELL_FAILED_NOT_STANDING
+	and self.ticker
+	and not self.ticker:IsCancelled()
+	then
+		self:stopTicker()
+		self:RegisterEvent("PLAYER_STARTED_MOVING")
+	end
 end
 
 
@@ -116,6 +138,9 @@ end
 
 
 function pets:setSummonEvery()
+	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+	self:UnregisterEvent("PLAYER_STARTED_MOVING")
+
 	if mounts.config.summonPetEvery then
 		local timer = 60 * (tonumber(mounts.config.summonPetEveryN) or 1)
 		if self.timer == timer and self.ticker then return end
@@ -132,31 +157,60 @@ function pets:setPetJournalFiltersBackup()
 	local backup = self.petJournalFiltersBackup
 	backup.collected = C_PetJournal.IsFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED)
 	backup.notCollected = C_PetJournal.IsFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED)
+	-- backup.allTypes = true
 	-- for i = 1, C_PetJournal.GetNumPetTypes() do
 	-- 	backup.types[i] = C_PetJournal.IsPetTypeChecked(i)
+	-- 	if not backup.types[i] then backup.allTypes = false end
 	-- end
+	-- backup.allSources = true
 	-- for i = 1, C_PetJournal.GetNumPetSources() do
 	-- 	backup.sources[i] = C_PetJournal.IsPetSourceChecked(i)
+	-- 	if not backup.sources[i] then backup.allSources = false end
 	-- end
-	C_PetJournal.ClearSearchFilter()
-	C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED, true)
-	C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED, true)
-	-- C_PetJournal.SetAllPetTypesChecked(true)
-	-- C_PetJournal.SetAllPetSourcesChecked(true)
+
+	if not backup.collected then
+		C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED, true)
+	end
+	if not backup.notCollected then
+		C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED, true)
+	end
+	-- if not backup.allTypes then
+	-- 	C_PetJournal.SetAllPetTypesChecked(true)
+	-- end
+	-- if not backup.allSources then
+	-- 	C_PetJournal.SetAllPetSourcesChecked(true)
+	-- end
+	if backup.search ~= "" then
+		C_PetJournal.ClearSearchFilter()
+	end
 end
 
 
 function pets:restorePetJournalFilters()
 	local backup = self.petJournalFiltersBackup
-	C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED, backup.collected)
-	C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED, backup.notCollected)
-	-- for i = 1, C_PetJournal.GetNumPetTypes() do
-	-- 	C_PetJournal.SetPetTypeFilter(i, backup.types[i])
+	if not backup.collected then
+		C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_COLLECTED, backup.collected)
+	end
+	if not backup.notCollected then
+		C_PetJournal.SetFilterChecked(LE_PET_JOURNAL_FILTER_NOT_COLLECTED, backup.notCollected)
+	end
+	-- if not backup.allTypes then
+	-- 	for i = 1, C_PetJournal.GetNumPetTypes() do
+	-- 		if not backup.types[i] then
+	-- 			C_PetJournal.SetPetTypeFilter(i, backup.types[i])
+	-- 		end
+	-- 	end
 	-- end
-	-- for i = 1, C_PetJournal.GetNumPetSources() do
-	-- 	C_PetJournal.SetPetSourceChecked(i, backup.sources[i])
+	-- if not backup.allSources then
+	-- 	for i = 1, C_PetJournal.GetNumPetSources() do
+	-- 		if not backup.sources[i] then
+	-- 			C_PetJournal.SetPetSourceChecked(i, backup.sources[i])
+	-- 		end
+	-- 	end
 	-- end
-	C_PetJournal.SetSearchFilter(backup.search)
+	if backup.search ~= "" then
+		C_PetJournal.SetSearchFilter(backup.search)
+	end
 end
 
 

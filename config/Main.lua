@@ -425,7 +425,7 @@ config:SetScript("OnShow", function(self)
 	binding:on("SET_BINDING", function(binding, btn)
 		if self.bindMount ~= btn then binding:setButtonText(self.bindMount) end
 		if self.bindSecondMount ~= btn then binding:setButtonText(self.bindSecondMount) end
-		self.applyBtn:Enable()
+		enableBtns()
 	end)
 
 	-- REFRESH

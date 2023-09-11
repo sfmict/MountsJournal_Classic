@@ -297,7 +297,6 @@ mounts.mountsDB = setmetatable({
 	[1823] = {6, 3}, -- 55164 | Swift Spectral Gryphon
 }, {
 	__index = function(self, key)
-		local _, spellID = C_MountJournal.GetMountInfoByID(key)
 		self[key] = {0, tonumber(GetBuildInfo():match("(.-)%."))}
 		return self[key]
 	end
