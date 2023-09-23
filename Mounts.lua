@@ -120,7 +120,7 @@ function mounts:ADDON_LOADED(addonName)
 		elseif locale == "esES" then
 			self.krasusLanding = "Alto de Krasus"
 		elseif locale == "esMX" then
-			self.krasusLanding = "Alto de Kraus"
+			self.krasusLanding = "Alto de Krasus"
 		elseif locale == "frFR" then
 			self.krasusLanding = "Aire de Krasus"
 		elseif locale == "itIT" then
