@@ -1743,7 +1743,7 @@ function journal:setSelectedMount(mountID, spellID, dataIndex)
 	self.selectedSpellID = spellID
 	self:updateMountDisplay()
 
-	if oldSelectedID ~= selectedMountID then
+	if oldSelectedID ~= mountID then
 		local btn = self:getMountButtonByMountID(oldSelectedID)
 		if btn then
 			self:initMountButton(btn, btn:GetElementData())
