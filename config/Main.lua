@@ -267,17 +267,14 @@ config:SetScript("OnShow", function(self)
 		local info = {}
 
 		info.tooltipWhileDisabled = true
-		for i, spellID in ipairs(mounts.repairMounts) do
-			local faction = util.getMountInfoBySpellID(spellID)
-			local playerFaction = UnitFactionGroup("Player")
+		for i, mountID in ipairs(mounts.repairMounts) do
+			local name, spellID, icon, _,_,_,_,_,_, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
-			if faction == 1 and playerFaction == "Horde"
-			or faction == 2 and playerFaction == "Alliance" then
-				local name, _, icon = GetSpellInfo(spellID)
+			if not shouldHideOnChar then
 				info.text = name
 				info.icon = icon
-				info.value = spellID
-				info.disabled = not mounts.indexBySpellID[spellID]
+				info.value = mountID
+				info.disabled = not isCollected
 				info.checked = function(btn) return self.selectedValue == btn.value end
 				info.func = function(btn)
 					self:ddSetSelectedValue(btn.value)
@@ -388,6 +385,13 @@ config:SetScript("OnShow", function(self)
 	self.openLinks.tooltipRequirement = ("%s+%s %s\n%s+%s+%s %s"):format(dressUpMod, L["Click opens in"], addon, dressUpMod, chatLinkMod, L["Click opens in"], DRESSUP_FRAME)
 	self.openLinks:HookScript("OnClick", enableBtns)
 
+	-- WOWHEAD LINK SHOW
+	self.showWowheadLink = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
+	self.showWowheadLink:SetPoint("TOPLEFT", self.openLinks, "BOTTOMLEFT", 0, -15)
+	self.showWowheadLink.Text:SetPoint("RIGHT", self.rightPanelScroll)
+	self.showWowheadLink.Text:SetText(L["Show wowhead link in mount preview"])
+	self.showWowheadLink:HookScript("OnClick", enableBtns)
+
 		-- CANCEL
 	self.cancelBtn = CreateFrame("BUTTON", nil, self, "UIPanelButtonTemplate")
 	self.cancelBtn:SetSize(96, 22)
@@ -421,7 +425,7 @@ config:SetScript("OnShow", function(self)
 	binding:on("SET_BINDING", function(binding, btn)
 		if self.bindMount ~= btn then binding:setButtonText(self.bindMount) end
 		if self.bindSecondMount ~= btn then binding:setButtonText(self.bindSecondMount) end
-		self.applyBtn:Enable()
+		enableBtns()
 	end)
 
 	-- REFRESH
@@ -438,7 +442,7 @@ config:SetScript("OnShow", function(self)
 		self.repairFlyablePercent:SetNumber(tonumber(mounts.config.useRepairFlyableDurability) or 0)
 		self.repairMountsCombobox:ddSetSelectedValue(mounts.config.repairSelectedMount)
 		if mounts.config.repairSelectedMount then
-			local name, _, icon = GetSpellInfo(mounts.config.repairSelectedMount)
+			local name, _, icon = C_MountJournal.GetMountInfoByID(mounts.config.repairSelectedMount)
 			self.repairMountsCombobox:ddSetSelectedText(name, icon)
 		else
 			self.repairMountsCombobox:ddSetSelectedText(L["Random available mount"], 413588)
@@ -454,6 +458,7 @@ config:SetScript("OnShow", function(self)
 		self.copyMountTarget:SetChecked(mounts.config.copyMountTarget)
 		self.arrowButtons:SetChecked(mounts.config.arrowButtonsBrowse)
 		self.openLinks:SetChecked(mounts.config.openHyperlinks)
+		self.showWowheadLink:SetChecked(mounts.config.showWowheadLink)
 		self.cancelBtn:Disable()
 		self.applyBtn:Disable()
 	end
@@ -477,6 +482,7 @@ config:SetScript("OnShow", function(self)
 		mounts.config.copyMountTarget = self.copyMountTarget:GetChecked()
 		mounts.config.arrowButtonsBrowse = self.arrowButtons:GetChecked()
 		mounts.config.openHyperlinks = self.openLinks:GetChecked()
+		mounts.config.showWowheadLink = self.showWowheadLink:GetChecked()
 
 		binding:saveBinding()
 		mounts:setModifier(self.modifierCombobox.selectedValue)
@@ -555,6 +561,7 @@ Settings.RegisterAddOnCategory(category)
 -- OPEN CONFIG
 function config:openConfig()
 	if SettingsPanel:IsVisible() and self:IsVisible() then
+		if InCombatLockdown() then return end
 		HideUIPanel(SettingsPanel)
 	else
 		-- Settings.GetCategory(addon).expanded = true
