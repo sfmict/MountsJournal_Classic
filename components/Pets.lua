@@ -35,7 +35,7 @@ pets:RegisterEvent("UI_ERROR_MESSAGE")
 
 
 function pets:summon(petID)
-	if C_PetJournal.PetIsSummonable(petID) and not self:isPetSummoned(petID) then
+	if C_PetJournal.PetIsSummonable(petID) and not C_PetJournal.IsCurrentlySummoned(petID) then
 		C_PetJournal.SummonPetByGUID(petID)
 	end
 end
@@ -50,19 +50,13 @@ function pets:summonRandomPet(isFavorite)
 	else
 		local petID = list[random(num)]
 
-		if self:isPetSummoned(petID) then
+		if C_PetJournal.IsCurrentlySummoned(petID) then
 			local newPetID = list[random(num - 1)]
 			petID = newPetID == petID and list[num] or newPetID
 		end
 
 		self:summon(petID)
 	end
-end
-
-
-function pets:isPetSummoned(petID)
-	local speciesID = C_PetJournal.GetPetInfoByPetID(petID)
-	return C_PetJournal.IsCurrentlySummoned(speciesID)
 end
 
 

@@ -295,6 +295,7 @@ mounts.mountsDB = setmetatable({
 	[1769] = {10, 3}, -- 388516 | Hao-Yue, River Foreseer
 	[1770] = {8, 3}, -- 394209 | Festering Emerald Drake
 	[1823] = {6, 3}, -- 55164 | Swift Spectral Gryphon
+	[1832] = {8, 3}, -- 416158 | Nightmarish Emerald Drake
 }, {
 	__index = function(self, key)
 		self[key] = {0, tonumber(GetBuildInfo():match("(.-)%."))}
