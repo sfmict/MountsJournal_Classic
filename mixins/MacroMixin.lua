@@ -352,7 +352,7 @@ do
 			                or IsSpellKnown(33943) and self:getSpellName(33943, ...)
 
 			if aquaticForm and catForm and travelForm then
-				return ("/cast [swimming]%s;[indoors]%s;[flyable]%s;%s"):format(aquaticForm, catForm, flightFrom or travelForm, travelForm)
+				return ("/cast [swimming]%s;[indoors]%s;[flyable,nocombat]%s;%s"):format(aquaticForm, catForm, flightFrom or travelForm, travelForm)
 			end
 		end,
 	}
@@ -429,7 +429,7 @@ function macroFrame:getCombatMacro()
 	else
 		macro = self:addLine(macro, "/mount")
 	end
-
+	fprint(macro)
 	return macro
 end
 
