@@ -429,7 +429,6 @@ function macroFrame:getCombatMacro()
 	else
 		macro = self:addLine(macro, "/mount")
 	end
-	fprint(macro)
 	return macro
 end
 
