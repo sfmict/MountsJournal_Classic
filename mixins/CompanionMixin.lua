@@ -205,10 +205,10 @@ end
 
 
 function MJCompanionsPanelMixin:companionOptionsMenu_Init(btn, level, petID)
-	local speciesID ,_,_,_,_,_, isFavorite = C_PetJournal.GetPetInfoByPetID(petID)
+	local _,_,_,_,_,_, isFavorite = C_PetJournal.GetPetInfoByPetID(petID)
 	local isRevoked = C_PetJournal.PetIsRevoked(petID)
 	local isLockedForConvert = C_PetJournal.PetIsLockedForConvert(petID)
-	local active = C_PetJournal.IsCurrentlySummoned(speciesID)
+	local active = C_PetJournal.IsCurrentlySummoned(petID)
 	local info = {}
 	info.notCheckable = true
 
@@ -216,7 +216,7 @@ function MJCompanionsPanelMixin:companionOptionsMenu_Init(btn, level, petID)
 		info.disabled = not C_PetJournal.PetIsSummonable(petID)
 		if active then
 			info.text = PET_DISMISS
-			info.func = function() C_PetJournal.DismissSummonedPet(speciesID) end
+			info.func = function() C_PetJournal.DismissSummonedPet(petID) end
 		else
 			info.text = BATTLE_PET_SUMMON
 			info.func = function() C_PetJournal.SummonPetByGUID(petID) end

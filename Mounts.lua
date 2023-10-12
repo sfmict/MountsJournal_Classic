@@ -411,15 +411,18 @@ mounts.SKILL_LINES_CHANGED = mounts.updateProfessionsRank
 
 
 function mounts:isCanUseFlying(mapID)
-	if self.instanceID ~= 571 or IsSpellKnown(54197) then -- Northrend
-		if not mapID then mapID = MapUtil.GetDisplayableMapForPlayer() end
-		if mapID ~= 126
-		and (mapID ~= 125 or GetSubZoneText() == self.krasusLanding)
-		then
-			return true
+	if self.instanceID == 571 then -- Northrend
+		if IsSpellKnown(54197) then
+			if not mapID then mapID = MapUtil.GetDisplayableMapForPlayer() end
+			if mapID ~= 126
+			and (mapID ~= 125 or GetSubZoneText() == self.krasusLanding)
+			then
+				return true
+			end
 		end
+		return false
 	end
-	return false
+	return true
 end
 
 
