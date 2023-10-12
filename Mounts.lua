@@ -3,7 +3,6 @@ local C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, I
 local util = MountsJournalUtil
 local mounts = CreateFrame("Frame", "MountsJournal")
 util.setEventsMixin(mounts)
-assert(select(4, GetBuildInfo()) > 30402, "MountsJournal: Wrong Game Version!!!")
 
 
 mounts:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
@@ -412,8 +411,7 @@ mounts.SKILL_LINES_CHANGED = mounts.updateProfessionsRank
 
 
 function mounts:isCanUseFlying(mapID)
-	if self.instanceID == 530 then return true -- Outland
-	elseif self.instanceID == 571 and IsSpellKnown(54197) then -- Northrend
+	if self.instanceID ~= 571 or IsSpellKnown(54197) then -- Northrend
 		if not mapID then mapID = MapUtil.GetDisplayableMapForPlayer() end
 		if mapID ~= 126
 		and (mapID ~= 125 or GetSubZoneText() == self.krasusLanding)

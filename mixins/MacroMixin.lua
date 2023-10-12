@@ -206,6 +206,7 @@ function macroFrame:PLAYER_LOGIN()
 
 			if self.classConfig.useTravelIfCantFly
 			and self.macro
+			and self.mounts.instanceID ~= 530
 			and not self.sFlags.canUseFlying
 			and not self.sFlags.isIndoors
 			and not self.sFlags.isSubmerged
@@ -216,7 +217,9 @@ function macroFrame:PLAYER_LOGIN()
 			                                 or IsFalling()))
 			then
 				local spellID = getFormSpellID()
-				if spellID ~= 783 and spellID ~= 33943 and spellID ~= 40120 then
+				if spellID == 783 then
+					return self:addLine(self:getDismountMacro(), "/cancelform")
+				elseif spellID ~= 33943 and spellID ~= 40120 then
 					return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..self:getSpellName(783))
 				end
 			end
@@ -395,11 +398,16 @@ function macroFrame:getMacro()
 			macro = "/dismount"
 		end
 	-- CLASSMACRO
-	elseif self.macro and (self.class == "DRUID" and self.classConfig.useMacroAlways and (not self.classConfig.useMacroOnlyCanFly
-	                                                                                      or self.sFlags.canUseFlying)
-	                       or not self.magicBroom and (self.sFlags.isIndoors
-	                       	                           or GetUnitSpeed("player") > 0
-	                       	                           or IsFalling()))
+	elseif self.macro and (
+		self.class == "DRUID" and self.classConfig.useMacroAlways and (
+			not self.classConfig.useMacroOnlyCanFly or (
+				self.mounts.instanceID == 530 or self.mounts.instanceID == 571 and self.sFlags.canUseFlying
+			)
+			or not self.magicBroom and (
+				self.sFlags.isIndoors or GetUnitSpeed("player") > 0 or IsFalling()
+			)
+		)
+	)
 	then
 		macro = self.macro
 	-- MOUNT
