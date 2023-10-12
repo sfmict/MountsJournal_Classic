@@ -403,9 +403,9 @@ function macroFrame:getMacro()
 			not self.classConfig.useMacroOnlyCanFly or (
 				self.mounts.instanceID == 530 or self.mounts.instanceID == 571 and self.sFlags.canUseFlying
 			)
-			or not self.magicBroom and (
-				self.sFlags.isIndoors or GetUnitSpeed("player") > 0 or IsFalling()
-			)
+		)
+		or not self.magicBroom and (
+			self.sFlags.isIndoors or GetUnitSpeed("player") > 0 or IsFalling()
 		)
 	)
 	then
