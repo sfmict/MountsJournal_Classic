@@ -84,6 +84,9 @@ function mounts:ADDON_LOADED(addonName)
 
 		-- Списки
 		self.sFlags = {}
+		self.priorityProfiles = {}
+		self.list = {}
+		self.empty = {}
 		self.repairMounts = {
 			280,
 			284,
@@ -362,7 +365,12 @@ do
 
 	local timer
 	function mounts:UNIT_SPELLCAST_START(_,_, spellID)
-		local petID = self.petForMount[spellID]
+		local petID
+		for i = 1, #self.priorityProfiles do
+			petID = self.priorityProfiles[i].petForMount[spellID]
+			if petID then break end
+		end
+
 		if petID then
 			local groupType = util.getGroupType()
 			if self.config.noPetInRaid and groupType == "raid"
@@ -515,33 +523,56 @@ function mounts:setMountsList()
 	local mapInfo = self.mapInfo
 	local zoneMounts = self.zoneMounts
 	self.mapFlags = nil
-	self.list = nil
+	wipe(self.list)
 
-	while mapInfo and mapInfo.mapID ~= self.defMountsListID do
-		local list = zoneMounts[mapInfo.mapID]
-		if list then
-			if not self.mapFlags and list.flags.enableFlags then
-				self.mapFlags = list.flags
+	local mapInfo = self.mapInfo
+	while mapInfo do
+		for i = 1, #self.priorityProfiles do
+			local profile, list = self.priorityProfiles[i]
+
+			if mapInfo.mapID == self.defMountsListID then
+				list = profile
+			else
+				local zoneMounts = profile.zoneMountsFromProfile and self.defProfile.zoneMounts or profile.zoneMounts
+				list = zoneMounts[mapInfo.mapID]
+
+				if list and not self.mapFlags and list.flags.enableFlags then
+					self.mapFlags = list.flags
+				end
 			end
-			if not self.list then
-				while list and list.listFromID do
-					if list.listFromID == self.defMountsListID then
-						list = self.db
-					else
-						list = zoneMounts[list.listFromID]
+
+			if list then
+				if not (self.list.fly and self.list.ground and self.list.swimming) then
+					while list and list.listFromID do
+						if list.listFromID == self.defMountsListID then
+							list = profile
+						else
+							list = zoneMounts[list.listFromID]
+						end
 					end
-				end
-				if list and (next(list.fly) or next(list.ground) or next(list.swimming)) then
-					self.list = list
-				end
+					if list then
+						if not self.list.fly and next(list.fly) then
+							self.list.fly = list.fly
+							self.list.flyWeight = profile.mountsWeight
+						end
+						if not self.list.ground and next(list.ground) then
+							self.list.ground = list.ground
+							self.list.groundWeight = profile.mountsWeight
+						end
+						if not self.list.swimming and next(list.swimming) then
+							self.list.swimming = list.swimming
+							self.list.swimmingWeight = profile.mountsWeight
+						end
+					end
+				elseif self.mapFlags then return end
 			end
-			if self.list and self.mapFlags then return end
 		end
 		mapInfo = C_Map.GetMapInfo(mapInfo.parentMapID)
 	end
-	if not self.list then
-		self.list = self.db
-	end
+
+	if not self.list.fly then self.list.fly = self.empty end
+	if not self.list.ground then self.list.ground = self.empty end
+	if not self.list.swimming then self.list.swimming = self.empty end
 end
 -- mounts.NEW_WMO_CHUNK = mounts.setMountsList
 -- mounts.ZONE_CHANGED = mounts.setMountsList
@@ -559,19 +590,17 @@ function mounts:setDB()
 		self.charDB.currentProfileName = nil
 	end
 
-	local currentProfileName
+	local profileName
+	wipe(self.priorityProfiles)
+
 	if self.pvp and self.charDB.profileBySpecializationPVP.enable then
-		currentProfileName = self.charDB.profileBySpecializationPVP[1]
-	else
-		currentProfileName = self.charDB.currentProfileName
+		profileName = self.charDB.profileBySpecializationPVP[1]
+		self.priorityProfiles[1] = self.profiles[profileName] or self.defProfile
 	end
 
-	self.db = currentProfileName and self.profiles[currentProfileName] or self.defProfile
-	self.zoneMounts = self.db.zoneMountsFromProfile and self.defProfile.zoneMounts or self.db.zoneMounts
-	self.petForMount = self.db.petListFromProfile and self.defProfile.petForMount or self.db.petForMount
-	self.mountsWeight = self.db.mountsWeight
-
-	-- self:setMountsList()
+	profileName = self.charDB.currentProfileName
+	self.db = self.profiles[profileName] or self.defProfile
+	self.priorityProfiles[#self.priorityProfiles + 1] = self.db
 end
 mounts.PLAYER_SPECIALIZATION_CHANGED = mounts.setDB
 
@@ -599,12 +628,12 @@ end
 
 do
 	local usableIDs = {}
-	function mounts:summon(ids)
+	function mounts:summon(ids, mountsWeight)
 		local weight, canUseFlying = 0, self.sFlags.canUseFlying
 		for mountID in next, ids do
 			local _, spellID, _,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
 			if isUsable and IsUsableSpell(spellID) and self:isUsable(mountID, nil, canUseFlying) then
-				weight = weight + (self.mountsWeight[mountID] or 100)
+				weight = weight + (mountsWeight[mountID] or 100)
 				usableIDs[weight] = mountID
 			end
 		end
@@ -671,16 +700,16 @@ function mounts:init()
 		elseif flags.isMounted then
 			Dismount()
 		-- repair mounts
-		elseif not ((flags.repair and not flags.fly or flags.flyableRepair and flags.fly) and self:summon(self.usableRepairMounts))
+		elseif not ((flags.repair and not flags.fly or flags.flyableRepair and flags.fly) and self:summon(self.usableRepairMounts, self.db.mountsWeight))
 		-- target's mount
 		and not (flags.targetMount and (C_MountJournal.SummonByID(flags.targetMount) or true))
 		-- swimming
-		and not (flags.swimming and self:summon(self.list.swimming))
+		and not (flags.swimming and self:summon(self.list.swimming, self.list.swimmingWeight))
 		-- fly
-		and not (flags.fly and self:summon(self.list.fly))
+		and not (flags.fly and self:summon(self.list.fly, self.list.flyWeight))
 		-- ground
-		and not self:summon(self.list.ground)
-		and not self:summon(self.list.fly)
+		and not self:summon(self.list.ground, self.list.groundWeight)
+		and not self:summon(self.list.fly, self.list.flyWeight)
 		then
 			self:errorSummon()
 		end
