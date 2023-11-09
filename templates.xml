@@ -825,6 +825,62 @@
 				</Scripts>
 			</Frame>
 
+			<Frame parentKey="calendarFrame" hidden="true">
+				<Size x="200" y="50"/>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture parentKey="monthBackground" file="Interface\Calendar\CalendarBackground">
+							<Size x="142" y="36"/>
+							<Anchors>
+								<Anchor point="TOP" x="0" y="-11"/>
+							</Anchors>
+							<TexCoords left="0" right=".5546875" top=".828125" bottom=".96875"/>
+						</Texture>
+						<FontString parentKey="monthText" inherits="GameFontHighlightLarge" justifyH="CENTER">
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent.monthBackground"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture parentKey="yearBackground" file="Interface\Calendar\CalendarBackground">
+							<Size x="47" y="24"/>
+							<Anchors>
+								<Anchor point="BOTTOM" relativeKey="$parent.monthBackground" relativePoint="TOP" x="0" y="-10"/>
+							</Anchors>
+							<TexCoords left="0" right=".5546875" top=".828125" bottom=".96875"/>
+						</Texture>
+						<FontString parentKey="yearText" inherits="GameFontNormalSmall" justifyH="CENTER">
+							<Anchors>
+								<Anchor point="CENTER" relativeKey="$parent.yearBackground" x="0" y="-1"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Button parentKey="prevMonthButton" inherits="MJCalendarPrev">
+						<Size x="32" y="32"/>
+						<Anchors>
+							<Anchor point="RIGHT" relativeKey="$parent.monthBackground" relativePoint="LEFT" x="4" y="0"/>
+						</Anchors>
+						<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Down"/>
+						<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled"/>
+						<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+					</Button>
+					<Button parentKey="nextMonthButton" inherits="MJCalendarNext">
+						<Size x="32" y="32"/>
+						<Anchors>
+							<Anchor point="LEFT" relativeKey="$parent.monthBackground" relativePoint="RIGHT" x="-4" y="0"/>
+						</Anchors>
+						<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
+						<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
+						<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
+					</Button>
+				</Frames>
+			</Frame>
+
 		</Frames>
 	</Frame>
 
@@ -2472,7 +2528,7 @@
 					</OnMouseWheel>
 				</Scripts>
 			</EditBox>
-			<Slider parentKey="slider" inherits="HorizontalSliderTemplate">
+			<Slider parentKey="slider" inherits="MinimalSliderTemplate">
 				<Size y="17"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="0" y="2"/>
@@ -2483,7 +2539,7 @@
 					<Layer level="ARTWORK">
 						<FontString parentKey="text" inherits="GameFontNormalSmall">
 							<Anchors>
-								<Anchor point="BOTTOM" relativePoint="TOP"/>
+								<Anchor point="BOTTOM" relativePoint="TOP" y="1"/>
 							</Anchors>
 						</FontString>
 					</Layer>
@@ -2509,6 +2565,12 @@
 						local edit = self:GetParent().edit
 						edit:GetScript("OnMouseWheel")(edit, delta)
 					</OnMouseWheel>
+					<OnDisable>
+						self.text:SetVertexColor(GRAY_FONT_COLOR:GetRGB())
+					</OnDisable>
+					<OnEnable>
+						self.text:SetVertexColor(NORMAL_FONT_COLOR:GetRGB())
+					</OnEnable>
 				</Scripts>
 			</Slider>
 		</Frames>
@@ -2534,13 +2596,9 @@
 					self.edit:SetWidth(value * 7 + 7)
 					self.edit:SetMaxLetters(value)
 				end
-				self.disable = function(self)
-					self.edit:Disable()
-					self.slider:Disable()
-				end
-				self.enable = function(self)
-					self.edit:Enable()
-					self.slider:Enable()
+				self.SetEnabled = function(self, value)
+					self.edit:SetEnabled(value)
+					self.slider:SetEnabled(value)
 				end
 			</OnLoad>
 		</Scripts>

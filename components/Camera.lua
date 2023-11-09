@@ -35,7 +35,7 @@ journal:on("SET_ACTIVE_CAMERA", function(self, activeCamera)
 	end
 
 	function activeCamera:ApplyFromModelSceneCameraInfo(modelSceneCameraInfo, transitionType, modificationType)
-		modelSceneCameraInfo.maxZoomDistance = 24
+		modelSceneCameraInfo.maxZoomDistance = modelSceneCameraInfo.maxZoomDistance + 6
 
 		local transitionalCameraInfo = self:CalculateTransitionalValues(self.modelSceneCameraInfo, modelSceneCameraInfo, modificationType)
 		self.modelSceneCameraInfo = modelSceneCameraInfo

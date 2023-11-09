@@ -27,6 +27,7 @@ function mounts:ADDON_LOADED(addonName)
 		self.globalDB.mountAnimations = self.globalDB.mountAnimations or {}
 		self.globalDB.defProfile = self.globalDB.defProfile or {}
 		self.globalDB.mountsProfiles = self.globalDB.mountsProfiles or {}
+		self.globalDB.holidayNames = self.globalDB.holidayNames or {}
 
 		self.defProfile = self.globalDB.defProfile
 		self:checkProfile(self.defProfile)
@@ -81,6 +82,7 @@ function mounts:ADDON_LOADED(addonName)
 		self.charDB = MountsJournalChar
 		self.charDB.macrosConfig = self.charDB.macrosConfig or {}
 		self.charDB.profileBySpecializationPVP = self.charDB.profileBySpecializationPVP or {}
+		self.charDB.holidayProfiles = self.charDB.holidayProfiles or {}
 
 		-- Списки
 		self.sFlags = {}
@@ -245,6 +247,7 @@ function mounts:PLAYER_LOGIN()
 	self:updateProfessionsRank()
 	self:init()
 	self.pets:setSummonEvery()
+	self.calendar:init()
 
 	-- MAP CHANGED
 	-- self:RegisterEvent("NEW_WMO_CHUNK")
@@ -268,6 +271,9 @@ function mounts:PLAYER_LOGIN()
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+
+	-- CALENDAR
+	self:on("CALENDAR_UPDATE_EVENT_LIST", self.setDB)
 end
 
 
@@ -596,6 +602,11 @@ function mounts:setDB()
 	if self.pvp and self.charDB.profileBySpecializationPVP.enable then
 		profileName = self.charDB.profileBySpecializationPVP[1]
 		self.priorityProfiles[1] = self.profiles[profileName] or self.defProfile
+	end
+
+	local holidayProfiles = self.calendar:getHolidayProfileNames()
+	for i = 1, #holidayProfiles do
+		self.priorityProfiles[#self.priorityProfiles + 1] = self.profiles[holidayProfiles[i].profileName] or self.defProfile
 	end
 
 	profileName = self.charDB.currentProfileName
