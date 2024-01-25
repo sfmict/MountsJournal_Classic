@@ -152,8 +152,8 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 
 	local function reloadMenu(level, value)
 		dd:ddCloseMenus(level)
-		local f, t = lsfdd:IterateMenus()
-		dd:ddToggle(level, value, t[level].anchorFrame)
+		local menu = lsfdd:GetMenu(level)
+		dd:ddToggle(level, value, menu.anchorFrame)
 	end
 
 	calendarFrame.prevMonthButton:SetScript("OnClick", function()

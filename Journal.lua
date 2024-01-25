@@ -1340,8 +1340,8 @@ function journal:sortMounts()
 			elseif typeA > typeB then return fSort.reverse end
 		-- EXPANSION
 		elseif fSort.by == "expansion" then
-			local expA = db[a][2]
-			local expB = db[b][2]
+			local expA = db[a][1]
+			local expB = db[b][1]
 
 			if expA < expB then return not fSort.reverse
 			elseif expA > expB then return fSort.reverse end
@@ -2616,9 +2616,9 @@ function journal:updateMountsList()
 		-- UNUSABLE
 		and (filters.unusable or not isCollected or isUsable and IsUsableSpell(spellID) and mounts:isUsable(mountID, mType, canUseFlying))
 		-- EXPANSIONS
-		and expansions[mountDB[2]]
+		and expansions[mountDB[1]]
 		-- SOURCES
-		and sources[mountDB[1]]
+		and sources[mountDB[2]]
 		-- SEARCH
 		and (#text == 0
 			or name:lower():find(text, 1, true)
