@@ -116,7 +116,7 @@ config:SetScript("OnShow", function(self)
 	modifierText:SetText(L["Modifier"]..":")
 
 	-- MODIFIER COMBOBOX
-	local modifierCombobox = LibStub("LibSFDropDown-1.4"):CreateButton(self.leftPanel)
+	local modifierCombobox = LibStub("LibSFDropDown-1.5"):CreateButton(self.leftPanel)
 	self.modifierCombobox = modifierCombobox
 	modifierCombobox:SetPoint("LEFT", modifierText, "RIGHT", 7, 0)
 	modifierCombobox:ddSetInitFunc(function(self, level)
@@ -124,7 +124,7 @@ config:SetScript("OnShow", function(self)
 		for i, modifier in ipairs({"ALT", "CTRL", "SHIFT", "NONE"}) do
 			info.text = _G[modifier.."_KEY"]
 			info.value = modifier
-			info.checked = function(btn) return modifierCombobox.selectedValue == btn.value end
+			info.checked = function(btn) return self:ddGetSelectedValue() == btn.value end
 			info.func = function(btn)
 				self:ddSetSelectedValue(btn.value)
 				enableBtns()
@@ -261,7 +261,7 @@ config:SetScript("OnShow", function(self)
 	self.repairFlyablePercentText:SetText("%")
 
 	-- REPAIR MOUNTS COMBOBOX
-	self.repairMountsCombobox = LibStub("LibSFDropDown-1.4"):CreateButton(self.rightPanelScroll.child, 230)
+	self.repairMountsCombobox = LibStub("LibSFDropDown-1.5"):CreateButton(self.rightPanelScroll.child, 230)
 	self.repairMountsCombobox:SetPoint("TOPLEFT", self.repairFlyable, "BOTTOMLEFT", 0, -8)
 	self.repairMountsCombobox:ddSetInitFunc(function(self, level)
 		local info = {}
@@ -275,7 +275,7 @@ config:SetScript("OnShow", function(self)
 				info.icon = icon
 				info.value = mountID
 				info.disabled = not isCollected
-				info.checked = function(btn) return self.selectedValue == btn.value end
+				info.checked = function(btn) return self:ddGetSelectedValue() == btn.value end
 				info.func = function(btn)
 					self:ddSetSelectedValue(btn.value)
 					enableBtns()
@@ -472,7 +472,7 @@ config:SetScript("OnShow", function(self)
 		mounts.config.useRepairMountsDurability = tonumber(self.repairPercent:GetText()) or 0
 		mounts.config.useRepairFlyable = self.repairFlyable:GetChecked()
 		mounts.config.useRepairFlyableDurability = tonumber(self.repairFlyablePercent:GetText()) or 0
-		mounts.config.repairSelectedMount = self.repairMountsCombobox.selectedValue
+		mounts.config.repairSelectedMount = self.repairMountsCombobox:ddGetSelectedValue()
 		mounts.config.useMagicBroom = self.useMagicBroom:GetChecked()
 		mounts.config.summonPetEvery = self.summonPetEvery:GetChecked()
 		mounts.config.summonPetEveryN = tonumber(self.summonPetEveryN:GetText()) or 1
@@ -485,7 +485,7 @@ config:SetScript("OnShow", function(self)
 		mounts.config.showWowheadLink = self.showWowheadLink:GetChecked()
 
 		binding:saveBinding()
-		mounts:setModifier(self.modifierCombobox.selectedValue)
+		mounts:setModifier(self.modifierCombobox:ddGetSelectedValue())
 		mounts:UPDATE_INVENTORY_DURABILITY()
 		mounts.pets:setSummonEvery()
 		MountsJournalFrame:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
