@@ -60,6 +60,17 @@ function pets:summonRandomPet(isFavorite)
 end
 
 
+function pets:dismissPet()
+	for i = 1, #self.list do
+		local petID = self.list[i]
+		if C_PetJournal.IsCurrentlySummoned(petID) then
+			C_PetJournal.DismissSummonedPet(petID)
+			break
+		end
+	end
+end
+
+
 do
 	local aurasList = {
 		[3680] = true, -- Lesser Invisibility
@@ -242,3 +253,7 @@ SlashCmdList["MOUNTSJOURNALRANDOMPET"] = function() pets:summonRandomPet() end
 
 SLASH_MOUNTSJOURNALRANDOMFAVORITEPET1 = "/randomfavoritepet"
 SlashCmdList["MOUNTSJOURNALRANDOMFAVORITEPET"] = function() pets:summonRandomPet(true) end
+
+
+SLASH_MOUNTSJOURNALDISMISSPET1 = "/dismisspet"
+SlashCmdList["MOUNTSJOURNALDISMISSPET"] = function() pets:dismissPet() end
