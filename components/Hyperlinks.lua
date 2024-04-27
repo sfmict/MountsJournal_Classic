@@ -22,3 +22,8 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
 		end
 	end
 end)
+
+-- FIX BLIZZ ERROR
+if not DressUpModel then
+	DressUpModel = DressUpModelFrame
+end

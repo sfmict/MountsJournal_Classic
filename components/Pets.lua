@@ -73,6 +73,7 @@ end
 
 do
 	local aurasList = {
+		[66] = true, -- Invisibility
 		[3680] = true, -- Lesser Invisibility
 		[11392] = true, -- Invisibility Potion
 		[32612] = true, -- Invisibility

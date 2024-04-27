@@ -23,6 +23,10 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 					name = "Wrath of the Lich King",
 					list = {159,168,132,136,154,185,171,160,133,183,129,143,131,140,138,184},
 				},
+				{
+					name = "Cataclysm",
+					list = {325,399,293,277,333,337,398,324,404,310,291,283,323,297},
+				},
 			},
 		},
 		{
@@ -39,6 +43,10 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 				{
 					name = "Wrath of the Lich King",
 					list = {156,163,155,141,147,172,248,186,200},
+				},
+				{
+					name = "Cataclysm",
+					list = {282,294,285,328,367,409},
 				},
 			},
 		},

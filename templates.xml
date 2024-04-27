@@ -4,7 +4,6 @@
 	<Script file="mixins/WorldMapMixin.lua"/>
 	<Script file="mixins/ExistingListsMixin.lua"/>
 	<Script file="mixins/CompanionMixin.lua"/>
-	<Script file="mixins/MountListMixin.lua"/>
 
 	<CheckButton name="MJUseMountsJournalButtonTemplate" motionScriptsWhileDisabled="true" inherits="MJCheckButtonTemplate" virtual="true">
 		<Layers>
@@ -313,6 +312,25 @@
 								<Anchor point="LEFT" relativeKey="$parent.text" relativePoint="RIGHT" x="2" y="0"/>
 							</Anchors>
 						</FontString>
+						<FontString parentKey="filters" inherits="GameFontHighlight" justifyH="RIGHT" maxLines="1">
+							<Size y="22"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.count" relativePoint="RIGHT" x="4" y="0"/>
+								<Anchor point="RIGHT" x="-28" y="0"/>
+							</Anchors>
+							<Scripts>
+								<OnEnter>
+									if self:IsTruncated() then
+										GameTooltip:SetOwner(self, "ANCHOR_TOP")
+										GameTooltip:AddLine(self:GetText(), nil, nil, nil, true)
+										GameTooltip:Show()
+									end
+								</OnEnter>
+								<OnLeave>
+									GameTooltip:Hide()
+								</OnLeave>
+							</Scripts>
+						</FontString>
 					</Layer>
 				</Layers>
 				<Frames>
@@ -412,6 +430,21 @@
 								</Texture>
 							</Layer>
 							<Layer level="OVERLAY">
+								<FontString inherits="GameFontHighlightSmall" justifyH="CENTER" parentKey="link" alpha=".5">
+									<Anchors>
+										<Anchor point="TOP" y="3"/>
+									</Anchors>
+									<Scripts>
+										<OnEnter>
+											self:SetAlpha(1)
+											self:GetParent().linkLang:SetAlpha(1)
+										</OnEnter>
+										<OnLeave>
+											self:SetAlpha(.5)
+											self:GetParent().linkLang:SetAlpha(0)
+										</OnLeave>
+									</Scripts>
+								</FontString>
 								<FontString inherits="GameFontHighlightLarge" justifyH="LEFT" justifyV="MIDDLE" parentKey="name" maxLines="2">
 									<Size x="270" y="35"/>
 									<Anchors>
@@ -437,28 +470,34 @@
 							</Layer>
 						</Layers>
 						<Frames>
-							<EditBox parentKey="link" multiLine="false" autoFocus="false" ignoreArrows="false" alpha=".5">
-								<Size y="20" x="250"/>
+							<Button parentKey="linkLang" alpha="0">
+								<Size x="30" y="20"/>
 								<Anchors>
-									<Anchor point="TOP" y="5"/>
+									<Anchor point="LEFT" relativeKey="$parent.link" relativePoint="RIGHT" x="0" y="0"/>
 								</Anchors>
-								<FontString inherits="GameFontHighlightSmall" justifyH="CENTER"/>
+								<NormalFont style="GameFontNormalSmall"/>
+								<Layers>
+									<Layer level="ARTWORK">
+										<Texture parentKey="arrow" file="Interface/ChatFrame/ChatFrameExpandArrow">
+											<Size x="10" y="12"/>
+											<Anchors>
+												<Anchor point="RIGHT" x="2" y="0"/>
+											</Anchors>
+										</Texture>
+									</Layer>
+								</Layers>
+								<HighlightTexture file="Interface/Buttons/UI-Common-MouseHilight" alpha=".25" alphaMode="ADD"/>
 								<Scripts>
-									<OnEnter>self:SetAlpha(1)</OnEnter>
-									<OnLeave>self:SetAlpha(.5)</OnLeave>
-									<OnEditFocusGained>self:HighlightText()</OnEditFocusGained>
-									<OnEditFocusLost>self:HighlightText(0, 0)</OnEditFocusLost>
-									<OnEscapePressed>self:ClearFocus()</OnEscapePressed>
-									<OnTextChanged>
-										if userInput then
-											self:SetText(self.text or "")
-											self:HighlightText()
-										else
-											self.text = self:GetText()
-										end
-									</OnTextChanged>
+									<OnEnter>
+										local link = self:GetParent().link
+										link:GetScript("OnEnter")(link)
+									</OnEnter>
+									<OnLeave>
+										local link = self:GetParent().link
+										link:GetScript("OnLeave")(link)
+									</OnLeave>
 								</Scripts>
-							</EditBox>
+							</Button>
 							<Button parentKey="petSelectionBtn" mixin="MJSetPetMixin">
 								<Size x="38" y="38"/>
 								<Anchors>
@@ -794,11 +833,17 @@
 				</Frames>
 			</Frame>
 
-			<Button parentKey="summonButton" motionScriptsWhileDisabled="true" inherits="UIPanelButtonTemplate" text="MOUNT">
+			<Button parentKey="summonButton" motionScriptsWhileDisabled="true" inherits="UIPanelButtonTemplate,MJSecureActionButtonUpTemplate" text="MOUNT">
 				<Size x="140" y="22"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="4" y="4"/>
 				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetAttribute("type", "macro")
+					</OnLoad>
+					<OnLeave function="GameTooltip_Hide"/>
+				</Scripts>
 			</Button>
 
 			<Button parentKey="btnConfig" inherits="UIPanelButtonTemplate">
@@ -1115,20 +1160,37 @@
 					self.icon:SetScale(1)
 				end
 			</OnMouseUp>
-			<OnEnable>
-				self.icon:SetVertexColor(.8, .6, .0)
-				self.normalTexture:SetVertexColor(.2, .18, .01)
-				self.check:SetAlpha(1)
-			</OnEnable>
-			<OnDisable>
-				self.icon:SetVertexColor(.3, .3, .3)
-				self.normalTexture:SetVertexColor(.1, .1, .1)
-				self.check:SetAlpha(0)
-			</OnDisable>
 		</Scripts>
 	</CheckButton>
 
-	<Button name="MJMountDefaultListButton" mixin="MJDefaultMountListMixin" virtual="true">
+	<CheckButton name="MJSetFlyToggleTemplate" inherits="MJSetMountToggleTemplate" virtual="true">
+		<KeyValues>
+			<KeyValue key="type" value="fly" type="string"/>
+		</KeyValues>
+		<Scripts>
+			<OnLoad>self.icon:SetTexture("Interface/AddOns/MountsJournal/textures/fly")</OnLoad>
+		</Scripts>
+	</CheckButton>
+
+	<CheckButton name="MJSetGroundToggleTemplate" inherits="MJSetMountToggleTemplate" virtual="true">
+		<KeyValues>
+			<KeyValue key="type" value="ground" type="string"/>
+		</KeyValues>
+		<Scripts>
+			<OnLoad>self.icon:SetTexture("Interface/AddOns/MountsJournal/textures/ground")</OnLoad>
+		</Scripts>
+	</CheckButton>
+
+	<CheckButton name="MJSetSwimmingToggleTemplate" inherits="MJSetMountToggleTemplate" virtual="true">
+		<KeyValues>
+			<KeyValue key="type" value="swimming" type="string"/>
+		</KeyValues>
+		<Scripts>
+			<OnLoad>self.icon:SetTexture("Interface/AddOns/MountsJournal/textures/swimming")</OnLoad>
+		</Scripts>
+	</CheckButton>
+
+	<Button name="MJMountDefaultListButton" virtual="true">
 		<Size x="184" y="46"/>
 		<Anchors>
 			<Anchor point="LEFT" relativeKey="$parent.dragButton" relativePoint="RIGHT" x="0" y="0"/>
@@ -1227,69 +1289,26 @@
 				<KeyValues>
 					<KeyValue key="LibSFDropDownNoGMEvent" value="true" type="boolean"/>
 				</KeyValues>
-				<Scripts>
-					<OnEnter>
-						self.highlight:Show()
-						GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-						local parent = self:GetParent()
-						if parent.spellID then
-							GameTooltip:SetHyperlink("spell:"..parent.spellID)
-						end
-						parent.showingTooltip = true
-					</OnEnter>
-					<OnLeave>
-						self.highlight:Hide()
-						GameTooltip:Hide()
-						self:GetParent().showingTooltip = false
-					</OnLeave>
-					<OnLoad>
-						self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-						self:RegisterForDrag("LeftButton")
-					</OnLoad>
-				</Scripts>
 			</Button>
-			<CheckButton parentKey="fly" inherits="MJSetMountToggleTemplate">
+			<CheckButton parentKey="fly" inherits="MJSetFlyToggleTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="14"/>
 				</Anchors>
-				<KeyValues>
-					<KeyValue key="type" value="fly" type="string"/>
-				</KeyValues>
-				<Scripts>
-					<OnLoad>self.icon:SetTexture("Interface/AddOns/MountsJournal/textures/fly")</OnLoad>
-				</Scripts>
 			</CheckButton>
-			<CheckButton parentKey="ground" inherits="MJSetMountToggleTemplate">
+			<CheckButton parentKey="ground" inherits="MJSetGroundToggleTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
 				</Anchors>
-				<KeyValues>
-					<KeyValue key="type" value="ground" type="string"/>
-				</KeyValues>
-				<Scripts>
-					<OnLoad>self.icon:SetTexture("Interface/AddOns/MountsJournal/textures/ground")</OnLoad>
-				</Scripts>
 			</CheckButton>
-			<CheckButton parentKey="swimming" inherits="MJSetMountToggleTemplate">
+			<CheckButton parentKey="swimming" inherits="MJSetSwimmingToggleTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="-14"/>
 				</Anchors>
-				<KeyValues>
-					<KeyValue key="type" value="swimming" type="string"/>
-				</KeyValues>
-				<Scripts>
-					<OnLoad>self.icon:SetTexture("Interface/AddOns/MountsJournal/textures/swimming")</OnLoad>
-				</Scripts>
 			</CheckButton>
 		</Frames>
-		<Scripts>
-			<OnLoad method="onLoad"/>
-			<OnMouseDown method="onMouseDown"/>
-			<OnClick method="onClick"/>
-		</Scripts>
 	</Button>
 
-	<Button name="MJGridMountButtonTemplate" mixin="MJGrid3MountListMixin" virtual="true">
+	<Button name="MJGridMountButtonTemplate" virtual="true">
 		<Size x="40" y="40"/>
 		<Layers>
 			<Layer level="BORDER">
@@ -1328,51 +1347,25 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<CheckButton parentKey="fly" inherits="MJSetMountToggleTemplate">
+			<CheckButton parentKey="fly" inherits="MJSetFlyToggleTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="1" y="0"/>
 				</Anchors>
-				<KeyValues>
-					<KeyValue key="type" value="fly" type="string"/>
-				</KeyValues>
-				<Scripts>
-					<OnLoad>self.icon:SetTexture("Interface/AddOns/MountsJournal/textures/fly")</OnLoad>
-				</Scripts>
 			</CheckButton>
-			<CheckButton parentKey="ground" inherits="MJSetMountToggleTemplate">
+			<CheckButton parentKey="ground" inherits="MJSetGroundToggleTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="1" y="-14"/>
 				</Anchors>
-				<KeyValues>
-					<KeyValue key="type" value="ground" type="string"/>
-				</KeyValues>
-				<Scripts>
-					<OnLoad>self.icon:SetTexture("Interface/AddOns/MountsJournal/textures/ground")</OnLoad>
-				</Scripts>
 			</CheckButton>
-			<CheckButton parentKey="swimming" inherits="MJSetMountToggleTemplate">
+			<CheckButton parentKey="swimming" inherits="MJSetSwimmingToggleTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="1" y="-28"/>
 				</Anchors>
-				<KeyValues>
-					<KeyValue key="type" value="swimming" type="string"/>
-				</KeyValues>
-				<Scripts>
-					<OnLoad>self.icon:SetTexture("Interface/AddOns/MountsJournal/textures/swimming")</OnLoad>
-				</Scripts>
 			</CheckButton>
 		</Frames>
 		<KeyValues>
 			<KeyValue key="LibSFDropDownNoGMEvent" value="true" type="boolean"/>
 		</KeyValues>
-		<Scripts>
-			<OnLoad method="onLoad"/>
-			<OnEnter method="onEnter"/>
-			<OnLeave method="onLeave"/>
-			<OnMouseDown method="onMouseDown"/>
-			<OnClick method="onClick"/>
-			<OnDragStart method="onDragStart"/>
-		</Scripts>
 	</Button>
 
 	<Frame name="MJMountGrid3ListButtons" virtual="true">

@@ -29,58 +29,63 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 	}
 
 	dd.animations = MountsJournal.globalDB.mountAnimations
-	dd.animationsList = {
+	dd.animationList = {
 		{
 			name = L["Default"],
 			animation = 0,
+			selfAnimation = 618,
 		},
 		{
 			name = L["Mount special"],
 			animation = 94,
+			selfAnimation = 636,
 		},
 		{
 			name = L["Walk"],
 			animation = 4,
+			selfAnimation = 620,
 			type = 2,
 		},
 		{
 			name = L["Walk backwards"],
 			animation = 13,
+			selfAnimation = 634,
 			type = 2,
 		},
 		{
 			name = L["Run"],
 			animation = 5,
+			selfAnimation = 622,
 			type = 2,
 		},
 		{
 			name = L["Swim idle"],
-			animation = 41,
+			animation = 532,
 			type = 3,
 		},
 		{
 			name = L["Swim"],
-			animation = 42,
+			animation = 540,
 			type = 3,
 		},
 		{
 			name = L["Swim backwards"],
-			animation = 45,
+			animation = 534,
 			type = 3,
 		},
 		{
 			name = L["Fly stand"],
-			animation = 41,
+			animation = 548,
 			type = 1,
 		},
 		{
 			name = L["Fly"],
-			animation = 135,
+			animation = 558,
 			type = 1,
 		},
 		{
 			name = L["Fly backwards"],
-			animation = 45,
+			animation = 562,
 			type = 1,
 		},
 	}
@@ -88,45 +93,33 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 	dd.customAnimationPanel = CreateFrame("FRAME", nil, journal.modelScene, "MJMountCustomAnimationPanel")
 	dd.customAnimationPanel:SetPoint("BOTTOMRIGHT", dd, "TOPRIGHT", 0, 2)
 
-	journal:on("MOUNT_MODEL_UPDATE", function(journal, mountType)
-		if mountType then
-			if mountType == 231 then
-				dd.currentMountType = 2
-			else
-				dd.currentMountType = journal.mountTypes[mountType]
-			end
-			dd:replayAnimation()
+	journal:on("MOUNT_MODEL_LOADED", function()
+		local selectedValue = dd:ddGetSelectedValue()
+		if selectedValue == "custom" then
+			dd.customAnimationPanel:play()
+		else
+			dd:playAnimation(selectedValue)
 		end
 	end)
 
-	function dd:replayAnimation()
-		local selectedValue = self:ddGetSelectedValue()
-		if selectedValue == "custom" or selectedValue and (selectedValue.type == nil or selectedValue.type >= self.currentMountType) then
-			if selectedValue.animation ~= 0 then
-				self:SetScript("OnUpdate", self.onUpdate)
-			end
-		else
-			local actor = journal.modelScene:GetActorByTag("unwrapped")
-			if actor then actor:StopAnimationKit() end
-			self:ddSetSelectedValue(self.animationsList[1])
-			self:ddSetSelectedText(self.animationsList[1].name)
-		end
-	end
+	journal:on("MOUNT_MODEL_UPDATE", function(journal, mountType, isPlayer)
+		if mountType then
+			dd.isPlayer = isPlayer
 
-	function dd:onUpdate()
-		local actor = journal.modelScene:GetActorByTag("unwrapped")
-		if actor and not actor:IsLoaded() then return end
-		self:SetScript("OnUpdate", nil)
-
-		C_Timer.After(0, function()
-			local selectedValue = self:ddGetSelectedValue()
-			if selectedValue == "custom" then
-				self.customAnimationPanel:play()
+			if mountType == 231 then
+				dd.currentMountType = 2
 			else
-				self:playAnimation(selectedValue.animation, selectedValue.isKit, selectedValue.loop)
+				mountType = journal.mountTypes[mountType]
+				dd.currentMountType = type(mountType) == "table" and mountType[1] or mountType
 			end
-		end)
-	end
+
+			local selectedValue = dd:ddGetSelectedValue()
+			if not selectedValue or selectedValue ~= "custom" and selectedValue.type and dd.currentMountType > selectedValue.type then
+				dd:ddSetSelectedValue(dd.animationList[1])
+				dd:ddSetSelectedText(dd.animationList[1].name)
+			end
+		end
+	end)
 
 	dd:ddSetInitFunc(function(self, level)
 		local info = {}
@@ -135,17 +128,25 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 		local function checked(btn) return self:ddGetSelectedValue() == btn.value end
 		local function func(btn)
 			self.customAnimationPanel:Hide()
-			self:playAnimation(btn.value.animation, btn.value.isKit, btn.value.loop)
+			self:playAnimation(btn.value)
 			self:ddSetSelectedValue(btn.value, level)
 			self:ddSetSelectedText(btn.value.name)
 		end
 		local function remove(btn) self:deleteAnimation(btn.arg1) end
 
 		info.list = {}
-		for _, v in ipairs(self.animationsList) do
+		for _, v in ipairs(self.animationList) do
 			if v.type == nil or v.type >= mountType then
+				local animation, isKit
+				if self.isPlayer then
+					animation = v.selfAnimation or v.animation
+					isKit = v.selfIsKit
+				else
+					animation = v.animation
+					isKit = v.isKit
+				end
 				tinsert(info.list, {
-					text = ("%s|cff808080.%d%s|r"):format(v.name, v.animation, v.isKit and ".k" or ""),
+					text = ("%s|cff808080.%d%s|r"):format(v.name, animation, isKit and ".k" or ""),
 					value = v,
 					checked = checked,
 					func = func,
@@ -175,7 +176,20 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 		self:ddAddButton(info, level)
 	end)
 
-	function dd:playAnimation(animation, isKit, loop)
+	function dd:playAnimation(anim)
+		local animation, isKit
+		if self.isPlayer then
+			animation = anim.selfAnimation or anim.animation or anim.current
+			if anim.current then
+				isKit = anim.isKit
+			else
+				isKit = anim.selfIsKit
+			end
+		else
+			animation = anim.animation or anim.current
+			isKit = anim.isKit
+		end
+
 		local actor = journal.modelScene:GetActorByTag("unwrapped")
 		actor:StopAnimationKit()
 		--max animation 2^31 - 1
@@ -192,8 +206,8 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 		local animation = self.animations[id]
 		StaticPopup_Show(util.addonName.."DELETE_MOUNT_ANIMATION", NORMAL_FONT_COLOR_CODE..animation.name..FONT_COLOR_CODE_CLOSE, nil, function()
 			if self:ddGetSelectedValue() == animation then
-				local value = self.animationsList[1]
-				self:playAnimation(value.animation, value.isKit, value.loop)
+				local value = self.animationList[1]
+				self:playAnimation(value)
 				self:ddSetSelectedValue(value)
 				self:ddSetSelectedText(value.name)
 			end
@@ -320,7 +334,7 @@ end
 
 
 function MJMountCustomAnimationMixin:play()
-	self.animationsCombobox:playAnimation(self.animations.current, self.animations.isKit, self.animations.loop)
+	self.animationsCombobox:playAnimation(self.animations)
 end
 
 

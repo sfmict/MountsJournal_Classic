@@ -359,136 +359,48 @@ end
 
 -- /dump MountJournal.ListScrollFrame.scrollBar:SetValue((46 * 2 - .00000000001) /46)
 
--- QUATERNION============================================
--- local Quaternion = {}
+----------------------------------
+-- DATA
 
--- local function CreateQauternion(a, x, y, z)
--- 	local q = {}
--- 	for k, v in pairs(Quaternion) do
--- 		q[k] = v
+-- TO RETAIL
+-- C_Timer.After(0, function()
+-- 	local asd = {}
+-- 	for id, v in next, mounts.mountsDB do
+-- 		if v[2] == 0 then
+-- 			local name, spellID = C_MountJournal.GetMountInfoByID(id)
+-- 			asd[spellID] = {name, v}
+-- 		end
 -- 	end
--- 	if a then q:set(a, x, y, z) end
--- 	return q
+-- 	fprint(dumpe, asd)
 -- end
 
--- function Quaternion:sete(x, y, z)
--- 	local c1 = math.cos( x / 2 );
--- 	local c2 = math.cos( y / 2 );
--- 	local c3 = math.cos( z / 2 );
-
--- 	local s1 = math.sin( x / 2 );
--- 	local s2 = math.sin( y / 2 );
--- 	local s3 = math.sin( z / 2 );
-
--- 	-- self.x = s1 * c2 * c3 + c1 * s2 * s3;
--- 	-- self.y = c1 * s2 * c3 - s1 * c2 * s3;
--- 	-- self.z = c1 * c2 * s3 + s1 * s2 * c3;
--- 	-- self.a = c1 * c2 * c3 - s1 * s2 * s3
-
--- 	self.a = c1 * c2 * c3 + s1 * s2 * s3;
--- 	self.x = s1 * c2 * c3 + c1 * s2 * s3;
--- 	self.y = c1 * s2 * c3 - s1 * c2 * s3;
--- 	self.z = c1 * c2 * s3 - s1 * s2 * c3;
-
--- 	-- self.x = s1 * c2 * c3 - c1 * s2 * s3;
--- 	-- self.y = c1 * s2 * c3 + s1 * c2 * s3;
--- 	-- self.z = c1 * c2 * s3 + s1 * s2 * c3;
--- 	-- self.a = c1 * c2 * c3 - s1 * s2 * s3;
-
--- 	-- self.x = s1 * c2 * c3 - c1 * s2 * s3;
--- 	-- self.y = c1 * s2 * c3 + s1 * c2 * s3;
--- 	-- self.z = c1 * c2 * s3 - s1 * s2 * c3;
--- 	-- self.a = c1 * c2 * c3 + s1 * s2 * s3;
-
--- 	fprint(self.a, self.x, self.y, self.z)
--- 	return self
--- end
-
--- function Quaternion:set(a, x, y ,z)
--- 	local halfA = a / 2
--- 	local s = math.sin(halfA)
--- 	self.a = math.cos(halfA)
--- 	self.x = x * s
--- 	self.y = y * s
--- 	self.z = z * s
--- 	-- local c1 = math.cos( x / 2 );
--- 	-- local c2 = math.cos( y / 2 );
--- 	-- local c3 = math.cos( z / 2 );
-
--- 	-- local s1 = math.sin( x / 2 );
--- 	-- local s2 = math.sin( y / 2 );
--- 	-- local s3 = math.sin( z / 2 );
-
--- 	-- self.a = c1 * c2 * c3 - s1 * s2 * s3;
--- 	-- self.x = s1 * c2 * c3 + c1 * s2 * s3;
--- 	-- self.y = c1 * s2 * c3 - s1 * c2 * s3;
--- 	-- self.z = c1 * c2 * s3 + s1 * s2 * c3;
-
--- 	return self
--- end
-
--- function Quaternion:getYawPitchRoll()
--- 	-- local yaw, pitch, roll
-
--- 	-- EXAMPLE 1
--- 	local yaw = math.atan2(2*(self.y*self.z + self.a*self.x), self.a*self.a - self.x*self.x - self.y*self.y + self.z*self.z);
--- 	local pitch = math.asin(math.min(1, math.max(-2*(self.x*self.z - self.a*self.y), -1)));
--- 	local roll = math.atan2(2*(self.x*self.y + self.a*self.z), self.a*self.a + self.x*self.x - self.y*self.y - self.z*self.z);
-
--- 	-- EXAMPLE 2
--- 	-- local sinr_cosp = 2 * (self.a * self.x + self.y * self.z);
--- 	-- local cosr_cosp = 1 - 2 * (self.x * self.x + self.y * self.y);
--- 	-- roll = math.atan2(sinr_cosp, cosr_cosp);
-
--- 	--  -- pitch (y-axis rotation)
--- 	-- local sinp = 2 * (self.a * self.y - self.z * self.x);
--- 	-- -- if math.abs(sinp) >= 1 then
--- 	-- 	-- pitch = math.pi / 2 -- use 90 degrees if out of range
--- 	-- 	-- if sinp < 0 then pitch = -pitch end
--- 	-- -- else
--- 	-- 	pitch = math.asin(sinp)
--- 	-- -- end
-
--- 	--  -- yaw (z-axis rotation)
--- 	-- local siny_cosp = 2 * (self.a * self.z + self.x * self.y);
--- 	-- local cosy_cosp = 1 - 2 * (self.y * self.y + self.z * self.z);
--- 	-- yaw = math.atan2(siny_cosp, cosy_cosp);
-
--- 	-- local sqw = self.a*self.a;
---  --   local sqx = self.x*self.x;
---  --   local sqy = self.y*self.y;
---  --   local sqz = self.z*self.z;
--- 	-- local unit = sqx + sqy + sqz + sqw; -- if normalised is one, otherwise is correction factor
--- 	-- local test = self.x*self.y + self.z*self.a;
--- 	-- if (test > 0.499*unit) then -- singularity at north pole
--- 	-- 	pitch = 2 * math.atan2(self.x,self.a);
--- 	-- 	roll = math.pi/2;
--- 	-- 	yaw = 0;
--- 	-- elseif (test < -0.499*unit) then -- singularity at south pole
--- 	-- 	pitch = -2 * math.atan2(self.x,self.a);
--- 	-- 	roll = -math.pi/2;
--- 	-- 	yaw = 0;
--- 	-- else
--- 	-- 	pitch = math.atan2(2*self.y*self.a-2*self.x*self.z , sqx - sqy - sqz + sqw);
--- 	-- 	roll = math.asin(2*test/unit);
--- 	-- 	yaw = math.atan2(2*self.x*self.a-2*self.y*self.z , -sqx + sqy - sqz + sqw)
--- 	-- end
-
--- 	return yaw, pitch, roll
--- end
-
--- function Quaternion:mul(q1, q2)
--- 	if not q2 then
--- 		q2 = q1
--- 		q1 = self
+-- RETAIL
+-- C_Timer.After(0, function()
+-- 	local asd2 = {}
+-- 	for id, v in next, asd do
+-- 		local mountID = C_MountJournal.GetMountFromSpell(id)
+-- 		if mountID then
+-- 			local name, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+-- 			if name ~= v[1] then
+-- 				fprint("name", name, id, mountID)
+-- 			end
+-- 			if spellID == id then
+-- 				asd2[spellID] = v[2]
+-- 				asd2[spellID][2] = sourceType
+-- 			else
+-- 				fprint("spell error", id, spellID)
+-- 			end
+-- 		else
+-- 			fprint("no mount", id)
+-- 		end
 -- 	end
+-- 	fprint(dumpe, asd2)
+-- end)
 
--- 	local q1a, q1x, q1y, q1z = q1.a, q1.x, q1.y, q1.z
--- 	local q2a, q2x, q2y, q2z = q2.a, q2.x, q2.y, q2.z
-
--- 	self.a = q1a * q2a - q1x * q2x - q1y * q2y - q1z * q2z
--- 	self.x = q1x * q2a + q1a * q2x + q1y * q2z - q1z * q2y
--- 	self.y = q1y * q2a + q1a * q2y + q1z * q2x - q1x * q2z
--- 	self.z = q1z * q2a + q1a * q2z + q1x * q2y - q1y * q2x
--- 	return self
--- end
+-- FORMAT
+-- C_Timer.After(0, function()
+-- 	for id, v in next, asd2 do
+-- 		mounts.mountsDB[C_MountJournal.GetMountFromSpell(id)] = v
+-- 	end
+-- 	fprint(dumpe, mounts.mountsDB)
+-- end)

@@ -1,4 +1,4 @@
-## Interface: 30403
+## Interface: 40400
 ## Title: MountsJournal
 ## Author: sfmict
 ## Version: @project-version@
@@ -13,6 +13,7 @@ Util.lua
 widgets\Binding.lua
 templates.xml
 Mounts.lua
+Old.lua
 db.lua
 config\Main.lua
 config\Classes.lua
@@ -26,6 +27,8 @@ components\Profiles.lua
 components\Hyperlinks.lua
 components\Pets.lua
 components\Calendar.lua
+components\AdditionalMounts.lua
+components\MountListButtonInit.lua
 #@do-not-package@
 _test.lua
 #@end-do-not-package@

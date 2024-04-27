@@ -31,12 +31,12 @@ function macroFrame:PLAYER_LOGIN()
 		end
 	end})
 
-	local function loadFunc(name, funcStr)
+	local function loadFunc(funcStr)
 		local loadedFunc, err = loadstring(funcStr)
 		if err then
 			geterrorhandler()(err)
 		else
-			self[name] = loadedFunc()
+			return loadedFunc()
 		end
 	end
 
@@ -239,14 +239,25 @@ function macroFrame:PLAYER_LOGIN()
 				macro = self:addLine(macro, "/use "..self.itemName[self.broomID]) -- MAGIC BROOM
 				self.lastUseTime = GetTime()
 			else
-				macro = self:addLine(macro, "/mount doNotSetFlags")
+				self.mounts:setSummonMount(true)
+
+				local additionMount = self.mounts.additionalMounts[self.sFlags.targetMount]
+				if not additionMount then
+					additionMount = self.mounts.additionalMounts[self.mounts.summonedSpellID]
+				end
+
+				if additionMount then
+					macro = self:addLine(macro, additionMount.macro)
+				else
+					macro = self:addLine(macro, "/run MountsJournal:summon()")
+				end
 			end
 			return macro
 		end
 	]]
 
-	loadFunc("getClassOptionMacro", classOptionMacro)
-	loadFunc("getDefMacro", defMacro)
+	self.getClassOptionMacro = loadFunc(classOptionMacro)
+	self.getDefMacro = loadFunc(defMacro)
 
 	self:RegisterEvent("LEARNED_SPELL_IN_TAB")
 

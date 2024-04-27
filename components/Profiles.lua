@@ -111,6 +111,38 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 		end
 	end
 
+	local function setMount(mountID, enabled)
+		local _, spellID, _,_,_,_,_,_,_,_, isCollected = dd.journal:getMountInfo(mountID)
+		if enabled then
+			if isCollected then
+				dd.mounts:addMountToList(dd.journal.list, spellID)
+			end
+		else
+			dd.journal.list.fly[spellID] = nil
+			dd.journal.list.ground[spellID] = nil
+			dd.journal.list.swimming[spellID] = nil
+		end
+	end
+
+	function dd:setAllFiltredMounts(actionText, enabled)
+		StaticPopup_Show(util.addonName.."YOU_WANT", NORMAL_FONT_COLOR:WrapTextInColorCode(actionText), nil, function()
+			if not self.journal.list then
+				self.journal:createMountList(self.journal.listMapID)
+			end
+
+			for i, data in ipairs(self.journal.dataProvider:GetCollection()) do
+				if self.mounts.config.gridToggle then
+					for j, mountData in ipairs(data) do setMount(mountData.mountID, enabled) end
+				else
+					setMount(data.mountID, enabled)
+				end
+			end
+
+			self.journal:getRemoveMountList(self.journal.listMapID)
+			self:event("UPDATE_PROFILE")
+		end)
+	end
+
 	function dd:selectAllMounts(actionText, onlyFavorites)
 		StaticPopup_Show(util.addonName.."YOU_WANT", NORMAL_FONT_COLOR:WrapTextInColorCode(actionText), nil, function()
 			if not self.journal.list then
@@ -118,9 +150,9 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 			end
 
 			for _, mountID in ipairs(self.journal.mountIDs) do
-				local _,_,_,_,_,_, isFavorite, _,_,_, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+				local _, spellID,_,_,_,_, isFavorite, _,_,_, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 				if isCollected and (not onlyFavorites or isFavorite) then
-					self.mounts:addMountToList(self.journal.list, mountID)
+					self.mounts:addMountToList(self.journal.list, spellID)
 				end
 			end
 			self:event("UPDATE_PROFILE")
@@ -273,8 +305,20 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 			end
 			self:ddAddButton(info, level)
 
+			self:ddAddSpace(level)
+
 			info.notCheckable = true
 			info.keepShownOnClick = nil
+
+			info.text = L["Select all filtered mounts by type in the selected zone"]
+			info.func = function(btn) self:setAllFiltredMounts(btn.text, true) end
+			self:ddAddButton(info, level)
+
+			info.text = L["Unselect all filtered mounts in the selected zone"]
+			info.func = function(btn) self:setAllFiltredMounts(btn.text, false) end
+			self:ddAddButton(info, level)
+
+			self:ddAddSpace(level)
 
 			info.text = L["Select all favorite mounts by type in the selected zone"]
 			info.func = function(btn) self:selectAllMounts(btn.text, true) end

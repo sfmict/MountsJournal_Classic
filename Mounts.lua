@@ -1,3 +1,4 @@
+if select(4, GetBuildInfo()) < 40400 then return end
 local addon, L = ...
 local C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, IsUsableSpell, GetSubZoneText, SecureCmdOptionParse = C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, IsUsableSpell, GetSubZoneText, SecureCmdOptionParse
 local util = MountsJournalUtil
@@ -21,6 +22,7 @@ function mounts:ADDON_LOADED(addonName)
 		MountsJournalDB = MountsJournalDB or {}
 		self.globalDB = MountsJournalDB
 		self.globalDB.mountTags = self.globalDB.mountTags or {}
+		self.globalDB.additionalFavorites = self.globalDB.additionalFavorites or {}
 		self.globalDB.filters = self.globalDB.filters or {}
 		self.globalDB.defFilters = self.globalDB.defFilters or {}
 		self.globalDB.config = self.globalDB.config or {}
@@ -35,9 +37,11 @@ function mounts:ADDON_LOADED(addonName)
 		for name, profile in next, self.profiles do
 			self:checkProfile(profile)
 		end
+		self.additionalFavorites = self.globalDB.additionalFavorites
 		self.filters = self.globalDB.filters
 		self.defFilters = self.globalDB.defFilters
 		self.config = self.globalDB.config
+		self.config.wowheadLinkLang = self.config.wowheadLinkLang or "en"
 		if self.config.mountDescriptionToggle == nil then
 			self.config.mountDescriptionToggle = true
 		end
@@ -84,16 +88,27 @@ function mounts:ADDON_LOADED(addonName)
 		self.charDB.profileBySpecializationPVP = self.charDB.profileBySpecializationPVP or {}
 		self.charDB.holidayProfiles = self.charDB.holidayProfiles or {}
 
+		self:setOldChanges()
+
 		-- Списки
+		self.swimmingVashjir = {
+			[75207] = true,
+		}
+
 		self.sFlags = {}
 		self.priorityProfiles = {}
 		self.list = {}
 		self.empty = {}
-		self.repairMounts = {
-			280,
-			284,
+
+		self.mapVashjir = {
+			[201] = true, -- Лес Келп’тар
+			[203] = true, -- Вайш'ир
+			[204] = true, -- Бездонные глубины
+			[205] = true, -- Мерцающий простор
 		}
+
 		self.usableRepairMounts = {}
+		self.usableIDs = {}
 
 		-- MINIMAP BUTTON
 		local ldb_icon = LibStub("LibDataBroker-1.1"):NewDataObject(addon, {
@@ -118,114 +133,6 @@ function mounts:ADDON_LOADED(addonName)
 			end,
 		})
 		LibStub("LibDBIcon-1.0"):Register(addon, ldb_icon, mounts.config.omb)
-
-		-- Dalaran - Krasus' Landing
-		local locale = GetLocale()
-		if locale == "deDE" then
-			self.krasusLanding = "Krasus' Landeplatz"
-		elseif locale == "esES" then
-			self.krasusLanding = "Alto de Krasus"
-		elseif locale == "esMX" then
-			self.krasusLanding = "Alto de Krasus"
-		elseif locale == "frFR" then
-			self.krasusLanding = "Aire de Krasus"
-		elseif locale == "itIT" then
-			self.krasusLanding = "Terrazza di Krasus"
-		elseif locale == "koKR" then
-			self.krasusLanding = "크라서스 착륙장"
-		elseif locale == "ptBR" then
-			self.krasusLanding = "Plataforma de Krasus"
-		elseif locale == "ruRU" then
-			self.krasusLanding = "Площадка Краса"
-		elseif locale == "zhCN" then
-			self.krasusLanding = "克拉苏斯平台"
-		elseif locale == "zhTW" then
-			self.krasusLanding = "卡薩斯平臺"
-		else
-			self.krasusLanding = "Krasus' Landing"
-		end
-
-		self:convertOldData()
-	end
-end
-
-
-function mounts:convertOldData()
-	self.convertOldData = nil
-	if not self.config.journalPosX then return end
-	self.config.journalPosX = nil
-	self.config.journalPosY = nil
-	self.globalDB.mountFavoritesList = nil
-	self.globalDB.petFavoritesList = nil
-
-	if self.config.repairSelectedMount then
-		self.config.repairSelectedMount = C_MountJournal.GetMountFromSpell(self.config.repairSelectedMount)
-	end
-
-	local function spellToMount(tbl)
-		local newTbl = {}
-		for spellID, v in pairs(tbl) do
-			local mountID = C_MountJournal.GetMountFromSpell(spellID)
-			if mountID then
-				newTbl[mountID] = v
-			end
-		end
-		return newTbl
-	end
-
-	self.globalDB.mountTags = spellToMount(self.globalDB.mountTags)
-
-	local function getPetIDFromSpellID(spellID)
-		local sName = GetSpellInfo(spellID)
-		for i, petID in ipairs(self.pets.list) do
-			local _,_,_,_,_,_,_, name = C_PetJournal.GetPetInfoByPetID(petID)
-			if name == sName then
-				return petID
-			end
-		end
-	end
-
-	local petToUpdate = {}
-	self:on("PET_LIST_UPDATE.old", function(self)
-		if #self.pets.list == 0 then return end
-		self:off("PET_LIST_UPDATE.old")
-
-		for i, petForMount in ipairs(petToUpdate) do
-			for spellID, v in pairs(petForMount) do
-				local mountID = C_MountJournal.GetMountFromSpell(spellID)
-				if mountID then
-					if v == false then
-						petForMount[spellID] = 1
-					elseif v == true then
-						petForMount[spellID] = 2
-					elseif type(v) == "number" then
-						petForMount[spellID] = getPetIDFromSpellID(v)
-					end
-				else
-					petForMount[spellID] = nil
-				end
-			end
-		end
-	end)
-
-	local function profileUpdate(profile)
-		profile.fly = spellToMount(profile.fly)
-		profile.ground = spellToMount(profile.ground)
-		profile.swimming = spellToMount(profile.swimming)
-		profile.mountsWeight = spellToMount(profile.mountsWeight)
-
-		for map, v in pairs(profile.zoneMounts) do
-			v.fly = spellToMount(v.fly)
-			v.ground = spellToMount(v.ground)
-			v.swimming = spellToMount(v.swimming)
-		end
-
-		petToUpdate[#petToUpdate + 1] = profile.petForMount
-	end
-
-	profileUpdate(self.defProfile)
-	for name, profile in next, self.profiles do
-		profileUpdate(profile)
 	end
 end
 
@@ -241,8 +148,16 @@ end
 
 
 function mounts:PLAYER_LOGIN()
+	if self.after then
+		for i = 1, #self.after do
+			self.after[i]()
+		end
+		self.after = nil
+	end
+
 	-- INIT
 	self:setModifier(self.config.modifier)
+	self:setHandleWaterJump(self.config.waterJump)
 	self:setUsableRepairMounts()
 	self:updateProfessionsRank()
 	self:init()
@@ -318,18 +233,15 @@ end
 
 
 function mounts:setUsableRepairMounts()
-	local playerFaction = UnitFactionGroup("Player")
-
 	wipe(self.usableRepairMounts)
-	for i = 1, #self.repairMounts do
-		local mountID = self.repairMounts[i]
-		local _,_,_,_,_,_,_,_, mountFaction, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+	for spellID in pairs(self.specificDB.repair) do
+		local mountID = C_MountJournal.GetMountFromSpell(spellID)
+		local _,_,_,_,_,_,_,_,_, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
-		if mountFaction == 0 and playerFaction == "Horde"
-		or mountFaction == 1 and playerFaction == "Alliance" then
-			mounts.config.repairSelectedMount = mountID
+		if not shouldHideOnChar then
+			mounts.config.repairSelectedMount = spellID
 			if isCollected then
-				self.usableRepairMounts[mountID] = true
+				self.usableRepairMounts[spellID] = true
 			end
 			break
 		end
@@ -401,7 +313,8 @@ end
 
 
 function mounts:NEW_MOUNT_ADDED(mountID)
-	self:autoAddNewMount(mountID)
+	local _, spellID = C_MountJournal.GetMountInfoByID(mountID)
+	self:autoAddNewMount(spellID)
 end
 
 
@@ -424,84 +337,66 @@ end
 mounts.SKILL_LINES_CHANGED = mounts.updateProfessionsRank
 
 
-function mounts:isCanUseFlying(mapID)
-	if self.instanceID == 571 then -- Northrend
-		if IsSpellKnown(54197) then
-			if not mapID then mapID = MapUtil.GetDisplayableMapForPlayer() end
-			if mapID ~= 126
-			and (mapID ~= 125 or GetSubZoneText() == self.krasusLanding)
-			then
-				return true
-			end
-		end
-		return false
+do
+	local mountsRequiringProf = {
+		[44151] = {"engineeringRank", 375}, -- 204 Turbo-Charged Flying Machine
+		[44153] = {"engineeringRank", 300}, -- 205 Flying Machine
+		[61309] = {"tailoringRank", 425}, -- 279 Magnificent Flying Carpet
+		[61451] = {"tailoringRank", 300}, -- 285 Flying Carpet
+		[75596] = {"tailoringRank", 425}, -- 375 Frosty Flying Carpet
+	}
+
+	function mounts:isUsable(spellID)
+		local prof = mountsRequiringProf[spellID]
+		if prof and (self[prof[1]] or 0) < prof[2] then return false end
+		return true
 	end
-	return true
 end
 
 
 do
-	local canUseMounts = {
-		[219] = true, -- 48025 | Headless Horseman's Mount
-		[352] = true, -- 71342 | X-45 Heartbreaker
-		[363] = true, -- 72286 | Invincible
-		[371] = true, -- 74856 | Blazing Hippogryph
-		[376] = true, -- 75614 | Celestial Steed
-		[1762] = true, -- 372677 | Kalu'ak Whalebone Glider
-		[1770] = true, -- 394209 | Festering Emerald Drake
-	}
-
-	local mountsRequiringProf = {
-		[204] = {"engineeringRank", 375}, -- 44151 | Turbo-Charged Flying Machine
-		[205] = {"engineeringRank", 300}, -- 44153 | Flying Machine
-		[279] = {"tailoringRank", 425}, -- 61309 | Magnificent Flying Carpet
-		[285] = {"tailoringRank", 300}, -- 61451 | Flying Carpet
-		[375] = {"tailoringRank", 425}, -- 75596 | Frosty Flying Carpet
-	}
-
-	function mounts:isUsable(mountID, mType, canUseFlying)
-		local prof = mountsRequiringProf[mountID]
-		if prof and (self[prof[1]] or 0) < prof[2] then return false end
-
-		if not mType then
-			local _,_,_,_, mountType = C_MountJournal.GetMountInfoExtraByID(mountID)
-			mType = util.mountTypes[mountType]
+	local function addMount(list, mountType, spellID)
+		if mountType == 1 then
+			mountType = "fly"
+		elseif mountType == 2 then
+			mountType = "ground"
+		else
+			mountType = "swimming"
 		end
 
-		if not canUseFlying then
-			canUseFlying = self:isCanUseFlying()
+		list[mountType][spellID] = true
+	end
+
+
+	function mounts:addMountToList(list, spellID)
+		local mountType
+		if self.additionalMounts[spellID] then
+			mountType = util.mountTypes[self.additionalMounts[spellID].mountType]
+		else
+			local mountID = C_MountJournal.GetMountFromSpell(spellID)
+			local _,_,_,_, mountTypeExtra = C_MountJournal.GetMountInfoExtraByID(mountID)
+			mountType = util.mountTypes[mountTypeExtra]
 		end
 
-		if mType ~= 1 or canUseFlying or canUseMounts[mountID] then return true end
-		return false
+		if type(mountType) == "table" then
+			for i = 1, #mountType do
+				addMount(list, mountType[i], spellID)
+			end
+		else
+			addMount(list, mountType, spellID)
+		end
 	end
 end
 
 
-function mounts:addMountToList(list, mountID)
-	local _,_,_,_, mountType = C_MountJournal.GetMountInfoExtraByID(mountID)
-	local mType = util.mountTypes[mountType]
-
-	if mType == 1 then
-		mType = "fly"
-	elseif mType == 2 then
-		mType = "ground"
-	else
-		mType = "swimming"
-	end
-
-	list[mType][mountID] = true
-end
-
-
-function mounts:autoAddNewMount(mountID)
+function mounts:autoAddNewMount(spellID)
 	if self.defProfile.autoAddNewMount then
-		self:addMountToList(self.defProfile, mountID)
+		self:addMountToList(self.defProfile, spellID)
 	end
 
 	for _, profile in next, self.profiles do
 		if profile.autoAddNewMount then
-			self:addMountToList(profile, mountID)
+			self:addMountToList(profile, spellID)
 		end
 	end
 end
@@ -621,6 +516,35 @@ end
 mounts.PLAYER_SPECIALIZATION_CHANGED = mounts.setDB
 
 
+function mounts:setHandleWaterJump(enable)
+	if type(enable) == "boolean" then
+		self.config.waterJump = enable
+		local registred = self:IsEventRegistered("MOUNT_JOURNAL_USABILITY_CHANGED")
+		if enable then
+			if not registred then
+				self:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
+			end
+		else
+			if registred then
+				self:UnregisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
+			end
+		end
+	end
+end
+
+
+function mounts:MOUNT_JOURNAL_USABILITY_CHANGED()
+	if not IsSubmerged() then
+		self.lastJumpTime = GetTime()
+	end
+end
+
+
+function mounts:isFloating()
+	return self.config.waterJump and GetTime() - (self.lastJumpTime or 0) < 1
+end
+
+
 function mounts:getTargetMount()
 	if self.config.copyMountTarget then
 		local i = 1
@@ -629,11 +553,10 @@ function mounts:getTargetMount()
 			if spellID then
 				local mountID = C_MountJournal.GetMountFromSpell(spellID)
 				if mountID then
-					local _, spellID, _,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
-					if isUsable and IsUsableSpell(spellID) then
-						return self:isUsable(spellID, nil ,self.sFlags.canUseFlying) and mountID
-					end
-					break
+					local _,_,_,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
+					return isUsable and IsUsableSpell(spellID) and self:isUsable(spellID) and spellID
+				elseif self.additionalMounts[spellID] then
+					return self.additionalMounts[spellID]:canUse() and spellID
 				end
 				i = i + 1
 			end
@@ -642,29 +565,109 @@ function mounts:getTargetMount()
 end
 
 
-do
-	local usableIDs = {}
-	function mounts:summon(ids, mountsWeight)
-		local weight, canUseFlying = 0, self.sFlags.canUseFlying
-		for mountID in next, ids do
-			local _, spellID, _,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
-			if isUsable and IsUsableSpell(spellID) and self:isUsable(mountID, nil, canUseFlying) then
-				weight = weight + (mountsWeight[mountID] or 100)
-				usableIDs[weight] = mountID
-			end
-		end
-		if weight > 0 then
-			for i = random(weight), weight do
-				if usableIDs[i] then
-					C_MountJournal.SummonByID(usableIDs[i])
-					break
-				end
-			end
-			wipe(usableIDs)
+function mounts:summon(spellID)
+	self.summonedSpellID = spellID or self.summonedSpellID
+	if self.summonedSpellID then
+		local mountID = C_MountJournal.GetMountFromSpell(self.summonedSpellID)
+		if mountID then
+			C_MountJournal.SummonByID(mountID)
 			return true
-		else
-			return false
 		end
+	end
+end
+
+
+function mounts:setUsableID(ids, mountsWeight)
+	local weight = 0
+	wipe(self.usableIDs)
+
+	for spellID in next, ids do
+		local usable
+		if self.additionalMounts[spellID] then
+			usable = self.withAdditional and self.additionalMounts[spellID]:canUse()
+		else
+			local mountID = C_MountJournal.GetMountFromSpell(spellID)
+			local _,_,_,_, isUsable, _,_,_,_,_,_,_, isForDragonriding = C_MountJournal.GetMountInfoByID(mountID)
+			usable = isUsable and IsUsableSpell(spellID) and self:isUsable(spellID)
+		end
+
+		if usable then
+			weight = weight + (mountsWeight[spellID] or 100)
+			self.usableIDs[weight] = spellID
+		end
+	end
+
+	if weight > 0 then
+		for i = random(weight), weight do
+			if self.usableIDs[i] then
+				self.summonedSpellID = self.usableIDs[i]
+				return true
+			end
+		end
+	end
+end
+
+
+-- do
+-- 	local usableIDs = {}
+-- 	function mounts:summon(ids, mountsWeight)
+-- 		local weight = 0
+-- 		for spellID in next, ids do
+-- 			local mountID = C_MountJournal.GetMountFromSpell(spellID)
+-- 			local _, spellID, _,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
+-- 			if isUsable and IsUsableSpell(spellID) and self:isUsable(mountID) then
+-- 				weight = weight + (mountsWeight[mountID] or 100)
+-- 				usableIDs[weight] = mountID
+-- 			end
+-- 		end
+-- 		if weight > 0 then
+-- 			for i = random(weight), weight do
+-- 				if usableIDs[i] then
+-- 					C_MountJournal.SummonByID(usableIDs[i])
+-- 					break
+-- 				end
+-- 			end
+-- 			wipe(usableIDs)
+-- 			return true
+-- 		else
+-- 			return false
+-- 		end
+-- 	end
+-- end
+
+
+function mounts:getSpellKnown()
+	if IsPlayerSpell(90265) -- Мастер верховой езды
+	or IsPlayerSpell(34091) -- Верховая езда (искусник)
+	or IsPlayerSpell(34090) -- Верховая езда (умелец)
+	then
+		return true, true
+	end
+
+	if IsPlayerSpell(33391) -- Верховая езда (подмастерье)
+	or IsPlayerSpell(33388) -- Верховая езда (ученик)
+	then
+		return true, false
+	end
+
+	return false, false
+end
+
+
+do
+	local cataInstances = {
+		[0] = true,
+		[1] = true,
+		[646] = true,
+	}
+
+	function mounts:isFlyLocation()
+		if self.instanceID == 571 then -- Northrend
+			return IsSpellKnown(54197)
+		elseif cataInstances[self.instanceID] then
+			return IsSpellKnown(90267)
+		end
+		return true
 	end
 end
 
@@ -677,22 +680,28 @@ end
 function mounts:setFlags()
 	self:setMountsList()
 	local flags = self.sFlags
-	local modifier = self.modifier() or flags.forceModifier
-	local isFlyableLocation = IsFlyableArea()
+	local groundSpellKnown, flySpellKnown = self:getSpellKnown()
+	local isFloating = self:isFloating()
+	local isFlyableLocation = flySpellKnown
+	                          and IsFlyableArea()
+	                          and self:isFlyLocation()
 	                          and not (self.mapFlags and self.mapFlags.groundOnly)
 
+	flags.modifier = self.modifier() or flags.forceModifier
 	flags.isSubmerged = IsSubmerged()
 	flags.isIndoors = IsIndoors()
 	flags.inVehicle = UnitInVehicle("player")
 	flags.isMounted = IsMounted()
 	flags.swimming = flags.isSubmerged
-	                 and not modifier
-	flags.canUseFlying = self:isCanUseFlying(self.mapInfo.mapID)
+	                 and not (flags.modifier or isFloating)
+	flags.isVashjir = self.mapVashjir[self.mapInfo.mapID]
 	flags.fly = isFlyableLocation
-	            and flags.canUseFlying
 	            and (not modifier or flags.isSubmerged)
-	flags.waterWalk = not isFlyableLocation and modifier
+	flags.waterWalk = isFloating
+	                  or not isFlyableLocation and flags.modifier
 	                  or self:isWaterWalkLocation()
+	flags.useRepair = flags.repair and not flags.fly
+	                  or flags.flyableRepair and flags.fly
 	flags.targetMount = self:getTargetMount()
 end
 
@@ -702,32 +711,41 @@ function mounts:errorSummon()
 end
 
 
+function mounts:setSummonMount(withAdditional)
+	self.withAdditional = withAdditional
+	self.summonedSpellID = nil
+	local flags = self.sFlags
+	if flags.inVehicle then
+		VehicleExit()
+	elseif flags.isMounted then
+		Dismount()
+	-- repair mounts
+	elseif not (flags.useRepair and self:setUsableID(self.usableRepairMounts, self.db.mountsWeight))
+	-- target's mount
+	and not (flags.targetMount and self:summon(flags.targetMount))
+	-- swimming
+	and not (flags.swimming and (
+		flags.isVashjir and self:setUsableID(self.swimmingVashjir, self.db.mountsWeight)
+		or self:setUsableID(self.list.swimming, self.list.swimmingWeight)
+	))
+	-- fly
+	and not (flags.fly and self:setUsableID(self.list.fly, self.list.flyWeight))
+	-- ground
+	and not self:setUsableID(self.list.ground, self.list.groundWeight)
+	and not self:setUsableID(self.list.fly, self.list.flyWeight)
+	then
+		self:errorSummon()
+	end
+end
+
+
 function mounts:init()
 	SLASH_MOUNTSJOURNAL1 = "/mount"
 	SlashCmdList["MOUNTSJOURNAL"] = function(msg)
-		local flags = self.sFlags
-		if msg ~= "doNotSetFlags" then
-			if not SecureCmdOptionParse(msg) then return end
-			flags.forceModifier = nil
-			self:setFlags()
-		end
-		if flags.inVehicle then
-			VehicleExit()
-		elseif flags.isMounted then
-			Dismount()
-		-- repair mounts
-		elseif not ((flags.repair and not flags.fly or flags.flyableRepair and flags.fly) and self:summon(self.usableRepairMounts, self.db.mountsWeight))
-		-- target's mount
-		and not (flags.targetMount and (C_MountJournal.SummonByID(flags.targetMount) or true))
-		-- swimming
-		and not (flags.swimming and self:summon(self.list.swimming, self.list.swimmingWeight))
-		-- fly
-		and not (flags.fly and self:summon(self.list.fly, self.list.flyWeight))
-		-- ground
-		and not self:summon(self.list.ground, self.list.groundWeight)
-		and not self:summon(self.list.fly, self.list.flyWeight)
-		then
-			self:errorSummon()
-		end
+		if not SecureCmdOptionParse(msg) then return end
+		self.sFlags.forceModifier = nil
+		self:setFlags()
+		self:setSummonMount()
+		self:summon()
 	end
 end

@@ -33,6 +33,8 @@ config:SetScript("OnShow", function(self)
 		OnAccept = function(popup, cb) popup:Hide() cb() end,
 	}
 
+	local randomMountIcon = 413588
+
 	-- ENABLE APPLY
 	local function enableBtns()
 		self.applyBtn:Enable()
@@ -80,9 +82,17 @@ config:SetScript("OnShow", function(self)
 	self.leftPanel:SetPoint("TOPLEFT", self, 8, -67)
 	self.leftPanel:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 300, 32)
 
+	-- WATER JUMP
+	self.waterJump = CreateFrame("CheckButton", nil, self.leftPanel, "MJCheckButtonTemplate")
+	self.waterJump:SetPoint("TOPLEFT", self.leftPanel, 13, -15)
+	self.waterJump.Text:SetText(L["Handle a jump in water"])
+	self.waterJump.tooltipText = L["Handle a jump in water"]
+	self.waterJump.tooltipRequirement = L["WaterJumpDescription"]
+	self.waterJump:HookScript("OnClick", enableBtns)
+
 	-- SUMMON 1
 	local summon1 = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	summon1:SetPoint("TOPLEFT", subtitle, "BOTTOMLEFT", 8, -20)
+	summon1:SetPoint("TOPLEFT", self.waterJump, "BOTTOMLEFT", 0, -20)
 	summon1:SetText(SUMMON.." 1")
 
 	-- CREATE MACRO
@@ -267,13 +277,14 @@ config:SetScript("OnShow", function(self)
 		local info = {}
 
 		info.tooltipWhileDisabled = true
-		for i, mountID in ipairs(mounts.repairMounts) do
-			local name, spellID, icon, _,_,_,_,_,_, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+		for spellID in pairs(mounts.specificDB.repair) do
+			local mountID = C_MountJournal.GetMountFromSpell(spellID)
+			local name, _, icon, _,_,_,_,_,_, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
 			if not shouldHideOnChar then
 				info.text = name
 				info.icon = icon
-				info.value = mountID
+				info.value = spellID
 				info.disabled = not isCollected
 				info.checked = function(btn) return self:ddGetSelectedValue() == btn.value end
 				info.func = function(btn)
@@ -434,6 +445,7 @@ config:SetScript("OnShow", function(self)
 		binding.unboundMessage:Hide()
 		modifierCombobox:ddSetSelectedValue(mounts.config.modifier)
 		modifierCombobox:ddSetSelectedText(_G[mounts.config.modifier.."_KEY"])
+		self.waterJump:SetChecked(mounts.config.waterJump)
 		self.showMinimapButton:SetChecked(not mounts.config.omb.hide)
 		self.lockMinimapButton:SetChecked(mounts.config.omb.lock)
 		self.useRepairMounts:SetChecked(mounts.config.useRepairMounts)
@@ -442,10 +454,11 @@ config:SetScript("OnShow", function(self)
 		self.repairFlyablePercent:SetNumber(tonumber(mounts.config.useRepairFlyableDurability) or 0)
 		self.repairMountsCombobox:ddSetSelectedValue(mounts.config.repairSelectedMount)
 		if mounts.config.repairSelectedMount then
-			local name, _, icon = C_MountJournal.GetMountInfoByID(mounts.config.repairSelectedMount)
+			local mountID = C_MountJournal.GetMountFromSpell(mounts.config.repairSelectedMount)
+			local name, _, icon = C_MountJournal.GetMountInfoByID(mountID)
 			self.repairMountsCombobox:ddSetSelectedText(name, icon)
 		else
-			self.repairMountsCombobox:ddSetSelectedText(L["Random available mount"], 413588)
+			self.repairMountsCombobox:ddSetSelectedText(L["Random available mount"], randomMountIcon)
 		end
 		self.useMagicBroom:SetChecked(mounts.config.useMagicBroom)
 		self.summonPetEvery:SetChecked(mounts.config.summonPetEvery)
@@ -485,6 +498,7 @@ config:SetScript("OnShow", function(self)
 		mounts.config.showWowheadLink = self.showWowheadLink:GetChecked()
 
 		binding:saveBinding()
+		mounts:setHandleWaterJump(self.waterJump:GetChecked())
 		mounts:setModifier(self.modifierCombobox:ddGetSelectedValue())
 		mounts:UPDATE_INVENTORY_DURABILITY()
 		mounts.pets:setSummonEvery()
