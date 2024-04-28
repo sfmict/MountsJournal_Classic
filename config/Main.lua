@@ -433,11 +433,7 @@ config:SetScript("OnShow", function(self)
 	end)
 
 	-- UPDATE BINDING BUTTONS
-	binding:on("SET_BINDING", function(binding, btn)
-		if self.bindMount ~= btn then binding:setButtonText(self.bindMount) end
-		if self.bindSecondMount ~= btn then binding:setButtonText(self.bindSecondMount) end
-		enableBtns()
-	end)
+	binding:on("SET_BINDING", enableBtns)
 
 	-- REFRESH
 	self.OnRefresh = function(self)

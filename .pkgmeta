@@ -6,6 +6,10 @@ externals:
 		site: https://www.curseforge.com/wow/addons/libsfdropdown
 		url: https://github.com/sfmict/LibSFDropDown
 		tag: latest
+	libs/LibThingsLoad:
+		site: https://www.curseforge.com/wow/addons/libthingsload
+		url: https://github.com/sfmict/LibThingsLoad
+		tag: latest
 	libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
 	libs/LibDataBroker-1.1:
 		site: https://www.curseforge.com/wow/addons/libdatabroker-1-1

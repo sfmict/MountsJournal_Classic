@@ -1894,7 +1894,7 @@ function journal:setSelectedMount(mountID, spellID, dataIndex)
 	local scrollTo = not spellID
 	if not spellID then
 		local _
-		_, spellID = C_MountJournal.GetMountInfoByID(mountID)
+		_, spellID = self:getMountInfo(mountID)
 	end
 	local oldSelectedID = self.selectedMountID
 	self.selectedMountID = mountID
