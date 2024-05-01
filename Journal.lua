@@ -138,7 +138,7 @@ function journal:init()
 	self.mountListUpdateAnim = self.leftInset.updateAnimFrame.anim
 	self.scrollBox = self.bgFrame.scrollBox
 	self.summonButton = self.bgFrame.summonButton
-	self.weightFrame = self.bgFrame.mountsWeight
+	self.percentSlider = self.bgFrame.percentSlider
 	self.mountSpecial = self.bgFrame.mountSpecial
 
 	-- USE MountsJournal BUTTON
@@ -498,30 +498,30 @@ function journal:init()
 		self:updateMountsList()
 		self.tags.doNotHideMenu = nil
 	end
-	self.weightFrame:setOnChanged(function(frame, value)
+	self.percentSlider:setOnChanged(function(frame, value)
 		frame.setFunc(value)
 		frame.slider.isModified = true
 	end)
-	self.weightFrame:setMinMax(1, 100)
-	self.weightFrame:setText(L["Chance of summoning"])
-	self.weightFrame:SetScript("OnEnter", function(frame)
+	self.percentSlider:setMinMax(1, 100)
+	self.percentSlider:setText(L["Chance of summoning"])
+	self.percentSlider:SetScript("OnEnter", function(frame)
 		self.filtersButton:ddCloseMenus(frame.level)
 	end)
-	self.weightFrame.slider:HookScript("OnEnter", weightControl_OnEnter)
-	self.weightFrame.slider:HookScript("OnMouseUp", function(slider)
+	self.percentSlider.slider:HookScript("OnEnter", weightControl_OnEnter)
+	self.percentSlider.slider:HookScript("OnMouseUp", function(slider)
 		mountListUpdate()
 		slider.isModified = nil
 	end)
-	self.weightFrame.slider:HookScript("OnHide", function(slider)
+	self.percentSlider.slider:HookScript("OnHide", function(slider)
 		if slider.isModified then
 			self:updateMountsList()
 			slider.isModified = nil
 		end
 	end)
-	self.weightFrame.slider:HookScript("OnMouseWheel", mountListUpdate)
-	self.weightFrame.edit:HookScript("OnEnter", weightControl_OnEnter)
-	self.weightFrame.edit:HookScript("OnEnterPressed", mountListUpdate)
-	self.weightFrame.edit:HookScript("OnMouseWheel", mountListUpdate)
+	self.percentSlider.slider:HookScript("OnMouseWheel", mountListUpdate)
+	self.percentSlider.edit:HookScript("OnEnter", weightControl_OnEnter)
+	self.percentSlider.edit:HookScript("OnEnterPressed", mountListUpdate)
+	self.percentSlider.edit:HookScript("OnMouseWheel", mountListUpdate)
 
 	-- FILTERS BUTTONS
 	local function filterClick(btn)
@@ -2375,7 +2375,7 @@ function journal:filterDropDown_Initialize(btn, level, value)
 			info.value = nil
 			info.func = nil
 			info.checked = nil
-			info.customFrame = self.weightFrame
+			info.customFrame = self.percentSlider
 			info.OnLoad = function(frame)
 				frame.level = level + 1
 				frame:setValue(filterWeight.weight)

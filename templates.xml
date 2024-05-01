@@ -860,7 +860,7 @@
 				</Anchors>
 			</Button>
 
-			<Frame parentKey="mountsWeight" inherits="MJSliderFrameTemplate" hidden="true">
+			<Frame parentKey="percentSlider" inherits="MJSliderFrameTemplate" hidden="true">
 				<Layers>
 					<Layer level="ARTWORK">
 						<FontString parentKey="label" text="%" inherits="GameFontHighlightSmall">
