@@ -1,5 +1,5 @@
 local addon, L = ...
-local C_MountJournal, C_PetJournal, IsUsableSpell, wipe, tinsert, next, pairs, ipairs, select, type, sort, math = C_MountJournal, C_PetJournal, IsUsableSpell, wipe, tinsert, next, pairs, ipairs, select, type, sort, math
+local C_MountJournal, C_PetJournal, wipe, tinsert, next, pairs, ipairs, select, type, sort, math = C_MountJournal, C_PetJournal, wipe, tinsert, next, pairs, ipairs, select, type, sort, math
 local util, mounts, config = MountsJournalUtil, MountsJournal, MountsJournalConfig
 local journal = CreateFrame("FRAME", "MountsJournalFrame")
 journal.mountTypes = util.mountTypes
@@ -88,10 +88,11 @@ function journal:init()
 		self:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-
+		self:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", "player")
 		self.leftInset:EnableKeyboard(not InCombatLockdown())
 		self:updateMountsList()
 		self:updateMountDisplay(true)
+		self.mountSpecial:SetEnabled(IsMounted())
 	end)
 
 	self.bgFrame:SetScript("OnHide", function()
@@ -100,7 +101,7 @@ function journal:init()
 		self:UnregisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-
+		self:UnregisterEvent("UNIT_PORTRAIT_UPDATE")
 		self.mountDisplay:Show()
 		self.navBarBtn:SetChecked(false)
 		self.mapSettings:Hide()
@@ -138,13 +139,13 @@ function journal:init()
 	self.scrollBox = self.bgFrame.scrollBox
 	self.summonButton = self.bgFrame.summonButton
 	self.weightFrame = self.bgFrame.mountsWeight
+	self.mountSpecial = self.bgFrame.mountSpecial
 
 	-- USE MountsJournal BUTTON
 	self.useMountsJournalButton:SetParent(self.CollectionsJournal)
 	self.useMountsJournalButton:SetFrameLevel(self.bgFrame:GetFrameLevel() + 10)
 	self.useMountsJournalButton:SetScript("OnShow", nil)
 	self.useMountsJournalButton:SetScript("OnHide", nil)
-	self.useMountsJournalButton:SetProtected(true)
 
 	-- SECURE FRAMES
 	local sMountJournal = CreateFrame("FRAME", nil, self.MountJournal, "SecureHandlerShowHideTemplate")
@@ -850,6 +851,25 @@ function journal:init()
 	self.bgFrame.btnConfig:SetText(L["Settings"])
 	self.bgFrame.btnConfig:SetScript("OnClick", function() config:openConfig() end)
 
+	-- MOUNT SPECIAL
+	self.mountSpecial:SetText("!")
+	self.mountSpecial.normal = self.mountSpecial:GetFontString()
+	self.mountSpecial.normal:ClearAllPoints()
+	self.mountSpecial.normal:SetPoint("CENTER")
+	self.mountSpecial:SetEnabled(IsMounted())
+	self.mountSpecial:SetScript("OnEnter", function(btn)
+		GameTooltip:SetOwner(btn, "ANCHOR_TOP")
+		GameTooltip_SetTitle(GameTooltip, "/MountSpecial")
+		GameTooltip:Show()
+	end)
+	self.mountSpecial:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
+	self.mountSpecial:SetScript("OnClick", function()
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+		DoEmote("MountSpecial")
+	end)
+
 	-- FANFARE
 	hooksecurefunc(C_MountJournal, "ClearFanfare", function(mountID)
 		self:sortMounts()
@@ -874,6 +894,7 @@ function journal:init()
 	self:RegisterEvent("COMPANION_UPDATE")
 	self:RegisterEvent("UI_MODEL_SCENE_INFO_UPDATED")
 	self:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
+	self:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", "player")
 
 	self:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
 	self:setMJFiltersBackup()
@@ -1070,6 +1091,7 @@ function journal:COMPANION_UPDATE(companionType)
 	if companionType == "MOUNT" then
 		self:updateScrollMountList()
 		self:updateMountDisplay()
+		self.mountSpecial:SetEnabled(util.getUnitMount("player"))
 	end
 end
 
@@ -1189,7 +1211,7 @@ function journal:defaultInitMountButton(btn, data)
 		btn.factionIcon:Hide()
 	end
 
-	if isUsable and IsUsableSpell(spellID) and mounts:isUsable(spellID) or needsFanfare then
+	if isUsable and mounts:isUsable(spellID) or needsFanfare then
 		btn.dragButton:Enable()
 		btn.dragButton.icon:SetDesaturated()
 		btn.dragButton.icon:SetAlpha(1)
@@ -1241,7 +1263,7 @@ function journal:grid3InitMountButton(btn, data)
 				g3btn.mountWeightBG:Hide()
 			end
 
-			if isUsable and IsUsableSpell(spellID) and mounts:isUsable(spellID) or needsFanfare then
+			if isUsable and mounts:isUsable(spellID) or needsFanfare then
 				g3btn.icon:SetDesaturated()
 				g3btn.icon:SetAlpha(1)
 			elseif isCollected then
@@ -1535,6 +1557,11 @@ function journal:MOUNT_JOURNAL_USABILITY_CHANGED()
 end
 
 
+function journal:UNIT_PORTRAIT_UPDATE()
+	self:updateMountDisplay(true)
+end
+
+
 function journal:createMountList(mapID)
 	self.zoneMounts[mapID] = {
 		fly = {},
@@ -1740,7 +1767,7 @@ function journal:updateMountDisplay(forceSceneChange)
 		local creatureName, spellID, icon, active, isUsable = self:getMountInfo(self.selectedMountID)
 		local isMount = type(self.selectedMountID) == "number"
 		local needsFanfare = isMount and C_MountJournal.NeedsFanfare(self.selectedMountID)
-		if isUsable then isUsable = IsUsableSpell(spellID) and mounts:isUsable(spellID) end
+		if isUsable then isUsable = mounts:isUsable(spellID) end
 
 		if self.mountDisplay.lastMountID ~= self.selectedMountID or forceSceneChange then
 			local _, creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = self:getMountInfoExtra(self.selectedMountID)
@@ -1751,7 +1778,7 @@ function journal:updateMountDisplay(forceSceneChange)
 			info.link:SetText("cata.wowhead.com"..(lang == "en" and "" or "/"..lang).."/spell="..spellID)
 			info.name:SetText(creatureName)
 
-			self:event("MOUNT_MODEL_UPDATE", mountType, not isMount)
+			self:event("MOUNT_MODEL_UPDATE", mountType, isSelfMount)
 
 			self.modelScene:TransitionToModelSceneID(modelSceneID, CAMERA_TRANSITION_TYPE_IMMEDIATE, CAMERA_MODIFICATION_TYPE_MAINTAIN, forceSceneChange)
 			self.modelScene:PrepareForFanfare(needsFanfare)
@@ -2910,7 +2937,7 @@ function journal:updateMountsList()
 		-- COLLECTED
 		and (isCollected and filters.collected or not isCollected and filters.notCollected)
 		-- UNUSABLE
-		and (filters.unusable or not isCollected or isUsable and IsUsableSpell(spellID) and mounts:isUsable(spellID))
+		and (filters.unusable or not isCollected or isUsable and mounts:isUsable(spellID))
 		-- EXPANSIONS
 		and expansions[expansion]
 		-- SOURCES

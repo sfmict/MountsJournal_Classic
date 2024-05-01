@@ -68,7 +68,7 @@ function macroFrame:PLAYER_LOGIN()
 		]]
 	elseif self.class == "PRIEST" or self.class == "MAGE" then
 		classOptionMacro = classOptionMacro..[[
-			local IsFalling, GetTime = IsFalling, GetTime
+			local IsFalling, GetTime, C_UnitAuras = IsFalling, GetTime, C_UnitAuras
 		]]
 	elseif self.class == "DRUID" then
 		classOptionMacro = classOptionMacro..[[
@@ -92,7 +92,7 @@ function macroFrame:PLAYER_LOGIN()
 	]]
 	defMacro = defMacro..[[
 		return function(self)
-			local macro = "/stand"
+			local macro
 	]]
 
 	if self.class == "PALADIN" then
@@ -105,7 +105,10 @@ function macroFrame:PLAYER_LOGIN()
 				elseif self.sFlags.isMounted and spellID == 32223 then
 
 					if self.classConfig.returnLastAura and self.charMacrosConfig.lastAuraSpellID then
-						return self:addLine(self:getDismountMacro(), "/cast !"..self:getSpellName(self.charMacrosConfig.lastAuraSpellID))
+						local spellName = self:getSpellName(self.charMacrosConfig.lastAuraSpellID)
+						if spellName then
+							return self:addLine(self:getDismountMacro(), "/cast !"..spellName)
+						end
 					end
 
 					self.charMacrosConfig.lastAuraSpellID = nil
@@ -121,17 +124,14 @@ function macroFrame:PLAYER_LOGIN()
 		classOptionMacro = classOptionMacro..[[
 			-- 1706 - Levitation
 			if self.classConfig.useLevitation and not self.magicBroom and IsFalling() then
-				if GetTime() - (self.lastUseClassSpellTime or 0) < .5 then return "" end
-				local i = 1
-				repeat
-					local _,_,_,_,_,_,_,_,_, spellID = UnitBuff("player", i)
-					if spellID == 1706 then
-						return "/cancelaura "..self:getSpellName(1706)
-					end
-					i = i + 1
-				until not spellID
-				self.lastUseClassSpellTime = GetTime()
-				return "/cast [@player]"..self:getSpellName(1706)
+				if GetTime() - (self.lastUseClassSpellTime or 0) < .5 then
+					return ""
+				elseif C_UnitAuras.GetPlayerAuraBySpellID(1706) then
+					return "/cancelaura "..self:getSpellName(1706)
+				else
+					self.lastUseClassSpellTime = GetTime()
+					return "/cast [@player]"..self:getSpellName(1706)
+				end
 			end
 		]]
 	elseif self.class == "DEATHKNIGHT" then
@@ -158,17 +158,14 @@ function macroFrame:PLAYER_LOGIN()
 		classOptionMacro = classOptionMacro..[[
 			-- 130 - Slow Fall
 			if self.classConfig.useSlowFall and not self.magicBroom and IsFalling() then
-				if GetTime() - (self.lastUseClassSpellTime or 0) < .5 then return "" end
-				local i = 1
-				repeat
-					local _,_,_,_,_,_,_,_,_, spellID = UnitBuff("player", i)
-					if spellID == 130 then
-						return "/cancelaura "..self:getSpellName(130)
-					end
-					i = i + 1
-				until not spellID
-				self.lastUseClassSpellTime = GetTime()
-				return "/cast [@player]"..self:getSpellName(130)
+				if GetTime() - (self.lastUseClassSpellTime or 0) < .5 then
+					return ""
+				elseif C_UnitAuras.GetPlayerAuraBySpellID(130) then
+					return "/cancelaura "..self:getSpellName(130)
+				else
+					self.lastUseClassSpellTime = GetTime()
+					return "/cast [@player]"..self:getSpellName(130)
+				end
 			end
 		]]
 	elseif self.class == "DRUID" then
@@ -193,7 +190,10 @@ function macroFrame:PLAYER_LOGIN()
 					  or spellID == 40120
 					  or self.sFlags.isIndoors and spellID == 768)
 				then
-					return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..self:getSpellName(self.charMacrosConfig.lastDruidFormSpellID))
+					local spellName = self:getSpellName(self.charMacrosConfig.lastDruidFormSpellID)
+					if spellName then
+						return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..spellName)
+					end
 				end
 
 				if spellID and spellID ~= 783 and spellID ~= 1066 and spellID ~= 33943 and spellID ~= 40120 then
@@ -207,7 +207,7 @@ function macroFrame:PLAYER_LOGIN()
 			if self.classConfig.useTravelIfCantFly
 			and self.macro
 			and self.mounts.instanceID ~= 530
-			and not self.sFlags.canUseFlying
+			and not self.sFlags.fly
 			and not self.sFlags.isIndoors
 			and not self.sFlags.isSubmerged
 			and not self.sFlags.isMounted
@@ -339,20 +339,7 @@ do
 
 	local classFunc = {
 		HUNTER = getClassDefFunc(5118), -- Aspect of the Cheetah
-		ROGUE = function(self, ...)
-			local sprint
-			if IsSpellKnown(11305) then
-				sprint = self:getSpellName(11305, ...)
-			elseif IsSpellKnown(8696) then
-				sprint = self:getSpellName(8696, ...)
-			else
-				sprint = self:getSpellName(2983, ...)
-			end
-
-			if sprint then
-				return "/cast "..sprint
-			end
-		end,
+		ROGUE = getClassDefFunc(2983), -- Sprint
 		SHAMAN = getClassDefFunc(2645), -- Ghost Wolf
 		MAGE = getClassDefFunc(1953), -- Blink
 		DRUID = function(self, ...)
@@ -411,9 +398,7 @@ function macroFrame:getMacro()
 	-- CLASSMACRO
 	elseif self.macro and (
 		self.class == "DRUID" and self.classConfig.useMacroAlways and (
-			not self.classConfig.useMacroOnlyCanFly or (
-				self.mounts.instanceID == 530 or self.mounts.instanceID == 571 and self.sFlags.canUseFlying
-			)
+			not self.classConfig.useMacroOnlyCanFly or self.sFlags.fly
 		)
 		or not self.magicBroom and (
 			self.sFlags.isIndoors or GetUnitSpeed("player") > 0 or IsFalling()
@@ -468,10 +453,10 @@ function MJMacroMixin:onLoad()
 end
 
 
-function MJMacroMixin:preClick()
+function MJMacroMixin:preClick(button, down)
 	self.mounts.sFlags.forceModifier = self.forceModifier
 	if InCombatLockdown() then return end
-	self:SetAttribute("macrotext", macroFrame:getMacro())
+	self:SetAttribute("macrotext", down ~= GetCVarBool("ActionButtonUseKeyDown") and "" or macroFrame:getMacro())
 end
 
 

@@ -167,7 +167,7 @@ function tags:mountOptionsMenu_Init(btn, level)
 			info.text = BINDING_NAME_DISMOUNT
 		else
 			info.text = MOUNT
-			info.disabled = not (isUsable and IsUsableSpell(spellID) and mounts:isUsable(spellID) and isMount)
+			info.disabled = not (isUsable and mounts:isUsable(spellID) and isMount)
 		end
 
 		info.func = function()

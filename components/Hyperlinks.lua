@@ -9,7 +9,8 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
 		if linkType == "item" then
 			mountID = C_MountJournal.GetMountFromItem(tonumber(linkID))
 		elseif linkType == "spell" then
-			mountID = C_MountJournal.GetMountFromSpell(tonumber(linkID))
+			linkID = tonumber(linkID)
+			mountID = mounts.additionalMounts[linkID] or C_MountJournal.GetMountFromSpell(linkID)
 		end
 
 		if mountID then

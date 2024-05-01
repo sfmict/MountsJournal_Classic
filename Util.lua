@@ -1,5 +1,6 @@
 local addon = ...
 local type, select, strsplit, tremove = type, select, strsplit, tremove
+local _G, C_MountJournal, UnitBuff = _G, C_MountJournal, UnitBuff
 local events, eventsMixin = {}, {}
 
 
@@ -252,6 +253,20 @@ end
 
 function util.cleanText(text)
 	return text:trim():lower()
+end
+
+
+function util.getUnitMount(unit)
+	for i = 1, 255 do
+		local _,_,_,_,_,_,_,_,_, spellID = UnitBuff(unit, i)
+		if spellID then
+			if C_MountJournal.GetMountFromSpell(spellID)
+			or _G.MountsJournal.additionalMounts[spellID]
+			then return spellID end
+		else
+			break
+		end
+	end
 end
 
 

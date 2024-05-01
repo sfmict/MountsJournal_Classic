@@ -1,6 +1,6 @@
 if select(4, GetBuildInfo()) < 40400 then return end
 local addon, L = ...
-local C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, IsUsableSpell, GetSubZoneText, SecureCmdOptionParse = C_Map, MapUtil, next, wipe, random, C_PetJournal, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, UnitBuff, IsUsableSpell, GetSubZoneText, SecureCmdOptionParse
+local C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse = C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse
 local util = MountsJournalUtil
 local mounts = CreateFrame("Frame", "MountsJournal")
 util.setEventsMixin(mounts)
@@ -349,7 +349,7 @@ do
 	function mounts:isUsable(spellID)
 		local prof = mountsRequiringProf[spellID]
 		if prof and (self[prof[1]] or 0) < prof[2] then return false end
-		return true
+		return IsUsableSpell(spellID)
 	end
 end
 
@@ -547,20 +547,16 @@ end
 
 function mounts:getTargetMount()
 	if self.config.copyMountTarget then
-		local i = 1
-		repeat
-			local _,_,_,_,_,_,_,_,_, spellID = UnitBuff("target", i)
-			if spellID then
-				local mountID = C_MountJournal.GetMountFromSpell(spellID)
-				if mountID then
-					local _,_,_,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
-					return isUsable and IsUsableSpell(spellID) and self:isUsable(spellID) and spellID
-				elseif self.additionalMounts[spellID] then
-					return self.additionalMounts[spellID]:canUse() and spellID
-				end
-				i = i + 1
+		local spellID = util.getUnitMount("target")
+		if spellID then
+			local mountID = C_MountJournal.GetMountFromSpell(spellID)
+			if mountID then
+				local _,_,_,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
+				return isUsable and self:isUsable(spellID) and spellID
+			elseif self.additionalMounts[spellID] then
+				return self.additionalMounts[spellID]:canUse() and spellID
 			end
-		until not spellID
+		end
 	end
 end
 
@@ -588,7 +584,7 @@ function mounts:setUsableID(ids, mountsWeight)
 		else
 			local mountID = C_MountJournal.GetMountFromSpell(spellID)
 			local _,_,_,_, isUsable, _,_,_,_,_,_,_, isForDragonriding = C_MountJournal.GetMountInfoByID(mountID)
-			usable = isUsable and IsUsableSpell(spellID) and self:isUsable(spellID)
+			usable = isUsable and self:isUsable(spellID)
 		end
 
 		if usable then
@@ -606,34 +602,6 @@ function mounts:setUsableID(ids, mountsWeight)
 		end
 	end
 end
-
-
--- do
--- 	local usableIDs = {}
--- 	function mounts:summon(ids, mountsWeight)
--- 		local weight = 0
--- 		for spellID in next, ids do
--- 			local mountID = C_MountJournal.GetMountFromSpell(spellID)
--- 			local _, spellID, _,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
--- 			if isUsable and IsUsableSpell(spellID) and self:isUsable(mountID) then
--- 				weight = weight + (mountsWeight[mountID] or 100)
--- 				usableIDs[weight] = mountID
--- 			end
--- 		end
--- 		if weight > 0 then
--- 			for i = random(weight), weight do
--- 				if usableIDs[i] then
--- 					C_MountJournal.SummonByID(usableIDs[i])
--- 					break
--- 				end
--- 			end
--- 			wipe(usableIDs)
--- 			return true
--- 		else
--- 			return false
--- 		end
--- 	end
--- end
 
 
 function mounts:getSpellKnown()
@@ -696,7 +664,7 @@ function mounts:setFlags()
 	                 and not (flags.modifier or isFloating)
 	flags.isVashjir = self.mapVashjir[self.mapInfo.mapID]
 	flags.fly = isFlyableLocation
-	            and (not modifier or flags.isSubmerged)
+	            and (not flags.modifier or flags.isSubmerged)
 	flags.waterWalk = isFloating
 	                  or not isFlyableLocation and flags.modifier
 	                  or self:isWaterWalkLocation()
