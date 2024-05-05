@@ -82,6 +82,13 @@ function journal:init()
 	self.bgFrame.TitleText:SetText(MOUNTS)
 	SetPortraitToTexture(self.bgFrame.portrait, 303868)
 
+	local minWidth, minHeight = self.CollectionsJournal:GetSize()
+	local maxWidth = UIParent:GetWidth() - self.bgFrame:GetLeft() * 2
+	local maxHeight = self.bgFrame:GetTop() - CollectionsJournalTab1:GetHeight()
+	local width = max(min(mounts.config.journalWidth or minWidth, maxWidth), minWidth)
+	local height = max(min(mounts.config.journalHeight or minHeight, maxHeight), minHeight)
+	self.bgFrame:SetSize(width, height)
+
 	self.bgFrame:SetScript("OnShow", function(bgFrame)
 		self:RegisterEvent("COMPANION_UPDATE")
 		self:RegisterEvent("UI_MODEL_SCENE_INFO_UPDATED")
@@ -89,6 +96,7 @@ function journal:init()
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", "player")
+		self:updateCollectionTabs()
 		self.leftInset:EnableKeyboard(not InCombatLockdown())
 		self:updateMountsList()
 		self:updateMountDisplay(true)
@@ -102,6 +110,7 @@ function journal:init()
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 		self:UnregisterEvent("UNIT_PORTRAIT_UPDATE")
+		self:updateCollectionTabs()
 		self.mountDisplay:Show()
 		self.navBarBtn:SetChecked(false)
 		self.mapSettings:Hide()
@@ -146,6 +155,7 @@ function journal:init()
 	self.useMountsJournalButton:SetFrameLevel(self.bgFrame:GetFrameLevel() + 10)
 	self.useMountsJournalButton:SetScript("OnShow", nil)
 	self.useMountsJournalButton:SetScript("OnHide", nil)
+	self.useMountsJournalButton:SetPoint("BOTTOMLEFT", self.bgFrame, "BOTTOMLEFT", 281, 2)
 
 	-- SECURE FRAMES
 	local sMountJournal = CreateFrame("FRAME", nil, self.MountJournal, "SecureHandlerShowHideTemplate")
@@ -166,10 +176,12 @@ function journal:init()
 		local bgFrame = self:GetFrameRef("bgFrame")
 		if self:GetAttribute("isShow") then
 			useMountsJournalButton:Show()
-			if not self:GetAttribute("useDefaultJournal") then
-				bgFrame:Show()
-			else
+			if self:GetAttribute("useDefaultJournal") then
 				bgFrame:Hide()
+				useMountsJournalButton:SetPoint("BOTTOMLEFT", "$parent", "BOTTOMLEFT", 281, 2)
+			else
+				bgFrame:Show()
+				useMountsJournalButton:SetPoint("BOTTOMLEFT", bgFrame, "BOTTOMLEFT", 281, 2)
 			end
 		else
 			useMountsJournalButton:Hide()
@@ -847,6 +859,24 @@ function journal:init()
 		end
 	end)
 
+	-- RESIZE BUTTON
+	local resize = self.bgFrame.resize
+	resize:RegisterForDrag("LeftButton")
+	resize:SetScript("OnDragStart", function(btn)
+		local parent = btn:GetParent()
+		local minWidth, minHeight = self.CollectionsJournal:GetSize()
+		local maxWidth = UIParent:GetWidth() - parent:GetLeft() * 2
+		local maxHeight = parent:GetTop() - CollectionsJournalTab1:GetHeight()
+		parent:SetResizeBounds(minWidth, minHeight, maxWidth, maxHeight)
+		parent:StartSizing("BOTTOMRIGHT")
+	end)
+	resize:SetScript("OnDragStop", function(btn)
+		local parent = btn:GetParent()
+		parent:StopMovingOrSizing()
+		mounts.config.journalWidth, mounts.config.journalHeight = parent:GetSize()
+		self:event("JOURNAL_RESIZED")
+	end)
+
 	-- SETTINGS BUTTON
 	self.bgFrame.btnConfig:SetText(L["Settings"])
 	self.bgFrame.btnConfig:SetScript("OnClick", function() config:openConfig() end)
@@ -896,6 +926,7 @@ function journal:init()
 	self:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
 	self:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", "player")
 
+	self:updateCollectionTabs()
 	self:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
 	self:setMJFiltersBackup()
 	self:hideFrames()
@@ -1087,11 +1118,19 @@ function journal:PLAYER_REGEN_ENABLED()
 end
 
 
+function journal:updateCollectionTabs()
+	local relativeFrame = self.bgFrame:IsShown() and self.bgFrame or CollectionsJournal
+	local tab = CollectionsJournalTab1
+	local point, _, rPoint, x, y = tab:GetPoint()
+	tab:SetPoint(point, relativeFrame, rPoint, x, y)
+end
+
+
 function journal:COMPANION_UPDATE(companionType)
 	if companionType == "MOUNT" then
 		self:updateScrollMountList()
 		self:updateMountDisplay()
-		self.mountSpecial:SetEnabled(util.getUnitMount("player"))
+		self.mountSpecial:SetEnabled(not not util.getUnitMount("player"))
 	end
 end
 

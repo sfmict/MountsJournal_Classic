@@ -13,7 +13,7 @@
 		</Layers>
 	</CheckButton>
 
-	<Frame name="MJMountJournalFrameTemplate" protected="true" frameLevel="1000" enableMouse="true" inherits="PortraitFrameTemplateNoCloseButton" virtual="true">
+	<Frame name="MJMountJournalFrameTemplate" protected="true" frameLevel="1000" enableMouse="true" dontSavePosition="true" resizable="true" inherits="PortraitFrameTemplateNoCloseButton" virtual="true">
 		<Size x="703" y="606"/>
 		<Frames>
 
@@ -446,9 +446,10 @@
 									</Scripts>
 								</FontString>
 								<FontString inherits="GameFontHighlightLarge" justifyH="LEFT" justifyV="MIDDLE" parentKey="name" maxLines="2">
-									<Size x="270" y="35"/>
+									<Size y="35"/>
 									<Anchors>
 										<Anchor point="LEFT" relativePoint="RIGHT" relativeKey="$parent.icon" x="10" y="0"/>
+										<Anchor point="RIGHT" x="-57"/>
 									</Anchors>
 								</FontString>
 							</Layer>
@@ -703,7 +704,7 @@
 				<Size y="276"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.rightInset"/>
-					<Anchor point="TOPRIGHT" relativeKey="$parent.rightInset"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.rightInset" y="212"/>
 				</Anchors>
 				<Frames>
 					<ScrollFrame parentKey="ScrollContainer">
@@ -760,9 +761,10 @@
 						</Anchors>
 					</CheckButton>
 					<Button parentKey="CurrentMap" inherits="UIPanelButtonTemplate">
-						<Size x="257" y="24"/>
+						<Size y="24"/>
 						<Anchors>
 							<Anchor point="RIGHT" relativeKey="$parent.existingListsToggle" relativePoint="LEFT" x="2"/>
+							<Anchor point="LEFT" relativeKey="$parent.mapControl" relativePoint="LEFT" x="134"/>
 						</Anchors>
 					</Button>
 					<Frame parentKey="hint" inherits="MJHelpPlate">
@@ -846,10 +848,20 @@
 				</Scripts>
 			</Button>
 
+			<Button parentKey="resize">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+				</Anchors>
+				<NormalTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up"/>
+				<HighlightTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Highlight"/>
+				<PushedTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down"/>
+			</Button>
+
 			<Button parentKey="btnConfig" inherits="UIPanelButtonTemplate">
 				<Size x="80" y="22"/>
 				<Anchors>
-					<Anchor point="BOTTOMRIGHT" x="-5" y="4"/>
+					<Anchor point="BOTTOMRIGHT" x="-8" y="4"/>
 				</Anchors>
 			</Button>
 

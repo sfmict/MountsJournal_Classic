@@ -146,6 +146,7 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 					isKit = v.isKit
 				end
 				tinsert(info.list, {
+					keepShownOnClick = true,
 					text = ("%s|cff808080.%d%s|r"):format(v.name, animation, isKit and ".k" or ""),
 					value = v,
 					checked = checked,
@@ -155,6 +156,7 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 		end
 		for i, v in ipairs(self.animations) do
 			tinsert(info.list, {
+				keepShownOnClick = true,
 				text = ("%s|cff808080.%d%s|r"):format(v.name, v.animation, v.isKit and ".k" or ""),
 				value = v,
 				arg1 = i,

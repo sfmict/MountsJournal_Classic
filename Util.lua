@@ -260,9 +260,10 @@ function util.getUnitMount(unit)
 	for i = 1, 255 do
 		local _,_,_,_,_,_,_,_,_, spellID = UnitBuff(unit, i)
 		if spellID then
-			if C_MountJournal.GetMountFromSpell(spellID)
-			or _G.MountsJournal.additionalMounts[spellID]
-			then return spellID end
+			local mountID = C_MountJournal.GetMountFromSpell(spellID)
+			if mountID or _G.MountsJournal.additionalMounts[spellID] then
+				return spellID, mountID
+			end
 		else
 			break
 		end

@@ -1,4 +1,3 @@
-if select(4, GetBuildInfo()) < 40400 then return end
 local addon, L = ...
 local C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse = C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse
 local util = MountsJournalUtil
@@ -547,15 +546,12 @@ end
 
 function mounts:getTargetMount()
 	if self.config.copyMountTarget then
-		local spellID = util.getUnitMount("target")
-		if spellID then
-			local mountID = C_MountJournal.GetMountFromSpell(spellID)
-			if mountID then
-				local _,_,_,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
-				return isUsable and self:isUsable(spellID) and spellID
-			elseif self.additionalMounts[spellID] then
-				return self.additionalMounts[spellID]:canUse() and spellID
-			end
+		local spellID, mountID = util.getUnitMount("target")
+		if mountID then
+			local _,_,_,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
+			return isUsable and self:isUsable(spellID) and spellID
+		elseif spellID then
+			return self.additionalMounts[spellID]:canUse() and spellID
 		end
 	end
 end

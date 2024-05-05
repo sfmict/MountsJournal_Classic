@@ -48,6 +48,8 @@ function MJNavBarMixin:onLoad()
 		return list
 	end
 	self:setDefMap()
+
+	self:on("JOURNAL_RESIZED", self.refresh)
 end
 
 
