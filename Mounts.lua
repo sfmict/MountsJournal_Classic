@@ -1,5 +1,5 @@
 local addon, L = ...
-local C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse = C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse
+local C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel = C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel
 local util = MountsJournalUtil
 local mounts = CreateFrame("Frame", "MountsJournal")
 util.setEventsMixin(mounts)
@@ -347,7 +347,9 @@ do
 
 	function mounts:isUsable(spellID)
 		local prof = mountsRequiringProf[spellID]
-		if prof and (self[prof[1]] or 0) < prof[2] then return false end
+		if prof and (self[prof[1]] or 0) < prof[2]
+		or (spellID == 23161 or spellID == 34767) and UnitLevel("player") < 40
+		then return false end
 		return IsUsableSpell(spellID)
 	end
 end
