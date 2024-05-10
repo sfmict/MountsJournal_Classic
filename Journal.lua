@@ -46,6 +46,7 @@ function journal:init()
 		filters.selected = setmetatable(filters.selected or {}, filtersMeta)
 		filters.sources = setmetatable(filters.sources or {}, filtersMeta)
 		filters.specific = setmetatable(filters.specific or {}, filtersMeta)
+		filters.family = setmetatable(filters.family or {}, filtersMeta)
 		filters.factions = setmetatable(filters.factions or {}, filtersMeta)
 		filters.pet = setmetatable(filters.pet or {}, filtersMeta)
 		filters.expansions = setmetatable(filters.expansions or {}, filtersMeta)
@@ -1139,7 +1140,7 @@ function journal:getMountInfo(mount)
 	-- name, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected
 	if type(mount) == "number" then
 		local name, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mount)
-		return name, spellID, icon, active, isUsable, mounts.mountsDB[mount][2], isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected
+		return name, spellID, icon, active, isUsable, mounts.mountsDB[mount][3], isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected
 	else
 		return mount.name, mount.spellID, mount.icon, mount:isActive(), mount:isUsable(), 0, mount:getIsFavorite(), false, nil, not mount:isShown(), true
 	end
@@ -1149,9 +1150,10 @@ end
 function journal:getMountInfoExtra(mount)
 	-- expansion, creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview
 	if type(mount) == "number" then
-		return mounts.mountsDB[mount][1], C_MountJournal.GetMountInfoExtraByID(mount)
+		local mountDB = mounts.mountsDB[mount]
+		return mountDB[1], mountDB[2], C_MountJournal.GetMountInfoExtraByID(mount)
 	else
-		return mount.expansion, mount.creatureID, mount.description, mount.sourceText, true, mount.mountType, mount.modelSceneID
+		return mount.expansion, 0, mount.creatureID, mount.description, mount.sourceText, true, mount.mountType, mount.modelSceneID
 	end
 end
 
@@ -1809,7 +1811,7 @@ function journal:updateMountDisplay(forceSceneChange)
 		if isUsable then isUsable = mounts:isUsable(spellID) end
 
 		if self.mountDisplay.lastMountID ~= self.selectedMountID or forceSceneChange then
-			local _, creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = self:getMountInfoExtra(self.selectedMountID)
+			local _,_, creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = self:getMountInfoExtra(self.selectedMountID)
 
 			info.link:SetShown(mounts.config.showWowheadLink)
 			info.linkLang:SetShown(mounts.config.showWowheadLink)
@@ -2008,562 +2010,12 @@ end
 
 
 function journal:filterDropDown_Initialize(btn, level, value)
-	local info = {}
-	info.keepShownOnClick = true
-	info.isNotRadio = true
-
 	if level == 1 then
-		info.text = COLLECTED
-		info.func = function(_,_,_, value)
-			mounts.filters.collected = value
-			self:updateMountsList()
-		end
-		info.checked = mounts.filters.collected
-		btn:ddAddButton(info, level)
-
-		info.text = NOT_COLLECTED
-		info.func = function(_,_,_, value)
-			mounts.filters.notCollected = value
-			self:updateMountsList()
-		end
-		info.checked = mounts.filters.notCollected
-		btn:ddAddButton(info, level)
-
-		info.text = MOUNT_JOURNAL_FILTER_UNUSABLE
-		info.func = function(_,_,_, value)
-			mounts.filters.unusable = value
-			self:updateMountsList()
-		end
-		info.checked = mounts.filters.unusable
-		btn:ddAddButton(info, level)
-
-		info.text = L["hidden for character"]
-		info.func = function(_,_,_, value)
-			mounts.filters.hideOnChar = value
-			btn:ddRefresh(level)
-			self:setCountMounts()
-			self:updateMountsList()
-		end
-		info.checked = mounts.filters.hideOnChar
-		btn:ddAddButton(info, level)
-
-		info.indent = 16
-		info.disabled = function() return not mounts.filters.hideOnChar end
-		info.text = L["only hidden"]
-		info.func = function(_,_,_, value)
-			mounts.filters.onlyHideOnChar = value
-			self:updateMountsList()
-		end
-		info.checked = mounts.filters.onlyHideOnChar
-		btn:ddAddButton(info, level)
-
-		info.indent = nil
-		info.disabled = nil
-		info.text = L["Hidden by player"]
-		info.func = function(_,_,_, value)
-			mounts.filters.hiddenByPlayer = value
-			btn:ddRefresh(level)
-			self:updateMountsList()
-		end
-		info.checked = mounts.filters.hiddenByPlayer
-		btn:ddAddButton(info, level)
-
-		info.indent = 16
-		info.disabled = function() return not mounts.filters.hiddenByPlayer end
-		info.text = L["only hidden"]
-		info.func = function(_,_,_, value)
-			mounts.filters.onlyHiddenByPlayer = value
-			self:updateMountsList()
-		end
-		info.checked = mounts.filters.onlyHiddenByPlayer
-		btn:ddAddButton(info, level)
-
-		btn:ddAddSpace(level)
-
-		info.indent = nil
-		info.disabled = nil
-		info.checked = nil
-		info.isNotRadio = nil
-		info.func = nil
-		info.hasArrow = true
-		info.notCheckable = true
-
-		info.text = L["types"]
-		info.value = 1
-		btn:ddAddButton(info, level)
-
-		info.text = L["selected"]
-		info.value = 2
-		btn:ddAddButton(info, level)
-
-		info.text = SOURCES
-		info.value = 3
-		btn:ddAddButton(info, level)
-
-		info.text = L["Specific"]
-		info.value = 4
-		btn:ddAddButton(info, level)
-
-		info.text = L["factions"]
-		info.value = 5
-		btn:ddAddButton(info, level)
-
-		info.text = PET
-		info.value = 6
-		btn:ddAddButton(info, level)
-
-		info.text = L["expansions"]
-		info.value = 7
-		btn:ddAddButton(info, level)
-
-		info.text = L["Chance of summoning"]
-		info.value = 8
-		btn:ddAddButton(info, level)
-
-		info.text = L["tags"]
-		info.value = 9
-		btn:ddAddButton(info, level)
-
-		btn:ddAddSpace(level)
-
-		info.text = L["sorting"]
-		info.value = 10
-		btn:ddAddButton(info, level)
-
-		btn:ddAddSpace(level)
-
-		info.keepShownOnClick = nil
-		info.hasArrow = nil
-		info.text = RESET
-		info.func = function() self:resetToDefaultFilters() end
-		btn:ddAddButton(info, level)
-
-		info.text = L["Set current filters as default"]
-		info.func = function() self:saveDefaultFilters() end
-		btn:ddAddButton(info, level)
-
-		info.text = L["Restore default filters"]
-		info.func = function() self:restoreDefaultFilters() end
-		btn:ddAddButton(info, level)
+		self.filters.main(btn, level)
+	elseif self.filters[value] then
+		self.filters[value](btn, level)
 	else
-		info.notCheckable = true
-
-		if value == 1 then -- TYPES
-			info.text = CHECK_ALL
-			info.func = function()
-				self:setAllFilters("types", true)
-				self:updateBtnFilters()
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.text = UNCHECK_ALL
-			info.func = function()
-				self:setAllFilters("types", false)
-				self:updateBtnFilters()
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.notCheckable = nil
-			local types = mounts.filters.types
-			for i = 1, 3 do
-				info.text = L["MOUNT_TYPE_"..i]
-				info.func = function(_,_,_, value)
-					types[i] = value
-					self:updateBtnFilters()
-					self:updateMountsList()
-				end
-				info.checked = function() return types[i] end
-				btn:ddAddButton(info, level)
-			end
-		elseif value == 2 then -- SELECTED
-			info.text = CHECK_ALL
-			info.func = function()
-				self:setAllFilters("selected", true)
-				self:updateBtnFilters()
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.text = UNCHECK_ALL
-			info.func = function()
-				self:setAllFilters("selected", false)
-				self:updateBtnFilters()
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.notCheckable = nil
-			local selected = mounts.filters.selected
-			for i = 1, 4 do
-				info.text = L["MOUNT_TYPE_"..i]
-				info.func = function(_,_,_, value)
-					selected[i] = value
-					self:updateBtnFilters()
-					self:updateMountsList()
-				end
-				info.checked = function() return selected[i] end
-				btn:ddAddButton(info, level)
-			end
-		elseif value == 3 then -- SOURCES
-			info.text = CHECK_ALL
-			info.func = function()
-				self:setAllFilters("sources", true)
-				self:updateBtnFilters()
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.text = UNCHECK_ALL
-			info.func = function()
-				self:setAllFilters("sources", false)
-				self:updateBtnFilters()
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.notCheckable = nil
-			local sources = mounts.filters.sources
-			for i = 1, 10 do
-				if i ~= 5 then
-					info.text = _G["BATTLE_PET_SOURCE_"..i]
-					info.func = function(_,_,_, value)
-						sources[i] = value
-						self:updateBtnFilters()
-						self:updateMountsList()
-					end
-					info.checked = function() return sources[i] end
-					btn:ddAddButton(info, level)
-				end
-			end
-		elseif value == 4 then -- SPECIFIC
-			info.text = CHECK_ALL
-			info.func = function()
-				self:setAllFilters("specific", true)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.text = UNCHECK_ALL
-			info.func = function()
-				self:setAllFilters("specific", false)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.notCheckable = nil
-			local specific = mounts.filters.specific
-
-			for k, t in pairs(mounts.specificDB) do
-				info.text = L[k]
-				info.func = function(_,_,_, value)
-					specific[k] = value
-					self:updateMountsList()
-				end
-				info.checked = function() return specific[k] end
-				btn:ddAddButton(info, level)
-			end
-
-			info.text = L["transform"]
-			info.func = function(_,_,_, value)
-				specific.transform = value
-				self:updateMountsList()
-			end
-			info.checked = function() return specific.transform end
-			btn:ddAddButton(info, level)
-
-			info.text = L["additional"]
-			info.func = function(_,_,_, value)
-				specific.additional = value
-				self:updateMountsList()
-			end
-			info.checked = function() return specific.additional end
-			btn:ddAddButton(info, level)
-
-			info.text = L["rest"]
-			info.func = function(_,_,_, value)
-				specific.rest = value
-				self:updateMountsList()
-			end
-			info.checked = function() return specific.rest end
-			btn:ddAddButton(info, level)
-		elseif value == 5 then -- FACTIONS
-			info.text = CHECK_ALL
-			info.func = function()
-				self:setAllFilters("factions", true)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.text = UNCHECK_ALL
-			info.func = function()
-				self:setAllFilters("factions", false)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.notCheckable = nil
-			local factions = mounts.filters.factions
-			for i = 1, 3 do
-				info.text = L["MOUNT_FACTION_"..i]
-				info.func = function(_,_,_, value)
-					factions[i] = value
-					self:updateMountsList()
-				end
-				info.checked = function() return factions[i] end
-				btn:ddAddButton(info, level)
-			end
-		elseif value == 6 then -- PET
-			info.text = CHECK_ALL
-			info.func = function()
-				self:setAllFilters("pet", true)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.text = UNCHECK_ALL
-			info.func = function()
-				self:setAllFilters("pet", false)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.notCheckable = nil
-			local pet = mounts.filters.pet
-			for i = 1, 4 do
-				info.text = L["PET_"..i]
-				info.func = function(_,_,_, value)
-					pet[i] = value
-					self:updateMountsList()
-				end
-				info.checked = function() return pet[i] end
-				btn:ddAddButton(info, level)
-			end
-		elseif value == 7 then -- EXPANSIONS
-			info.text = CHECK_ALL
-			info.func = function()
-				self:setAllFilters("expansions", true)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.text = UNCHECK_ALL
-			info.func = function()
-				self:setAllFilters("expansions", false)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.notCheckable = nil
-			local expansions = mounts.filters.expansions
-			for i = 1, util.expansion do
-				info.text = _G["EXPANSION_NAME"..(i - 1)]
-				info.func = function(_,_,_, value)
-					expansions[i] = value
-					self:updateMountsList()
-				end
-				info.checked = function() return expansions[i] end
-				btn:ddAddButton(info, level)
-			end
-		elseif value == 8 then -- CHANCE OF SUMMONING
-			local filterWeight = mounts.filters.mountsWeight
-
-			info.notCheckable = nil
-			info.isNotRadio = nil
-
-			info.text = L["Any"]
-			info.func = function(button)
-				filterWeight.sign = button.value
-				btn:ddRefresh(level)
-				self:updateMountsList()
-			end
-			info.checked = function() return not filterWeight.sign end
-			btn:ddAddButton(info, level)
-
-			info.text = L["> (more than)"]
-			info.value = ">"
-			info.checked = function() return filterWeight.sign == ">" end
-			btn:ddAddButton(info, level)
-
-			info.text = L["< (less than)"]
-			info.value = "<"
-			info.checked = function() return filterWeight.sign == "<" end
-			btn:ddAddButton(info, level)
-
-			info.text = L["= (equal to)"]
-			info.value = "="
-			info.checked = function() return filterWeight.sign == "=" end
-			btn:ddAddButton(info, level)
-
-			info.text = nil
-			info.value = nil
-			info.func = nil
-			info.checked = nil
-			info.customFrame = self.percentSlider
-			info.OnLoad = function(frame)
-				frame.level = level + 1
-				frame:setValue(filterWeight.weight)
-				frame.setFunc = function(value)
-					if filterWeight.weight ~= value then
-						filterWeight.weight = value
-					end
-				end
-			end
-			btn:ddAddButton(info, level)
-		elseif value == 9 then -- TAGS
-			local filterTags = self.tags.filter
-
-			info.notCheckable = nil
-			info.text = L["No tag"]
-			info.func = function(_,_,_, value)
-				filterTags.noTag = value
-				self:updateMountsList()
-			end
-			info.checked = function() return filterTags.noTag end
-			btn:ddAddButton(info, level)
-
-			info.text = L["With all tags"]
-			info.func = function(_,_,_, value)
-				filterTags.withAllTags = value
-				self:updateMountsList()
-			end
-			info.checked = function() return filterTags.withAllTags end
-			btn:ddAddButton(info, level)
-
-			btn:ddAddSeparator(level)
-
-			info.notCheckable = true
-			info.text = CHECK_ALL
-			info.func = function()
-				self.tags:setAllFilterTags(true)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.text = UNCHECK_ALL
-			info.func = function()
-				self.tags:setAllFilterTags(false)
-				self:updateMountsList()
-				btn:ddRefresh(level)
-			end
-			btn:ddAddButton(info, level)
-
-			info.func = nil
-			if #self.tags.sortedTags == 0 then
-				info.disabled = true
-				info.text = EMPTY
-				btn:ddAddButton(info, level)
-				info.disabled = nil
-			else
-				info.list = {}
-				for i, tag in ipairs(self.tags.sortedTags) do
-					info.list[i] = {
-						keepShownOnClick = true,
-						isNotRadio = true,
-						text = function() return self.tags.sortedTags[i] end,
-						func = function(btn, _,_, value)
-							filterTags.tags[btn._text][2] = value
-							self:updateMountsList()
-						end,
-						checked = function(btn) return filterTags.tags[btn._text][2] end,
-						remove = function(btn)
-							self.tags:deleteTag(btn._text)
-						end,
-						order = function(btn, step)
-							self.tags:setOrderTag(btn._text, step)
-						end,
-					}
-				end
-				btn:ddAddButton(info, level)
-				info.list = nil
-			end
-
-			btn:ddAddSeparator(level)
-
-			info.keepShownOnClick = nil
-			info.notCheckable = true
-			info.checked = nil
-
-			info.text = L["Add tag"]
-			info.func = function()
-				self.tags:addTag()
-			end
-			btn:ddAddButton(info, level)
-		else -- SORTING
-			local fSort = mounts.filters.sorting
-			info.isNotRadio = nil
-			info.notCheckable = nil
-
-			info.text = NAME
-			info.func = function()
-				fSort.by = "name"
-				self:sortMounts()
-				btn:ddRefresh(level)
-			end
-			info.checked = function() return fSort.by == "name" end
-			btn:ddAddButton(info, level)
-
-			info.text = TYPE
-			info.func = function()
-				fSort.by = "type"
-				self:sortMounts()
-				btn:ddRefresh(level)
-			end
-			info.checked = function() return fSort.by == "type" end
-			btn:ddAddButton(info, level)
-
-			info.text = EXPANSION_FILTER_TEXT
-			info.func = function()
-				fSort.by = "expansion"
-				self:sortMounts()
-				btn:ddRefresh(level)
-			end
-			info.checked = function() return fSort.by == "expansion" end
-			btn:ddAddButton(info, level)
-
-			btn:ddAddSeparator(level)
-
-			info.isNotRadio = true
-			info.text = L["Reverse Sort"]
-			info.func = function(_,_,_, value)
-				fSort.reverse = value
-				self:sortMounts()
-			end
-			info.checked = fSort.reverse
-			btn:ddAddButton(info, level)
-
-			info.text = L["Favorites First"]
-			info.func = function(_,_,_, value)
-				fSort.favoritesFirst = value
-				self:sortMounts()
-			end
-			info.checked = fSort.favoritesFirst
-			btn:ddAddButton(info, level)
-
-			info.text = L["Additional First"]
-			info.func = function(_,_,_, value)
-				fSort.additionalFirst = value
-				self:sortMounts()
-			end
-			info.checked = fSort.additionalFirst
-			btn:ddAddButton(info, level)
-		end
+		self.filters[value[1]](btn, level, value[2])
 	end
 end
 
@@ -2595,6 +2047,9 @@ function journal:saveDefaultFilters()
 	end
 	for k, value in pairs(filters.specific) do
 		defFilters.specific[k] = value
+	end
+	for i = 0, #filters.family do
+		defFilters.family[i] = filters.family[i]
 	end
 	for i = 1, #filters.factions do
 		defFilters.factions[i] = filters.factions[i]
@@ -2628,6 +2083,7 @@ function journal:restoreDefaultFilters()
 	wipe(defFilters.selected)
 	wipe(defFilters.sources)
 	wipe(defFilters.specific)
+	wipe(defFilters.family)
 	wipe(defFilters.factions)
 	wipe(defFilters.pet)
 	wipe(defFilters.expansions)
@@ -2669,6 +2125,9 @@ function journal:isDefaultFilters()
 	end
 	for k, value in pairs(filters.specific) do
 		if defFilters.specific[k] ~= value then add(L["Specific"]) break end
+	end
+	for i = 0, #filters.family do
+		if defFilters.family[i] ~= filters.family[i] then add(L["Family"]) break end
 	end
 	for i = 1, #filters.factions do
 		if defFilters.factions[i] ~= filters.factions[i] then add(L["factions"]) break end
@@ -2737,6 +2196,9 @@ function journal:resetToDefaultFilters()
 	end
 	for k in pairs(filters.specific) do
 		filters.specific[k] = defFilters.specific[k]
+	end
+	for i = 0, #filters.family do
+		filters.family[i] = defFilters.family[i]
 	end
 	for i = 1, #filters.factions do
 		filters.factions[i] = defFilters.factions[i]
@@ -2889,6 +2351,18 @@ function journal:getFilterSpecific(spellID, isSelfMount)
 end
 
 
+function journal:getFilterFamily(familyID)
+	local filter = mounts.filters.family
+	if type(familyID) == "table" then
+		for i = 1, #familyID do
+			if filter[familyID[i]] then return true end
+		end
+	else
+		return filter[familyID]
+	end
+end
+
+
 function journal:getFilterWeight(spellID)
 	local filter = mounts.filters.mountsWeight
 	if not filter.sign then
@@ -2963,12 +2437,14 @@ function journal:updateMountsList()
 	for i = 1, #self.mountIDs do
 		local mountID = self.mountIDs[i]
 		local name, spellID, _,_, isUsable, sourceType, _,_, mountFaction, shouldHideOnChar, isCollected = self:getMountInfo(mountID)
-		local expansion, _,_, sourceText, isSelfMount, mountType = self:getMountInfoExtra(mountID)
+		local expansion, familyID, _,_, sourceText, isSelfMount, mountType = self:getMountInfoExtra(mountID)
 		local petID = self.petForMount[spellID]
 		local isMountHidden = self:isMountHidden(mountID)
 
+		-- FAMILY
+		if self:getFilterFamily(familyID)
 		-- HIDDEN FOR CHARACTER
-		if (not shouldHideOnChar or filters.hideOnChar)
+		and (not shouldHideOnChar or filters.hideOnChar)
 		and (not (filters.hideOnChar and filters.onlyHideOnChar) or shouldHideOnChar)
 		-- HIDDEN BY PLAYER
 		and (not isMountHidden or filters.hiddenByPlayer)

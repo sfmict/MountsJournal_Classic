@@ -198,14 +198,6 @@ function test:PLAYER_ENTERING_WORLD()
 	-- 	end
 	-- end
 
-	for _, id in ipairs({90265, 34091, 34090, 33391, 33388}) do
-		if IsSpellKnown(id) then
-			fprint(("IsSpellKnown(%d)"):format(id), "DETECTED")
-		else
-			fprint(("IsSpellKnown(%d)"):format(id), "NOT DETECTED")
-		end
-	end
-
 	-- self.a = function(...) return ... end
 	-- local err, r = xpcall(self.a, geterrorhandler(), "dsa")
 	-- fprint("asd", err, r)

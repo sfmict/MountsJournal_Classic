@@ -84,6 +84,7 @@ function mounts:ADDON_LOADED(addonName)
 		MountsJournalChar = MountsJournalChar or {}
 		self.charDB = MountsJournalChar
 		self.charDB.macrosConfig = self.charDB.macrosConfig or {}
+		self.charDB.profileBySpecialization = self.charDB.profileBySpecialization or {}
 		self.charDB.profileBySpecializationPVP = self.charDB.profileBySpecializationPVP or {}
 		self.charDB.holidayProfiles = self.charDB.holidayProfiles or {}
 
@@ -180,6 +181,9 @@ function mounts:PLAYER_LOGIN()
 	-- self:RegisterEvent("COMPANION_UPDATE")
 	-- self:RegisterEvent("COMPANION_LEARNED")
 	-- self:RegisterEvent("COMPANION_UNLEARNED")
+
+	-- DUAL SPEC CHANGED
+	self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 
 	-- PET USABLE
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -488,20 +492,26 @@ end
 
 
 function mounts:setDB()
-	profileName = self.charDB.profileBySpecializationPVP[1]
-	if profileName and not self.profiles[profileName] then
-		self.charDB.profileBySpecializationPVP[1] = nil
+	local profileName
+	for i = 1, GetNumTalentGroups(false, false) do
+		profileName = self.charDB.profileBySpecialization[i]
+		if profileName and not self.profiles[profileName] then
+			self.charDB.profileBySpecialization[i] = nil
+		end
+		profileName = self.charDB.profileBySpecializationPVP[i]
+		if profileName and not self.profiles[profileName] then
+			self.charDB.profileBySpecializationPVP[i] = nil
+		end
 	end
 
 	if self.charDB.currentProfileName and not self.profiles[self.charDB.currentProfileName] then
 		self.charDB.currentProfileName = nil
 	end
 
-	local profileName
 	wipe(self.priorityProfiles)
 
 	if self.pvp and self.charDB.profileBySpecializationPVP.enable then
-		profileName = self.charDB.profileBySpecializationPVP[1]
+		profileName = self.charDB.profileBySpecializationPVP[GetActiveTalentGroup(false, false)]
 		self.priorityProfiles[1] = self.profiles[profileName] or self.defProfile
 	end
 
@@ -510,11 +520,16 @@ function mounts:setDB()
 		self.priorityProfiles[#self.priorityProfiles + 1] = self.profiles[holidayProfiles[i].profileName] or self.defProfile
 	end
 
+	if self.charDB.profileBySpecialization.enable then
+		profileName = self.charDB.profileBySpecialization[GetActiveTalentGroup(false, false)]
+		self.priorityProfiles[#self.priorityProfiles + 1] = self.profiles[profileName] or self.defProfile
+	end
+
 	profileName = self.charDB.currentProfileName
 	self.db = self.profiles[profileName] or self.defProfile
 	self.priorityProfiles[#self.priorityProfiles + 1] = self.db
 end
-mounts.PLAYER_SPECIALIZATION_CHANGED = mounts.setDB
+mounts.ACTIVE_TALENT_GROUP_CHANGED = mounts.setDB
 
 
 function mounts:setHandleWaterJump(enable)
@@ -673,7 +688,7 @@ end
 
 
 function mounts:errorSummon()
-	UIErrorsFrame:AddMessage(InCombatLockdown() and SPELL_FAILED_AFFECTING_COMBAT or ERR_MOUNT_NO_FAVORITES, 1, .1, .1, 1)
+	UIErrorsFrame:AddMessage(InCombatLockdown() and SPELL_FAILED_AFFECTING_COMBAT or L["ERR_MOUNT_NO_SELECTED"], 1, .1, .1, 1)
 end
 
 

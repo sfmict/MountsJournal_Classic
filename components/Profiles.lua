@@ -267,6 +267,16 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 			info.value = "holidays"
 			self:ddAddButton(info, level)
 
+			info.notCheckable = nil
+			info.text = L["By Specialization"]
+			info.value = "specialization"
+			info.checked = function() return self.charDB.profileBySpecialization.enable end
+			info.func = function(_,_,_, checked)
+				self.charDB.profileBySpecialization.enable = checked
+				self.mounts:setDB()
+			end
+			self:ddAddButton(info, level)
+
 		elseif value == "settings" then -- PROFILE SETTINGS
 			info.notCheckable = true
 			info.isTitle = true
@@ -343,40 +353,45 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 			info.func = function() self:createProfile(true) end
 			self:ddAddButton(info, level)
 
-		elseif value == "pvp" then -- PVP
-			local profileBy = self.charDB.profileBySpecializationPVP
-
-			info.list = {
-				{
-					keepShownOnClick = true,
-					arg1 = 1,
-					text = DEFAULT,
-					checked = function(btn)
-						return profileBy[btn.arg1] == nil
-					end,
-					func = function(_, arg1)
-						profileBy[arg1] = nil
-						self.mounts:setDB()
-						self:ddRefresh(level)
-					end,
-				}
-			}
-			for _, profileName in ipairs(self.profileNames) do
-				tinsert(info.list, {
-					keepShownOnClick = true,
-					arg1 = 1,
-					text = profileName,
-					checked = function(btn)
-						return profileBy[btn.arg1] == btn.text
-					end,
-					func = function(btn, arg1)
-						profileBy[arg1] = btn.text
-						self.mounts:setDB()
-						self:ddRefresh(level)
-					end,
-				})
-			end
+		elseif value == "specialization" then -- SPECS
+			info.notCheckable = true
+			info.isTitle = true
+			info.text = L["By Specialization"]
 			self:ddAddButton(info, level)
+
+			self:ddAddSeparator(level)
+
+			info.notCheckable = nil
+			info.isTitle = nil
+			info.notCheckable = true
+			info.hasArrow = true
+			info.keepShownOnClick = true
+
+			for i = 1, GetNumTalentGroups(false, false) do
+				info.text = i == 1 and TALENT_SPEC_PRIMARY or TALENT_SPEC_SECONDARY
+				info.value = i
+				self:ddAddButton(info, level)
+			end
+
+		elseif value == "pvp" then -- PVP
+			info.notCheckable = true
+			info.isTitle = true
+			info.text = L["Areans and Battlegrounds"]
+			self:ddAddButton(info, level)
+
+			self:ddAddSeparator(level)
+
+			info.notCheckable = nil
+			info.isTitle = nil
+			info.notCheckable = true
+			info.hasArrow = true
+			info.keepShownOnClick = true
+
+			for i = 1, GetNumTalentGroups(false, false) do
+				info.text = i == 1 and TALENT_SPEC_PRIMARY or TALENT_SPEC_SECONDARY
+				info.value = i + 10
+				self:ddAddButton(info, level)
+			end
 
 		elseif value == "holidays" then -- HOLIDAYS
 			info.customFrame = calendarFrame
@@ -444,6 +459,54 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 					end
 				end
 				info.list[#info.list + 1] = eInfo
+			end
+			self:ddAddButton(info, level)
+
+		elseif type(value) == "number" then -- PROFILE BY SPEC
+			local profileBy
+			if value < 10 then
+				profileBy = self.charDB.profileBySpecialization
+			else
+				value = value - 10
+				profileBy = self.charDB.profileBySpecializationPVP
+			end
+
+			info.notCheckable = true
+			info.isTitle = true
+			info.text = value == 1 and TALENT_SPEC_PRIMARY or TALENT_SPEC_SECONDARY
+			self:ddAddButton(info, level)
+
+			self:ddAddSeparator(level)
+
+			info.list = {
+				{
+					keepShownOnClick = true,
+					arg1 = value,
+					text = DEFAULT,
+					checked = function(btn)
+						return profileBy[btn.arg1] == nil
+					end,
+					func = function(_, arg1)
+						profileBy[arg1] = nil
+						self.mounts:setDB()
+						self:ddRefresh(level)
+					end,
+				}
+			}
+			for _, profileName in ipairs(self.profileNames) do
+				tinsert(info.list, {
+					keepShownOnClick = true,
+					arg1 = value,
+					text = profileName,
+					checked = function(btn)
+						return profileBy[btn.arg1] == btn.text
+					end,
+					func = function(btn, arg1)
+						profileBy[arg1] = btn.text
+						self.mounts:setDB()
+						self:ddRefresh(level)
+					end,
+				})
 			end
 			self:ddAddButton(info, level)
 

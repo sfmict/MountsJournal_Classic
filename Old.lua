@@ -154,10 +154,6 @@ function mounts:setOldChanges()
 	if currentVersion == "@project-version@" then currentVersion = "4.4.0" end
 	--@end-do-not-package@
 
-	if self.globalDB.lastAddonVersion and compareVersion(self.globalDB.lastAddonVersion, currentVersion) then
-		self.globalDB.lastAddonVersion = nil
-	end
-
 	if compareVersion(currentVersion, self.globalDB.lastAddonVersion) then
 		updateGlobal(self)
 		self.globalDB.lastAddonVersion = currentVersion
