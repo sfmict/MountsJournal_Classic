@@ -115,22 +115,22 @@
 				</CheckedTexture>
 			</CheckButton>
 
-			<Frame parentKey="navBar" inherits="NavBarTemplate" mixin="MJNavBarMixin">
-				<Size x="600" y="28"/>
+			<Frame parentKey="navBar" clipChildren="true" inherits="NavBarTemplate" mixin="MJNavBarMixin">
+				<Size x="600" y="32"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" x="8" y="-60"/>
+					<Anchor point="TOPLEFT" x="5" y="-60"/>
 					<Anchor point="TOPRIGHT" relativeKey="$parent.navBarBtn" relativePoint="TOPLEFT" x="0" y="0"/>
 				</Anchors>
 				<Layers>
 					<Layer level="BORDER" textureSubLevel="-5">
 						<Texture inherits="UI-Frame-InnerBotLeftCorner" parentKey="InsetBorderBottomLeft">
 							<Anchors>
-								<Anchor point="BOTTOMLEFT" x="-3" y="-3"/>
+								<Anchor point="BOTTOMLEFT" x="0" y="0"/>
 							</Anchors>
 						</Texture>
 						<Texture inherits="UI-Frame-InnerBotRight" parentKey="InsetBorderBottomRight">
 							<Anchors>
-								<Anchor point="BOTTOMRIGHT" x="3" y="-3"/>
+								<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
 							</Anchors>
 						</Texture>
 						<Texture inherits="_UI-Frame-InnerBotTile" parentKey="InsetBorderBottom">
@@ -141,13 +141,13 @@
 						</Texture>
 						<Texture inherits="!UI-Frame-InnerLeftTile" parentKey="InsetBorderLeft">
 							<Anchors>
-								<Anchor point="TOPLEFT" x="-3" y="0"/>
+								<Anchor point="TOPLEFT" x="0" y="0"/>
 								<Anchor point="BOTTOMLEFT" relativeKey="$parent.InsetBorderBottomRight" relativePoint="TOPLEFT"/>
 							</Anchors>
 						</Texture>
 						<Texture inherits="!UI-Frame-InnerRightTile" parentKey="InsetBorderRight">
 							<Anchors>
-								<Anchor point="TOPRIGHT" x="3" y="0"/>
+								<Anchor point="TOPRIGHT" x="0" y="0"/>
 								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.InsetBorderBottomRight" relativePoint="TOPRIGHT"/>
 							</Anchors>
 						</Texture>
@@ -221,7 +221,7 @@
 			<Frame parentKey="filtersPanel" inherits="InsetFrameTemplate">
 				<Size x="280" y="29"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.navBar" relativePoint="BOTTOMLEFT" x="-4" y="-4"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.navBar" relativePoint="BOTTOMLEFT" x="-1" y="-1"/>
 				</Anchors>
 				<Frames>
 					<CheckButton parentKey="btnToggle" inherits="MJArrowToggle">

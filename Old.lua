@@ -143,6 +143,12 @@ local function updateGlobal(self)
 			end
 		end)
 	end
+
+	-- IF < 4.4.4 GLOBAL
+	if compareVersion("4.4.4", self.globalDB.lastAddonVersion) then
+		if self.filters.family then wipe(self.filters.family) end
+		if self.defFilters.family then wipe(self.defFilters.family) end
+	end
 end
 
 
@@ -151,7 +157,7 @@ function mounts:setOldChanges()
 
 	local currentVersion = C_AddOns.GetAddOnMetadata(addon, "Version")
 	--@do-not-package@
-	if currentVersion == "@project-version@" then currentVersion = "4.4.0" end
+	if currentVersion == "@project-version@" then currentVersion = "4.4.4" end
 	--@end-do-not-package@
 
 	if compareVersion(currentVersion, self.globalDB.lastAddonVersion) then

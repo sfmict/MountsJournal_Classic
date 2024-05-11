@@ -7,7 +7,9 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 	dd:SetPoint("RIGHT", journal.mapSettings.CurrentMap, "LEFT", 2, 0)
 	dd:SetText(L["Dungeons and Raids"])
 	dd.navBar = journal.navBar
-	dd.list = {
+	journal.mapSettings.dnr = dd
+
+	local list = {
 		{
 			name = DUNGEONS,
 			list = {
@@ -51,9 +53,9 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 			},
 		},
 	}
-	journal.mapSettings.dnr = dd
 
 	dd:ddSetDisplayMode(addon)
+	dd:ddSetValue(list)
 	dd:ddSetInitFunc(function(self, level, value)
 		local info = {}
 
@@ -78,16 +80,5 @@ MountsJournalFrame:on("MODULES_INIT", function(journal)
 			end
 			self:ddAddButton(info, level)
 		end
-
-		if #value == 0 then
-			info.text = EMPTY
-			info.disabled = true
-			self:ddAddButton(info, level)
-		end
-	end)
-
-	dd:SetScript("OnClick", function(self)
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		self:ddToggle(1, self.list, self, self:GetWidth() - 18, (self:GetHeight() / 2 + 6) * (self:ddIsOpenMenuUp() and -1 or 1))
 	end)
 end)

@@ -33,7 +33,10 @@ function MJNavBarMixin:onLoad()
 		OnClick = function() self:setDefMap() end,
 	}
 	NavBar_Initialize(self, "MJNavButtonTemplate", homeData, self.home, self.overflow)
-	self.overflow:SetScript("OnClick", function(btn) self:dropDownToggleClick(btn) end)
+	self.home:SetPoint("LEFT", 3, 0)
+	self.overflow:SetPoint("LEFT", 3, 0)
+	self.overflow:SetScript("OnMouseDown", function(btn) self:dropDownToggleClick(btn) end)
+	self.overflow:SetScript("OnClick", nil)
 	self.overflow.listFunc = function(self)
 		local navBar = self:GetParent()
 		local list = {}
