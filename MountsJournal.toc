@@ -38,7 +38,6 @@ components\filter\Family.lua
 components\filter\Factions.lua
 components\filter\Pet.lua
 components\filter\Expansions.lua
-components\filter\Rarity.lua
 components\filter\Chance.lua
 components\filter\Tags.lua
 components\filter\Sorting.lua
