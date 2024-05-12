@@ -349,10 +349,18 @@ do
 		[75596] = {"tailoringRank", 425}, -- 375 Frosty Flying Carpet
 	}
 
+	local levelDependent = {
+		[23161] = true, -- Dreadsteed
+		[23214] = true, -- Summon Charger
+		[34767] = true, -- Thalassian Charger
+		[69826] = true, -- Summon Great Sunwalker Kodo
+		[73630] = true, -- Summon Great Exarch's Elekk
+	}
+
 	function mounts:isUsable(spellID)
 		local prof = mountsRequiringProf[spellID]
 		if prof and (self[prof[1]] or 0) < prof[2]
-		or (spellID == 23161 or spellID == 34767) and UnitLevel("player") < 40
+		or levelDependent[spellID] and UnitLevel("player") < 40
 		then return false end
 		return IsUsableSpell(spellID)
 	end
