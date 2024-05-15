@@ -103,7 +103,7 @@ do
 			if groupID then
 				btnText = ("[%d] %s"):format(groupID, btnText)
 			elseif flags then
-				btnText = ("%s [%s%s%s%s]"):format(
+				btnText = ("%s [%s%s]"):format(
 					btnText,
 					getTextBool(flags.groundOnly),
 					getTextBool(flags.waterWalkOnly)
