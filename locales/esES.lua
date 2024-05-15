@@ -75,6 +75,7 @@ local _, L = ...
 -- L["= (equal to)"] = ""
 -- L["sorting"] = ""
 -- L["Reverse Sort"] = ""
+-- L["Collected First"] = ""
 -- L["Favorites First"] = ""
 -- L["Additional First"] = ""
 -- L["Set current filters as default"] = ""

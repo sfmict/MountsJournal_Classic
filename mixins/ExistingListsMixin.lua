@@ -69,7 +69,7 @@ end
 
 function MJExistingListsMixin:addCategory(dataProvider, id, tbl)
 	local category = self.categories[id]
-	local data = {name = ("%s [%d]"):format(self.categories[id].name, #tbl), id = id}
+	local data = {name = ("%s [%d]"):format(category.name, #tbl), id = id}
 	self.lastWidth = math.max(self.lastWidth, self:getTextWidth(data))
 	dataProvider:Insert(data)
 
