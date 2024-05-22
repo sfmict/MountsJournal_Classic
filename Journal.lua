@@ -1332,21 +1332,24 @@ end
 function journal:setArrowSelectMount(enabled)
 	if not self.leftInset then return end
 	if enabled then
+		local function updateIndex(index, delta)
+			index = index + delta
+			if index < 1 then
+				index = self.shownNumMouns + index - math.fmod(self.shownNumMouns, delta)
+				if self.shownNumMouns - index > -delta - 1 then index = index - delta end
+			elseif index > self.shownNumMouns then
+				index = index - self.shownNumMouns + math.fmod(self.shownNumMouns, delta)
+				if index > delta then index = index - delta end
+			end
+			return index
+		end
+
 		local time, pressed, delta, index
 		local onUpdate = function(scroll, elapsed)
 			time = time - elapsed
 			if time <= 0 then
 				time = .1
-				index = index + delta
-
-				if index < 1 then
-					index = self.shownNumMouns + index - math.fmod(self.shownNumMouns, delta)
-					if self.shownNumMouns - index > 2 then index = index + 3 end
-				elseif index > self.shownNumMouns then
-					index = index - self.shownNumMouns + math.fmod(self.shownNumMouns, delta)
-					if index > 3 then index = index - 3 end
-				end
-
+				index = updateIndex(index, delta)
 				self:selectMountByIndex(index)
 			end
 		end
@@ -1364,22 +1367,13 @@ function journal:setArrowSelectMount(enabled)
 				if self.selectedMountID then
 					local data = self:getMountDataByMountID(self.selectedMountID)
 					if data then
-						index = data.index + delta
+						index = updateIndex(data.index, delta)
 					end
 				end
 
 				if not index then
 					index = delta > 0 and 1 or self.shownNumMouns
 				end
-
-				if index < 1 then
-					index = self.shownNumMouns + index - math.fmod(self.shownNumMouns, delta)
-					if self.shownNumMouns - index > 2 then index = index + 3 end
-				elseif index > self.shownNumMouns then
-					index = index - self.shownNumMouns + math.fmod(self.shownNumMouns, delta)
-					if index > 3 then index = index - 3 end
-				end
-
 				self:selectMountByIndex(index)
 
 				pressed = key
