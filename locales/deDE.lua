@@ -27,6 +27,7 @@ L["WaterJumpDescription"] = "Nachdem Sie ins Wasser gesprungen sind, wird nicht 
 L["If item durability is less than"] = "Wenn die Haltbarkeit des Items geringer ist als"
 L["In flyable zones"] = "In flugfähigen Zonen"
 L["UseRepairMountsDescription"] = "Wenn die Haltbarkeit mindestens eines Gegenstandes unter dem angegebenen Prozentsatz liegt, wird das ausgewählte Reittier beschworen."
+-- L["If the number of free slots in bags is less"] = ""
 -- L["Random available mount"] = "Random available mount"
 L["Use %s"] = "Benutze %s"
 -- L["Use automatically"] = "Use automatically"

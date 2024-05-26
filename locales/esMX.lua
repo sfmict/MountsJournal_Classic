@@ -27,6 +27,7 @@ L["ButtonsSelectedTooltipDescription"] = "Los botones laterales seleccionan mont
 -- L["If item durability is less than"] = ""
 -- L["In flyable zones"] = ""
 -- L["UseRepairMountsDescription"] = ""
+-- L["If the number of free slots in bags is less"] = ""
 -- L["Random available mount"] = "Random available mount"
 -- L["Use %s"] = ""
 -- L["Use automatically"] = "Use automatically"

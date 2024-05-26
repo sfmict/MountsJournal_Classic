@@ -27,6 +27,7 @@ L["WaterJumpDescription"] = "После прыжка в воде будет пр
 L["If item durability is less than"] = "Если прочность вещи меньше"
 L["In flyable zones"] = "В полетных зонах"
 L["UseRepairMountsDescription"] = "Если прочность хотя бы одного предмета меньше указанного процента, будет вызвано выбранное средство передвижения."
+L["If the number of free slots in bags is less"] = "Если число свободных слотов в сумках меньше"
 -- L["Random available mount"] = "Random available mount"
 L["Use %s"] = "Использовать %s"
 -- L["Use automatically"] = "Use automatically"

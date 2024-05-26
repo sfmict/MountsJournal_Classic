@@ -23,6 +23,7 @@ L["WaterJumpDescription"] = "After you jump in water will be summoned non underw
 L["If item durability is less than"] = "If item durability is less than"
 L["In flyable zones"] = "In flyable zones"
 L["UseRepairMountsDescription"] = "If the durability of at least one item is less than the specified percentage, the selected mount will be summoned."
+L["If the number of free slots in bags is less"] = "If the number of free slots in bags is less"
 -- L["Random available mount"] = "Random available mount"
 L["Use %s"] = "Use %s"
 -- L["Use automatically"] = "Use automatically"

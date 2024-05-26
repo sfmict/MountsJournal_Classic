@@ -1,5 +1,5 @@
 local addon, L = ...
-local C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel = C_Map, MapUtil, next, wipe, random, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel
+local C_MountJournal, C_Map, MapUtil, next, wipe, random, IsPlayerSpell, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container = C_MountJournal, C_Map, MapUtil, next, wipe, random, IsPlayerSpell, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container
 local util = MountsJournalUtil
 local mounts = CreateFrame("Frame", "MountsJournal")
 util.setEventsMixin(mounts)
@@ -55,6 +55,7 @@ function mounts:ADDON_LOADED(addonName)
 		end
 		self.config.useRepairMountsDurability = self.config.useRepairMountsDurability or 41
 		self.config.useRepairFlyableDurability = self.config.useRepairFlyableDurability or 31
+		self.config.useRepairFreeSlotsNum = self.config.useRepairFreeSlotsNum or 1
 		self.config.summonPetEveryN = self.config.summonPetEveryN or 5
 		self.config.macrosConfig = self.config.macrosConfig or {}
 		for i = 1, GetNumClasses() do
@@ -248,6 +249,18 @@ function mounts:setUsableRepairMounts()
 			end
 			break
 		end
+	end
+end
+
+
+function mounts:notEnoughFreeSlots()
+	if self.config.useRepairFreeSlots then
+		local totalFree, freeSlots, bagFamily = 0
+		for i = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+			freeSlots, bagFamily = C_Container.GetContainerNumFreeSlots(i)
+			if bagFamily == 0 then totalFree = totalFree + freeSlots end
+		end
+		return totalFree < self.config.useRepairFreeSlotsNum
 	end
 end
 
@@ -691,6 +704,7 @@ function mounts:setFlags()
 	                  or self:isWaterWalkLocation()
 	flags.useRepair = flags.repair and not flags.fly
 	                  or flags.flyableRepair and flags.fly
+	                  or self:notEnoughFreeSlots()
 	flags.targetMount = self:getTargetMount()
 end
 

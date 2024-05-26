@@ -27,6 +27,7 @@ L["WaterJumpDescription"] = "在你跳入水中后, 将被召唤出非水下坐�
 L["If item durability is less than"] = "如果物品耐久度低于"
 L["In flyable zones"] = "在可飞行区域"
 L["UseRepairMountsDescription"] = "如果至少有一件物品的耐久度低于指定的百分比, 所选坐骑将被召唤出来."
+-- L["If the number of free slots in bags is less"] = ""
 -- L["Random available mount"] = "Random available mount"
 L["Use %s"] = "使用%s"
 -- L["Use automatically"] = "Use automatically"
