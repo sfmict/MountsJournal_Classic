@@ -617,8 +617,10 @@ function mounts:setUsableID(ids, mountsWeight)
 			usable = self.withAdditional and self.additionalMounts[spellID]:canUse()
 		else
 			local mountID = C_MountJournal.GetMountFromSpell(spellID)
-			local _,_,_,_, isUsable, _,_,_,_,_,_,_, isForDragonriding = C_MountJournal.GetMountInfoByID(mountID)
-			usable = isUsable and self:isUsable(spellID)
+			if mountID then
+				local _,_,_,_, isUsable, _,_,_,_,_,_,_, isForDragonriding = C_MountJournal.GetMountInfoByID(mountID)
+				usable = isUsable and self:isUsable(spellID)
+			end
 		end
 
 		if usable then
