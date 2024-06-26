@@ -89,8 +89,6 @@ function mounts:ADDON_LOADED(addonName)
 		self.charDB.profileBySpecializationPVP = self.charDB.profileBySpecializationPVP or {}
 		self.charDB.holidayProfiles = self.charDB.holidayProfiles or {}
 
-		self:setOldChanges()
-
 		-- Списки
 		self.swimmingVashjir = {
 			[75207] = true,
@@ -149,17 +147,13 @@ end
 
 
 function mounts:PLAYER_LOGIN()
-	if self.after then
-		for i = 1, #self.after do
-			self.after[i]()
-		end
-		self.after = nil
-	end
+	self.PLAYER_LOGIN = nil
+	self:setOldChanges()
 
 	-- INIT
+	self:setUsableRepairMounts()
 	self:setModifier(self.config.modifier)
 	self:setHandleWaterJump(self.config.waterJump)
-	self:setUsableRepairMounts()
 	self:updateProfessionsRank()
 	self:init()
 	self.pets:setSummonEvery()

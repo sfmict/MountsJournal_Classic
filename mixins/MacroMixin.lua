@@ -241,8 +241,10 @@ function macroFrame:PLAYER_LOGIN()
 			else
 				self.mounts:setSummonMount(true)
 
-				local additionMount = self.mounts.additionalMounts[self.sFlags.targetMount]
-				if not additionMount then
+				local additionMount
+				if self.sFlags.targetMount then
+					additionMount = self.mounts.additionalMounts[self.sFlags.targetMount]
+				else
 					additionMount = self.mounts.additionalMounts[self.mounts.summonedSpellID]
 				end
 

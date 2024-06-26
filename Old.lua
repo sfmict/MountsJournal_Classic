@@ -17,12 +17,6 @@ local function compareVersion(v1, v2)
 end
 
 
-local function after(self, func)
-	self.after = self.after or {}
-	self.after[#self.after + 1] = func
-end
-
-
 local function updateGlobal(self)
 	-- IF < 3.4.31 GLOBAL
 	if compareVersion("3.4.31", self.globalDB.lastAddonVersion) and self.config.journalPosX then
@@ -128,20 +122,18 @@ local function updateGlobal(self)
 			end
 		end
 
-		after(self, function()
-			if self.config.repairSelectedMount then
-				local _, spellID = C_MountJournal.GetMountInfoByID(self.config.repairSelectedMount)
-				self.config.repairSelectedMount = spellID
-			end
-			if self.globalDB.hiddenMounts then
-				self.globalDB.hiddenMounts = mountToSpell(self.globalDB.hiddenMounts)
-			end
-			self.globalDB.mountTags = mountToSpell(self.globalDB.mountTags)
-			profileToSpell(self.defProfile)
-			for name, data in next, self.profiles do
-				profileToSpell(data)
-			end
-		end)
+		if self.config.repairSelectedMount then
+			local _, spellID = C_MountJournal.GetMountInfoByID(self.config.repairSelectedMount)
+			self.config.repairSelectedMount = spellID
+		end
+		if self.globalDB.hiddenMounts then
+			self.globalDB.hiddenMounts = mountToSpell(self.globalDB.hiddenMounts)
+		end
+		self.globalDB.mountTags = mountToSpell(self.globalDB.mountTags)
+		profileToSpell(self.defProfile)
+		for name, data in next, self.profiles do
+			profileToSpell(data)
+		end
 	end
 
 	-- IF < 4.4.6 GLOBAL
