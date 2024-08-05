@@ -34,8 +34,8 @@ local function button_OnMouseWheel(self, delta)
 end
 
 
-function binding:createButtonBinding(parent, name, description, secureTemplate, macro)
-	local button = CreateFrame("Button", nil, parent, "UIMenuButtonStretchTemplate")
+function binding:createButtonBinding(name, description, secureTemplate, macro)
+	local button = CreateFrame("Button", nil, nil, "UIMenuButtonStretchTemplate")
 	button.selectedHighlight = button:CreateTexture(nil, "OVERLAY")
 	button.selectedHighlight:SetTexture("Interface/Buttons/UI-Silver-Button-Select")
 	button.selectedHighlight:SetPoint("TOPLEFT", 0, -3)

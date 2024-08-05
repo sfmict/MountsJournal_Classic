@@ -4,8 +4,6 @@ local config = CreateFrame("FRAME", "MountsJournalConfig")
 config:Hide()
 config.macroName = "MJMacro"
 config.secondMacroName = "MJSecondMacro"
-config.secureButtonNameMount = addon.."_Mount"
-config.secureButtonNameSecondMount = addon.."_SecondMount"
 
 
 config:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
@@ -14,16 +12,14 @@ config:RegisterEvent("PLAYER_LOGIN")
 
 -- BIND MOUNT
 function config:PLAYER_LOGIN()
-	self.bindMount = binding:createButtonBinding(nil, self.secureButtonNameMount, ("%s %s %d"):format(addon, SUMMONS, 1), "MJSecureActionButtonTemplate")
-	self.bindSecondMount = binding:createButtonBinding(nil, self.secureButtonNameSecondMount, ("%s %s %d"):format(addon, SUMMONS, 2), "MJSecureActionButtonTemplate")
+	self.bindMount = binding:createButtonBinding(util.secureButtonNameMount, ("%s %s %d"):format(addon, SUMMONS, 1), "MJSecureActionButtonTemplate")
+	self.bindSecondMount = binding:createButtonBinding(util.secureButtonNameSecondMount, ("%s %s %d"):format(addon, SUMMONS, 2), "MJSecureActionButtonTemplate")
 	self.bindSecondMount.secure.forceModifier = true
 end
 
 
 -- SHOW CONFIG
 config:SetScript("OnShow", function(self)
-	self:SetScript("OnShow", nil)
-
 	StaticPopupDialogs[util.addonName.."MACRO_EXISTS"] = {
 		text = addon..": "..L["A macro named \"%s\" already exists, overwrite it?"],
 		button1 = ACCEPT,
@@ -66,7 +62,7 @@ config:SetScript("OnShow", function(self)
 
 	-- VERSION
 	local ver = self:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	ver:SetPoint("TOPLEFT", 40, 20)
+	ver:SetPoint("TOPRIGHT", -40, 15)
 	ver:SetTextColor(.5, .5, .5, 1)
 	ver:SetJustifyH("RIGHT")
 	ver:SetText(C_AddOns.GetAddOnMetadata(addon, "Version"))
@@ -488,7 +484,6 @@ config:SetScript("OnShow", function(self)
 
 	-- REFRESH
 	self.OnRefresh = function(self)
-		self:SetPoint("TOPLEFT", -12, 8)
 		binding.unboundMessage:Hide()
 		modifierCombobox:ddSetSelectedValue(mounts.config.modifier)
 		modifierCombobox:ddSetSelectedText(_G[mounts.config.modifier.."_KEY"])
@@ -525,6 +520,7 @@ config:SetScript("OnShow", function(self)
 		self.applyBtn:Disable()
 	end
 	self:OnRefresh()
+	self:SetScript("OnShow", self.OnRefresh)
 
 	-- COMMIT
 	config.OnCommit = function(self)
@@ -618,29 +614,3 @@ end
 config:SetScript("OnHide", function()
 	binding:resetBinding()
 end)
-
-
--- ADD CATEGORY
-local category, layout = Settings.RegisterCanvasLayoutCategory(config, addon)
-category.ID = addon
--- layout:AddAnchorPoint("TOPLEFT", -12, 8)
--- layout:AddAnchorPoint("BOTTOMRIGHT", 0, 0)
-Settings.RegisterAddOnCategory(category)
-
-
--- OPEN CONFIG
-function config:openConfig()
-	if SettingsPanel:IsVisible() and self:IsVisible() then
-		if InCombatLockdown() then return end
-		HideUIPanel(SettingsPanel)
-	else
-		-- Settings.GetCategory(addon).expanded = true
-		Settings.OpenToCategory(addon, true)
-		-- SettingsPanel:GetCategoryList():CreateCategories()
-	end
-end
-
-
-SLASH_MOUNTSCONFIG1 = "/mountconfig"
-SLASH_MOUNTSCONFIG2 = "/mco"
-SlashCmdList["MOUNTSCONFIG"] = function() config:openConfig() end

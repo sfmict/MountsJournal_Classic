@@ -5,6 +5,7 @@ end
 local _, L = ...
 
 -- L["author"] = ""
+-- L["Main"] = ""
 -- L["%s Configuration"] = ""
 -- L["ConfigPanelTitle"] = ""
 -- L["Class settings"] = ""
@@ -40,7 +41,6 @@ local _, L = ...
 -- L["or key bind"] = ""
 -- L["ERR_MOUNT_NO_SELECTED"] = ""
 -- L["Collected:"] = ""
--- L["Settings"] = ""
 -- L["Shown:"] = ""
 -- L["With multiple models"] = "With only multiple models"
 -- L["hidden for character"] = ""
@@ -89,7 +89,9 @@ local _, L = ...
 -- L["Initial y-axis accseleration"] = ""
 -- L["Y-axis accseleration"] = ""
 -- L["Minimum y-axis speed"] = ""
--- L["Map / Model"] = ""
+-- L["Model"] = ""
+-- L["Map"] = ""
+-- L["Settings"] = ""
 -- L["Dungeons and Raids"] = ""
 -- L["Current Location"] = ""
 -- L["Enable Flags"] = ""

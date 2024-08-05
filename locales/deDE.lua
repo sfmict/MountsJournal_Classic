@@ -5,6 +5,7 @@ end
 local _, L = ...
 
 L["author"] = "Autor"
+-- L["Main"] = ""
 L["%s Configuration"] = "Konfiguration %s"
 L["ConfigPanelTitle"] = "Globale Einstellungen"
 L["Class settings"] = "Klasseneinstellungen"
@@ -40,7 +41,6 @@ L["CreateMacroTooltip"] = "Das erstellte Makro wird verwendet, um die ausgewähl
 L["or key bind"] = "oder Tastenbindung"
 -- L["ERR_MOUNT_NO_SELECTED"] = ""
 L["Collected:"] = "Gesammelt"
-L["Settings"] = "Einstellungen"
 L["Shown:"] = "Abgebildet:"
 -- L["With multiple models"] = "With only multiple models"
 L["hidden for character"] = "Versteckt für Charakter"
@@ -89,7 +89,9 @@ L["Enable Acceleration around the Y-axis"] = "Aktivieren die Beschleunigung um d
 L["Initial y-axis accseleration"] = "Anfangsbeschleunigung der Y-Achse"
 L["Y-axis accseleration"] = "Y-Achse Beschleunigung"
 L["Minimum y-axis speed"] = "Mindestgeschwindigkeit der Y-Achse"
-L["Map / Model"] = "Karte / Modell"
+L["Model"] = "Modell"
+L["Map"] = "Karte"
+L["Settings"] = "Einstellungen"
 L["Dungeons and Raids"] = "Dungeons und Raids"
 L["Current Location"] = "Aktueller Standort"
 L["Enable Flags"] = "Flags aktivieren"
