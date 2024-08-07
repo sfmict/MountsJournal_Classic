@@ -114,18 +114,11 @@ function mounts:ADDON_LOADED(addonName)
 			type = "launcher",
 			text = addon,
 			icon = 303868,
-			OnClick = function(_, button)
-				if button == "LeftButton" then
-					MountsJournalFrame:showToggle()
-				elseif button == "RightButton" then
-					MountsJournalConfig:openConfig()
-				end
-			end,
+			OnClick = function() MountsJournalFrame:showToggle() end,
 			OnTooltipShow = function(tooltip)
 				tooltip:SetText(("%s (|cffff7f3f%s|r)"):format(addon, C_AddOns.GetAddOnMetadata(addon, "Version")))
 				tooltip:AddLine("\n")
 				tooltip:AddLine(L["|cffff7f3fClick|r to open %s"]:format(addon), .5, .8, .5, false)
-				tooltip:AddLine(L["|cffff7f3fRight-Click|r to open Settings"], .5, .8, .5, false)
 				if InCombatLockdown() then
 					GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
 				end

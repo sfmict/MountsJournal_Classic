@@ -132,7 +132,6 @@ L["Enable arrow buttons to browse mounts"] = "Ative os botões de seta para nave
 -- L["Show Minimap Button"] = ""
 -- L["Lock Minimap Button"] = ""
 -- L["|cffff7f3fClick|r to open %s"] = ""
--- L["|cffff7f3fRight-Click|r to open Settings"] = ""
 L["About"] = "Sobre"
 -- L["Help with translation of %s. Thanks."] = ""
 -- L["Localization Translators:"] = ""

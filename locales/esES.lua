@@ -132,7 +132,6 @@ local _, L = ...
 -- L["Show Minimap Button"] = ""
 -- L["Lock Minimap Button"] = ""
 -- L["|cffff7f3fClick|r to open %s"] = ""
--- L["|cffff7f3fRight-Click|r to open Settings"] = ""
 -- L["About"] = ""
 -- L["Help with translation of %s. Thanks."] = ""
 -- L["Localization Translators:"] = ""

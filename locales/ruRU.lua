@@ -132,7 +132,6 @@ L["Show wowhead link in mount preview"] = "Показывать ссылку н�
 L["Show Minimap Button"] = "Показывать кнопку миникарты"
 L["Lock Minimap Button"] = "Заблокировать кнопку миникарты"
 L["|cffff7f3fClick|r to open %s"] = "|cffff7f3fКлик|r чтобы открыть %s"
-L["|cffff7f3fRight-Click|r to open Settings"] = "|cffff7f3fRight-Click|r чтобы открыть настройки"
 L["About"] = "О аддоне"
 L["Help with translation of %s. Thanks."] = "Помогите с переводом %s. Спасибо."
 L["Localization Translators:"] = "Переводчики локализаций:"

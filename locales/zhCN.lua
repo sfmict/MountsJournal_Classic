@@ -132,7 +132,6 @@ L["Show wowhead link in mount preview"] = "在坐骑预览中显示wowhead链接
 -- L["Show Minimap Button"] = ""
 -- L["Lock Minimap Button"] = ""
 -- L["|cffff7f3fClick|r to open %s"] = ""
--- L["|cffff7f3fRight-Click|r to open Settings"] = ""
 L["About"] = "关于"
 L["Help with translation of %s. Thanks."] = "参与帮助翻译 %s. 谢谢"
 L["Localization Translators:"] = "本地化翻译者:"
