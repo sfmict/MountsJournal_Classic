@@ -1,7 +1,6 @@
-local addon, L = ...
-local mounts = MountsJournal
-local config = MountsJournalConfig
-local journal = MountsJournalFrame
+local addon, ns = ...
+local L, mounts, config, journal = ns.L, ns.mounts, ns.config, ns.journal
+mounts.mountsDB = ns.mountsDB
 local test = CreateFrame("Frame")
 test:RegisterEvent("PLAYER_ENTERING_WORLD")
 

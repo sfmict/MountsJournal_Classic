@@ -1,7 +1,8 @@
-local _, L = ...
+local _, ns = ...
+local L = ns.L
 
 
-MountsJournal:on("MODULES_INIT", function(self)
+ns.mounts:on("MODULES_INIT", function()
 	local bg, activeContent = MountsJournalFrame.bgFrame.settingsBackground
 	bg.Tabs = {}
 
@@ -36,9 +37,9 @@ MountsJournal:on("MODULES_INIT", function(self)
 		bg.Tabs[index] = tab
 	end
 
-	addTab(L["Main"], MountsJournalConfig)
-	addTab(L["Class settings"], MountsJournalConfigClasses)
-	addTab(L["About"], MountsJournalConfigAbout)
+	addTab(L["Main"], ns.config)
+	addTab(L["Class settings"], ns.classConfig)
+	addTab(L["About"], ns.aboutConfig)
 
 	PanelTemplates_SetNumTabs(bg, index)
 	PanelTemplates_SetTab(bg, 1)

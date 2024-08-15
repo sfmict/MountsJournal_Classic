@@ -1,3 +1,5 @@
+local _, ns = ...
+local util = ns.util
 local type, pairs, rawget, GetItemCount, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item, GetInventoryItemID, GetInventoryItemLink, EquipItemByName, IsMounted, IsSubmerged = type, pairs, rawget, GetItemCount, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item, GetInventoryItemID, GetInventoryItemLink, EquipItemByName, IsMounted, IsSubmerged
 local macroFrame = CreateFrame("FRAME")
 
@@ -10,7 +12,8 @@ macroFrame:RegisterEvent("PLAYER_LOGIN")
 
 function macroFrame:PLAYER_LOGIN()
 	self.PLAYER_LOGIN = nil
-	self.mounts = MountsJournal
+	self.additionalMounts = ns.additionalMounts
+	self.mounts = ns.mounts
 	self.config = self.mounts.config
 	self.sFlags = self.mounts.sFlags
 	self.macrosConfig = self.config.macrosConfig
@@ -243,9 +246,9 @@ function macroFrame:PLAYER_LOGIN()
 
 				local additionMount
 				if self.sFlags.targetMount then
-					additionMount = self.mounts.additionalMounts[self.sFlags.targetMount]
+					additionMount = self.additionalMounts[self.sFlags.targetMount]
 				else
-					additionMount = self.mounts.additionalMounts[self.mounts.summonedSpellID]
+					additionMount = self.additionalMounts[self.mounts.summonedSpellID]
 				end
 
 				if additionMount then
@@ -431,12 +434,12 @@ function macroFrame:getCombatMacro()
 end
 
 
-function MountsJournalUtil.getClassMacro(...)
+function util.getClassMacro(...)
 	return macroFrame:getClassMacro(...)
 end
 
 
-function MountsJournalUtil.refreshMacro()
+function util.refreshMacro()
 	macroFrame:refresh()
 end
 
@@ -450,7 +453,7 @@ end
 
 
 function MJMacroMixin:onLoad()
-	self.mounts = MountsJournal
+	self.mounts = ns.mounts
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 end
 

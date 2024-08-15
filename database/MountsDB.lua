@@ -1,7 +1,7 @@
-local mounts = MountsJournal
+local _, ns = ...
 
 
-mounts.mountsDB = setmetatable({
+ns.mountsDB = setmetatable({
 	[6] = {1, 1806, 3}, -- 458 Brown Horse (Alliance)
 	[7] = {1, 3105, 3}, -- 459 Gray Wolf
 	[8] = {1, 1806, 3}, -- 468 White Stallion

@@ -1,7 +1,9 @@
-local addon, L = ...
+local addon, ns = ...
+local L, util, mounts = ns.L, ns.util, ns.mounts
+local mountsDB, specificDB = ns.mountsDB, ns.specificDB
 local C_MountJournal, C_PetJournal, wipe, tinsert, next, pairs, ipairs, select, type, sort, math = C_MountJournal, C_PetJournal, wipe, tinsert, next, pairs, ipairs, select, type, sort, math
-local util, mounts, config = MountsJournalUtil, MountsJournal, MountsJournalConfig
 local journal = CreateFrame("FRAME", "MountsJournalFrame")
+ns.journal = journal
 journal.mountTypes = util.mountTypes
 util.setEventsMixin(journal)
 
@@ -76,7 +78,7 @@ function journal:init()
 	setmetatable(mounts.defFilters.tags.tags, filtersMeta)
 
 	-- ADDITIONAL MOUNTS
-	for spellID, mount in next, mounts.additionalMounts do
+	for spellID, mount in next, ns.additionalMounts do
 		self.mountIDs[#self.mountIDs + 1] = mount
 	end
 
@@ -1193,7 +1195,7 @@ function journal:getMountInfo(mount)
 	-- name, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected
 	if type(mount) == "number" then
 		local name, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mount)
-		return name, spellID, icon, active, isUsable, mounts.mountsDB[mount][3], isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected
+		return name, spellID, icon, active, isUsable, mountsDB[mount][3], isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected
 	else
 		return mount.name, mount.spellID, mount.icon, mount:isActive(), mount:isUsable(), 0, mount:getIsFavorite(), false, nil, not mount:isShown(), true
 	end
@@ -1203,7 +1205,7 @@ end
 function journal:getMountInfoExtra(mount)
 	-- expansion, creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview
 	if type(mount) == "number" then
-		local mountDB = mounts.mountsDB[mount]
+		local mountDB = mountsDB[mount]
 		return mountDB[1], mountDB[2], C_MountJournal.GetMountInfoExtraByID(mount)
 	else
 		return mount.expansion, 0, mount.creatureID, mount.description, mount.sourceText, true, mount.mountType, mount.modelSceneID
@@ -1516,7 +1518,7 @@ end
 
 
 function journal:sortMounts()
-	local fSort, db = mounts.filters.sorting, mounts.mountsDB
+	local fSort, db = mounts.filters.sorting, mountsDB
 	local numNeedingFanfare = C_MountJournal.GetNumMountsNeedingFanfare()
 
 	local mCache = setmetatable({}, {__index = function(t, mount)
@@ -2423,9 +2425,9 @@ function journal:getFilterSpecific(spellID, isSelfMount)
 	local i = 0
 	if isSelfMount then if filter.transform then return true end
 	else i = i + 1 end
-	if mounts.additionalMounts[spellID] then if filter.additional then return true end
+	if ns.additionalMounts[spellID] then if filter.additional then return true end
 	else i = i + 1 end
-	for k, t in pairs(mounts.specificDB) do
+	for k, t in pairs(specificDB) do
 		if t[spellID] then if filter[k] then return true end
 		else i = i + 1 end
 	end

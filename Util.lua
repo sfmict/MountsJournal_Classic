@@ -1,12 +1,12 @@
-local addon = ...
+local addon, ns = ...
 local type, select, strsplit, tremove = type, select, strsplit, tremove
-local _G, C_MountJournal, UnitBuff = _G, C_MountJournal, UnitBuff
+local C_MountJournal, UnitBuff = C_MountJournal, UnitBuff
 local events, eventsMixin = {}, {}
 
 
 function eventsMixin:on(event, func)
 	if type(event) ~= "string" or type(func) ~= "function" then return end
-	local event, name = strsplit(".", event, 2)
+	local event, name = ("."):split(event, 2)
 
 	if not events[event] then
 		events[event] = {}
@@ -22,7 +22,7 @@ end
 
 function eventsMixin:off(event, func)
 	if type(event) ~= "string" then return end
-	local event, name = strsplit(".", event, 2)
+	local event, name = ("."):split(event, 2)
 
 	local handlerList = events[event]
 	if handlerList then
@@ -76,8 +76,9 @@ lsfdd:CreateMenuStyle(addon, function(parent)
 end)
 
 
-MountsJournalUtil = {}
-local util = MountsJournalUtil
+local util = {}
+MountsJournalUtil = util
+ns.util = util
 util.addonName = ("%s_ADDON_"):format(addon:upper())
 util.expansion = tonumber(GetBuildInfo():match("(.-)%."))
 util.secureButtonNameMount = addon.."_Mount"
@@ -263,7 +264,7 @@ function util.getUnitMount(unit)
 		local _,_,_,_,_,_,_,_,_, spellID = UnitBuff(unit, i)
 		if spellID then
 			local mountID = C_MountJournal.GetMountFromSpell(spellID)
-			if mountID or _G.MountsJournal.additionalMounts[spellID] then
+			if mountID or ns.additionalMounts[spellID] then
 				return spellID, mountID
 			end
 		else

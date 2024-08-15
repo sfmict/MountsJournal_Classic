@@ -1,7 +1,8 @@
-local addon, L = ...
+local addon, ns = ...
+local L, util = ns.L, ns.util
 local C_MountJournal, C_Map, MapUtil, next, wipe, random, IsPlayerSpell, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container = C_MountJournal, C_Map, MapUtil, next, wipe, random, IsPlayerSpell, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container
-local util = MountsJournalUtil
 local mounts = CreateFrame("Frame", "MountsJournal")
+ns.mounts = mounts
 util.setEventsMixin(mounts)
 
 
@@ -14,6 +15,7 @@ mounts:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
 function mounts:ADDON_LOADED(addonName)
 	if addonName == addon then
 		self:UnregisterEvent("ADDON_LOADED")
+		self.ADDON_LOADED = nil
 
 		local mapInfo = MapUtil.GetMapParentInfo(C_Map.GetFallbackWorldMapID(), Enum.UIMapType.Cosmic, true)
 		self.defMountsListID = mapInfo and mapInfo.mapID or 946 -- WORLD
@@ -149,8 +151,8 @@ function mounts:PLAYER_LOGIN()
 	self:setHandleWaterJump(self.config.waterJump)
 	self:updateProfessionsRank()
 	self:init()
-	self.pets:setSummonEvery()
-	self.calendar:init()
+	ns.pets:setSummonEvery()
+	ns.calendar:init()
 
 	-- MAP CHANGED
 	-- self:RegisterEvent("NEW_WMO_CHUNK")
@@ -225,7 +227,7 @@ end
 
 function mounts:setUsableRepairMounts()
 	wipe(self.usableRepairMounts)
-	for spellID in pairs(self.specificDB.repair) do
+	for spellID in pairs(ns.specificDB.repair) do
 		local mountID = C_MountJournal.GetMountFromSpell(spellID)
 		local _,_,_,_,_,_,_,_,_, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
@@ -277,9 +279,9 @@ do
 	local function summonPet(petID)
 		if InCombatLockdown() then return end
 		if type(petID) == "number" then
-			mounts.pets:summonRandomPet(petID == 1)
+			ns.pets:summonRandomPet(petID == 1)
 		else
-			mounts.pets:summon(petID)
+			ns.pets:summon(petID)
 		end
 	end
 
@@ -383,8 +385,8 @@ do
 
 	function mounts:addMountToList(list, spellID)
 		local mountType
-		if self.additionalMounts[spellID] then
-			mountType = util.mountTypes[self.additionalMounts[spellID].mountType]
+		if ns.additionalMounts[spellID] then
+			mountType = util.mountTypes[ns.additionalMounts[spellID].mountType]
 		else
 			local mountID = C_MountJournal.GetMountFromSpell(spellID)
 			local _,_,_,_, mountTypeExtra = C_MountJournal.GetMountInfoExtraByID(mountID)
@@ -434,8 +436,6 @@ end
 
 function mounts:setMountsList()
 	self.mapInfo = C_Map.GetMapInfo(C_Map.GetBestMapForUnit("player") or C_Map.GetFallbackWorldMapID())
-	local mapInfo = self.mapInfo
-	local zoneMounts = self.zoneMounts
 	self.mapFlags = nil
 	wipe(self.list)
 
@@ -443,11 +443,11 @@ function mounts:setMountsList()
 	while mapInfo do
 		for i = 1, #self.priorityProfiles do
 			local profile, list = self.priorityProfiles[i]
+			local zoneMounts = profile.zoneMountsFromProfile and self.defProfile.zoneMounts or profile.zoneMounts
 
 			if mapInfo.mapID == self.defMountsListID then
 				list = profile
 			else
-				local zoneMounts = profile.zoneMountsFromProfile and self.defProfile.zoneMounts or profile.zoneMounts
 				list = zoneMounts[mapInfo.mapID]
 
 				if list and not self.mapFlags and list.flags.enableFlags then
@@ -523,7 +523,7 @@ function mounts:setDB()
 		self.priorityProfiles[1] = self.profiles[profileName] or self.defProfile
 	end
 
-	local holidayProfiles = self.calendar:getHolidayProfileNames()
+	local holidayProfiles = ns.calendar:getHolidayProfileNames()
 	for i = 1, #holidayProfiles do
 		self.priorityProfiles[#self.priorityProfiles + 1] = self.profiles[holidayProfiles[i].profileName] or self.defProfile
 	end
@@ -576,7 +576,7 @@ function mounts:getTargetMount()
 			local _,_,_,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
 			return isUsable and self:isUsable(spellID) and spellID
 		elseif spellID then
-			return self.additionalMounts[spellID]:canUse() and spellID
+			return ns.additionalMounts[spellID]:canUse() and spellID
 		end
 	end
 end
@@ -600,8 +600,8 @@ function mounts:setUsableID(ids, mountsWeight)
 
 	for spellID in next, ids do
 		local usable
-		if self.additionalMounts[spellID] then
-			usable = self.withAdditional and self.additionalMounts[spellID]:canUse()
+		if ns.additionalMounts[spellID] then
+			usable = self.withAdditional and ns.additionalMounts[spellID]:canUse()
 		else
 			local mountID = C_MountJournal.GetMountFromSpell(spellID)
 			if mountID then

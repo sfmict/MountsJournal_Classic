@@ -1,9 +1,8 @@
-local addon, L = ...
-local util, mounts = MountsJournalUtil, MountsJournal
+local addon, ns = ...
+local L, util, mounts = ns.L, ns.util, ns.mounts
 local classConfig = CreateFrame("Frame", "MountsJournalConfigClasses", InterfaceOptionsFramePanelContainer)
+ns.classConfig = classConfig
 classConfig:Hide()
-classConfig.name = L["Class settings"]
-classConfig.parent = addon
 
 
 classConfig:SetScript("OnShow", function(self)

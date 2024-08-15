@@ -1,9 +1,8 @@
-local addon, L = ...
-local util = MountsJournalUtil
+local addon, ns = ...
+local L, util = ns.L, ns.util
 local aboutConfig = CreateFrame("FRAME", "MountsJournalConfigAbout", InterfaceOptionsFramePanelContainer)
+ns.aboutConfig = aboutConfig
 aboutConfig:Hide()
-aboutConfig.name = L["About"]
-aboutConfig.parent = addon
 
 
 aboutConfig:SetScript("OnShow", function(self)
