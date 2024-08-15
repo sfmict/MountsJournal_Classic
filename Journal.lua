@@ -189,21 +189,31 @@ function journal:init()
 			bgFrame:Hide()
 		end
 	]])
-	sMountJournal:SetFrameRef("summon1", self.bgFrame.summon1)
-	sMountJournal:SetFrameRef("summon2", self.bgFrame.summon2)
-	sMountJournal:SetFrameRef("summonButton", self.summonButton)
+	sMountJournal:SetFrameRef("frame1", self.bgFrame.summon1)
+	sMountJournal:SetFrameRef("frame2", self.bgFrame.summon2)
+	sMountJournal:SetFrameRef("frame3", self.summonButton)
 	sMountJournal:SetAttribute("tabUpdate", [[
-		local summon1 = self:GetFrameRef("summon1")
-		local summon2 = self:GetFrameRef("summon2")
-		local summonButton = self:GetFrameRef("summonButton")
-		if self:GetAttribute("tab") ~= 1 then
-			summon1:Show()
-			summon2:Show()
-			summonButton:Show()
-		else
-			summon1:Hide()
-			summon2:Hide()
-			summonButton:Hide()
+		local tab = self:GetAttribute("tab")
+		local i = 1
+		while true do
+			local frame = self:GetFrameRef("frame"..i)
+			if frame then
+				if tab == 1 then
+					frame:Hide()
+				else
+					frame:Show()
+				end
+			else
+				break
+			end
+			i = i + 1
+		end
+		for i = 1, self:GetAttribute("numTabs") do
+			if i == tab then
+				self:GetFrameRef("tab"..i):Disable()
+			else
+				self:GetFrameRef("tab"..i):Enable()
+			end
 		end
 	]])
 
@@ -235,6 +245,7 @@ function journal:init()
 		PlaySound(SOUNDKIT.UI_TOYBOX_TABS)
 		PanelTemplates_SetTab(self.bgFrame, tab)
 
+		self.bgFrame.settingsBackground:SetShown(tab == 1)
 		self.mountCount:SetShown(tab ~= 1)
 		self.bgFrame.hint:SetShown(tab ~= 1)
 		self.navBar:SetShown(tab == 2)
@@ -246,7 +257,6 @@ function journal:init()
 		self.mapSettings:SetShown(tab == 2)
 		self.bgFrame.profilesMenu:SetShown(tab ~= 1)
 		self.mountSpecial:SetShown(tab ~= 1)
-		self.bgFrame.settingsBackground:SetShown(tab == 1)
 
 		if tab == 2 then
 			self.navBar:setMapID(self.mapTabID)
@@ -259,13 +269,21 @@ function journal:init()
 	end
 
 	self.bgFrame.settingsTab:SetText(L["Settings"])
+	self.bgFrame.settingsTab.Enable = nop
+	self.bgFrame.settingsTab.Disable = nop
 	self.bgFrame.mapTab:SetText(L["Map"])
+	self.bgFrame.mapTab.Enable = nop
+	self.bgFrame.mapTab.Disable = nop
 	self.bgFrame.modelTab:SetText(L["Model"])
+	self.bgFrame.modelTab:Disable()
+	self.bgFrame.modelTab.Enable = nop
+	self.bgFrame.modelTab.Disable = nop
 
 	for i = 1, #self.bgFrame.Tabs do
 		local tab = self.bgFrame.Tabs[i]
 		tab:SetFrameLevel(tab:GetFrameLevel() + 4);
 		tab:RegisterEvent("DISPLAY_SIZE_CHANGED")
+		sMountJournal:SetFrameRef("tab"..i, tab)
 		tab:SetFrameRef("s", sMountJournal)
 		tab:SetAttribute("_onclick", [[
 			local frame = self:GetFrameRef("s")
@@ -276,7 +294,8 @@ function journal:init()
 	end
 
 	self.bgFrame.numTabs = 3
-	PanelTemplates_SetTab(self.bgFrame, 3)
+	PanelTemplates_SetTab(self.bgFrame, self.bgFrame.numTabs)
+	sMountJournal:SetAttribute("numTabs", self.bgFrame.numTabs)
 
 	-- CLOSE BUTTON
 	self.bgFrame.closeButton:SetAttribute("type", "click")
@@ -999,8 +1018,8 @@ journal:RegisterEvent("ADDON_LOADED")
 
 
 function journal:ADDON_LOADED(addonName)
-	if addonName == "Blizzard_Collections" and select(2, IsAddOnLoaded(addon))
-	or addonName == addon and select(2, IsAddOnLoaded("Blizzard_Collections")) then
+	if addonName == "Blizzard_Collections" and select(2, C_AddOns.IsAddOnLoaded(addon))
+	or addonName == addon and select(2, C_AddOns.IsAddOnLoaded("Blizzard_Collections")) then
 		self:UnregisterEvent("ADDON_LOADED")
 		self.ADDON_LOADED = nil
 
