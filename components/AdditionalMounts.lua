@@ -52,7 +52,7 @@ local function createMountFromSpell(spellID, mountType, dragonriding, expansion,
 	t.macro = ""
 
 	ltl:Spells(spellID):Then(function()
-		t.sourceText = ltl:GetSpellSubtext(spellID)
+		t.sourceText = ltl:GetSpellSubtext(spellID) or ""
 		t.macro = "/cast "..ltl:GetSpellFullName(spellID)
 		t.description = ltl:GetSpellDescription(spellID)
 	end)

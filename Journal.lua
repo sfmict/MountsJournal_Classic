@@ -323,10 +323,10 @@ function journal:init()
 	summon1:SetAttribute("clickbutton", _G[util.secureButtonNameMount])
 	summon1:SetScript("OnDragStart", function()
 		if InCombatLockdown() then return end
-		if not GetMacroInfo(config.macroName) then
-			config:createMacro(config.macroName, util.secureButtonNameMount, 303868)
+		if not GetMacroInfo(ns.config.macroName) then
+			ns.config:createMacro(ns.config.macroName, util.secureButtonNameMount, 303868)
 		end
-		PickupMacro(config.macroName)
+		PickupMacro(ns.config.macroName)
 	end)
 	summon1:SetScript("OnEnter", function(btn)
 		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
@@ -342,10 +342,10 @@ function journal:init()
 	summon2:SetAttribute("clickbutton", _G[util.secureButtonNameSecondMount])
 	summon2:SetScript("OnDragStart", function()
 		if InCombatLockdown() then return end
-		if not GetMacroInfo(config.secondMacroName) then
-			config:createMacro(config.secondMacroName, util.secureButtonNameSecondMount, 237534)
+		if not GetMacroInfo(ns.config.secondMacroName) then
+			ns.config:createMacro(ns.config.secondMacroName, util.secureButtonNameSecondMount, 237534)
 		end
-		PickupMacro(config.secondMacroName)
+		PickupMacro(ns.config.secondMacroName)
 	end)
 	summon2:SetScript("OnEnter", function(btn)
 		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
@@ -916,9 +916,41 @@ function journal:init()
 		end
 	end)
 
+	-- CALENDAR FRAME
+	local calendarFrame = journal.bgFrame.calendarFrame
+	calendarFrame.calendar = ns.calendar
+
+	function calendarFrame:init(level, value, dd)
+		self.level = level
+		self.value = value
+		self.dd = dd
+		local year, monthName = self.calendar:getSelectedDate()
+		self.yearText:SetText(year)
+		self.monthText:SetText(monthName)
+	end
+
+	function calendarFrame:reloadMenu()
+		self.dd:ddCloseMenus(self.level)
+		local menu = lsfdd:GetMenu(self.level)
+		local value = type(self.value) == "function" and self.value() or self.value
+		self.dd:ddToggle(self.level, value, menu.anchorFrame)
+	end
+
+	calendarFrame.prevMonthButton:SetScript("OnClick", function(btn)
+		PlaySound(SOUNDKIT.IG_ABILITY_PAGE_TURN)
+		local parent = btn:GetParent()
+		parent.calendar:setPreviousMonth()
+		parent:reloadMenu()
+	end)
+	calendarFrame.nextMonthButton:SetScript("OnClick", function(btn)
+		PlaySound(SOUNDKIT.IG_ABILITY_PAGE_TURN)
+		local parent = btn:GetParent()
+		parent.calendar:setNextMonth()
+		parent:reloadMenu()
+	end)
+
 	-- PROFILES
 	self:on("UPDATE_PROFILE", function(self, changeProfile)
-		mounts:setDB()
 		self:setEditMountsList()
 		self:updateMountsList()
 		self:updateMapSettings()

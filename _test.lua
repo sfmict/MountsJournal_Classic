@@ -65,72 +65,6 @@ test:RegisterEvent("UI_MODEL_SCENE_INFO_UPDATED")
 -- test:RegisterEvent("CALENDAR_ACTION_PENDING")
 -- test:RegisterEvent("CALENDAR_UPDATE_EVENT")
 
--- if AddOnSkins then
-	-- local AS = unpack(AddOnSkins)
-
-	-- function AS:SkinMountsJournal()
-	-- 	local function reskinMainConfig(self)
-	-- 		for _, frame in ipairs({self:GetChildren()}) do
-	-- 			local ftype = frame:GetObjectType()
-	-- 			if ftype == "Frame" then
-	-- 				AS:SkinBackdropFrame(frame)
-	-- 				for i, frame in ipairs({frame:GetChildren()}) do
-	-- 					ftype = frame:GetObjectType()
-	-- 					fprint(i, ftype)
-	-- 					if ftype == "Button" then
-	-- 						AS:SkinButton(frame)
-	-- 					end
-	-- 				end
-	-- 			elseif ftype == "Button" then
-	-- 				AS:SkinButton(frame)
-	-- 			end
-	-- 		end
-	-- 		AS:SkinCheckBox(self.waterJump)
-	-- 	end
-
-	-- 	if MountsJournalConfig:IsShown() then
-	-- 		reskinMainConfig(MountsJournalConfig)
-	-- 	else
-	-- 		MountsJournalConfig:HookScript("OnShow", function(self)
-	-- 			self:SetScript("OnShow", nil)
-	-- 			reskinMainConfig(self)
-	-- 		end)
-	-- 	end
-	-- end
-
--- 	AS:RegisterSkin(addon, AS.SkinMountsJournal)
--- end
-
--- local f = CreateFrame("FRAME", nil, UIParent)
--- f:SetFrameStrata("BACKGROUND")
--- f:SetPoint("TOPLEFT", ChatFrame1)
--- f:SetPoint("BOTTOMRIGHT", ChatFrame1)
--- f:SetAlpha(0)
--- f.bg = f:CreateTexture(nil, "BACKGROUND")
--- f.bg:SetColorTexture(0, 0, 0)
--- f.bg:SetAllPoints()
--- f:SetScript("OnEnter", function(self)
--- 	UIFrameFadeRemoveFrame(self)
--- 	self:SetAlpha(1)
--- end)
--- f:SetScript("OnLeave", function(self)
--- 	local delay, oldAlpha, newAlpha = 1, self:GetAlpha(), 0
--- 	UIFrameFadeOut(self, delay, oldAlpha, newAlpha)
--- end)
-
--- C_Timer.After(.5, function()
--- 	local btn = CreateFrame("BUTTON", "my_asd2", Minimap)
--- 	btn:SetSize(31, 31)
--- 	btn:SetNormalTexture("Interface\\Icons\\xp_icon")
--- 	btn:SetScript("OnClick", function() fprint("asd") end)
--- 	btn:SetScript("OnEnter", function() fprint("enter asd") end)
--- 	btn:SetScript("OnLeave", function() fprint("leave asd") end)
--- 	C_Timer.NewTicker(3, function()
--- 		btn:GetScript("OnEnter")(btn)
--- 		btn:GetScript("OnLeave")(btn)
--- 	end)
--- end)
-
 -- local btn = CreateFrame("BUTTON", nil, Minimap)
 -- btn:SetSize(31, 31)
 -- btn:SetNormalTexture("Interface\\Artifacts\\ArtifactPower-QuestBorder")
@@ -223,8 +157,28 @@ function test:PLAYER_ENTERING_WORLD()
 	-- end
 
 	-- JOURNAL OPEN
-		-- journal:showToggle()
-		-- journal.mountDisplay.info.petSelectionBtn:Click()
+	-- if not C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
+	-- 	C_AddOns.LoadAddOn("Blizzard_Collections")
+	-- end
+	-- ShowUIPanel(CollectionsJournal)
+	-- MountsJournalFrame.bgFrame.profilesMenu:Click()
+	-- CollectionsJournal_SetTab(CollectionsJournal, COLLECTIONS_JOURNAL_TAB_INDEX_MOUNTS) -- DISABLE
+	-- journal.mountDisplay.info.petSelectionBtn:Click()
+
+	-- local sbg = journal.bgFrame.settingsBackground
+	-- sbg:Show()
+
+	-- local bgWidth = journal.bgFrame:GetWidth()
+	-- for i = 1, sbg:GetNumPoints() do
+	-- 	local point, rframe, rpoint, x, y = sbg:GetPoint(i)
+	-- 	sbg:SetPoint(point, rframe, rpoint, x + bgWidth, y)
+	-- end
+
+	-- sbg:SetSize(sbg:GetSize())
+	-- sbg:ClearAllPoints()
+	-- sbg:SetPoint("TOPLEFT", journal.bgFrame, "TOPRIGHT", 5, -60)
+	-- sbg.Tabs[3]:Click()
+	-- ns.ruleConfig.addRule:Click()
 
 	-- journal.navBarBtn:Click()
 	-- journal.mapSettings.existingListsToggle:Click()
@@ -233,20 +187,46 @@ function test:PLAYER_ENTERING_WORLD()
 	-- journal.navBar:setMapID(980)
 
 	-- CONFIG OPEN
-	-- local config = HidingBarConfigAddon
-	-- local config = MountsJournalConfig
-	-- local config = MountsJournalConfigClasses
-	-- local config = MountsJournalConfigAbout
-	-- if InterfaceOptionsFrameAddOns:IsVisible() and config:IsVisible() then
-	-- 	InterfaceOptionsFrame:Hide()
-	-- else
-	-- 	InterfaceOptionsFrame_OpenToCategory(config.name)
-	-- 	if not InterfaceOptionsFrameAddOns:IsVisible() then
-	-- 		InterfaceOptionsFrame_OpenToCategory(config.name)
-	-- 	end
-	-- end
+	-- local configName = "HidingBar"
+	-- local configName = addon
+	-- local configName = L["Class settings"]
+	-- local configName = L["About"]
+	-- Settings.OpenToCategory(configName)
 	-- select(14,config:GetChildren()):Click()
 	-- if true then return end
+
+	-- LOAD CHARACTER FORM
+	-- local modelScene = MountsJournalFrame.mountDisplay.modelScene
+
+	-- local function loadPlayer()
+	-- 	local mountActor = modelScene:GetActorByTag("unwrapped")
+	-- 	local playerActor = modelScene:GetActorByTag("player-rider")
+	-- 	playerActor:ClearModel()
+
+	-- 	local forceSceneChange = false
+	-- 	modelScene:TransitionToModelSceneID(4, CAMERA_TRANSITION_TYPE_IMMEDIATE, CAMERA_MODIFICATION_TYPE_MAINTAIN, forceSceneChange)
+	-- 	modelScene:PrepareForFanfare(false)
+
+	-- 	local sheathWeapons = true
+	-- 	local autoDress = true
+	-- 	local hideWeapons = false
+	-- 	local usePlayerNativeForm = true
+	-- 	if not mountActor:SetModelByUnit("player", sheathWeapons, autoDress, hideWeapons, usePlayerNativeForm) then
+	-- 		mountActor:ClearModel()
+	-- 	end
+	-- end
+
+	-- IDLE INIT 1265k
+	-- IDLE 618
+	-- WALK 620
+	-- RUN 622 2024k 2932k
+	-- Walk backwards 634
+	-- SPECIAL 636 1852k
+
+	-- 3000k
+
+	-- C_Timer.After(0, function() loadPlayer() end)
+
 
 	-- MOUNT ANIMATION
 	-- local modelScene = MountJournal.MountDisplay.ModelScene
@@ -254,6 +234,7 @@ function test:PLAYER_ENTERING_WORLD()
 	-- local i = 530
 	-- local i = 557
 	-- modelScene:HookScript("OnMouseDown", function(self, btn)
+		-- loadPlayer()
 	-- 	-- C_PetJournal.SummonPetByGUID("BattlePet-0-000001B3BB78")
 	-- 	-- if true then return end
 	-- 	-- if self.needsFanFare then return end

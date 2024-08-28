@@ -8,16 +8,15 @@ config.macroName = "MJMacro"
 config.secondMacroName = "MJSecondMacro"
 
 
-config:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-config:RegisterEvent("PLAYER_LOGIN")
-
-
 -- BIND MOUNT
-function config:PLAYER_LOGIN()
-	self.bindMount = binding:createButtonBinding(util.secureButtonNameMount, ("%s %s %d"):format(addon, SUMMONS, 1), "MJSecureActionButtonTemplate")
-	self.bindSecondMount = binding:createButtonBinding(util.secureButtonNameSecondMount, ("%s %s %d"):format(addon, SUMMONS, 2), "MJSecureActionButtonTemplate")
-	self.bindSecondMount.secure.forceModifier = true
-end
+mounts:on("ADDON_INIT", function(self)
+	config.bindSummon1 = binding:createButtonBinding(util.secureButtonNameMount, ("%s %s %d"):format(addon, SUMMONS, 1), "MJSecureActionButtonTemplate")
+	config.bindSummon1.secure.id = 1
+
+	config.bindSummon2 = binding:createButtonBinding(util.secureButtonNameSecondMount, ("%s %s %d"):format(addon, SUMMONS, 2), "MJSecureActionButtonTemplate")
+	config.bindSummon2.secure.id = 2
+	config.bindSummon2.secure.forceModifier = true
+end)
 
 
 -- SHOW CONFIG
@@ -110,20 +109,20 @@ config:SetScript("OnShow", function(self)
 	macroOrBind:SetPoint("TOP", self.createMacroBtn, "BOTTOM", 0, -3)
 	macroOrBind:SetText(L["or key bind"])
 
-	-- BIND MOUNT
-	self.bindMount:SetParent(self.leftPanel)
-	self.bindMount:SetSize(258, 22)
-	self.bindMount:SetPoint("TOPLEFT", self.createMacroBtn, "BOTTOMLEFT", 0, -20)
+	-- BIND MOUNT 1
+	self.bindSummon1:SetParent(self.leftPanel)
+	self.bindSummon1:SetSize(258, 22)
+	self.bindSummon1:SetPoint("TOPLEFT", self.createMacroBtn, "BOTTOMLEFT", 0, -20)
 
-	-- HELP PLATE
-	local helpPlate = CreateFrame("FRAME", nil, self.leftPanel, "MJHelpPlate")
-	helpPlate:SetPoint("TOP", self.bindMount, "BOTTOM", 0, -20)
-	helpPlate.tooltip = L["SecondMountTooltipTitle"]:format(SUMMON)
-	helpPlate.tooltipDescription = "\n"..L["SecondMountTooltipDescription"]
+	-- HELP PLATE SECOND MOUNT
+	local helpPlateSecond = CreateFrame("FRAME", nil, self.leftPanel, "MJHelpPlate")
+	helpPlateSecond:SetPoint("TOP", self.bindSummon1, "BOTTOM", 0, -10)
+	helpPlateSecond.tooltip = L["SecondMountTooltipTitle"]:format(SUMMONS)
+	helpPlateSecond.tooltipDescription = "\n"..L["SecondMountTooltipDescription"]
 
 	-- MODIFIER TEXT
 	local modifierText = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-	modifierText:SetPoint("TOPLEFT", self.bindMount, "BOTTOMLEFT", 0, -80)
+	modifierText:SetPoint("TOPLEFT", self.bindSummon1, "BOTTOMLEFT", 0, -80)
 	modifierText:SetText(L["Modifier"]..":")
 
 	-- MODIFIER COMBOBOX
@@ -135,7 +134,7 @@ config:SetScript("OnShow", function(self)
 		for i, modifier in ipairs({"ALT", "CTRL", "SHIFT", "NONE"}) do
 			info.text = _G[modifier.."_KEY"]
 			info.value = modifier
-			info.checked = function(btn) return self:ddGetSelectedValue() == btn.value end
+			info.checked = function(btn) return modifierCombobox:ddGetSelectedValue() == btn.value end
 			info.func = function(btn)
 				self:ddSetSelectedValue(btn.value)
 				enableBtns()
@@ -163,10 +162,10 @@ config:SetScript("OnShow", function(self)
 	macroOrBindSecond:SetPoint("TOP", self.createSecondMacroBtn, "BOTTOM", 0, -3)
 	macroOrBindSecond:SetText(L["or key bind"])
 
-	-- BIND SECOND MOUNT
-	self.bindSecondMount:SetParent(self.leftPanel)
-	self.bindSecondMount:SetSize(258, 22)
-	self.bindSecondMount:SetPoint("TOP", self.createSecondMacroBtn, "BOTTOM", 0, -20)
+	-- BIND MOUNT 2
+	self.bindSummon2:SetParent(self.leftPanel)
+	self.bindSummon2:SetSize(258, 22)
+	self.bindSummon2:SetPoint("TOPLEFT", self.createSecondMacroBtn, "BOTTOMLEFT", 0, -20)
 
 	-- UNBOUND MESSAGE
 	binding.unboundMessage:SetParent(self)
