@@ -8,7 +8,6 @@
 	<Script file="Factions.lua"/>
 	<Script file="Pet.lua"/>
 	<Script file="Expansions.lua"/>
-	<Script file="Rarity.lua"/>
 	<Script file="Chance.lua"/>
 	<Script file="Tags.lua"/>
 	<Script file="Sorting.lua"/>
