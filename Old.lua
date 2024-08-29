@@ -208,16 +208,20 @@ function mounts:setOldChanges()
 
 	local currentVersion = C_AddOns.GetAddOnMetadata(addon, "Version")
 	--@do-not-package@
-	if currentVersion == "@project-version@" then currentVersion = "4.4.17" end
+	if currentVersion == "@project-version@" then currentVersion = "v4.4.17" end
 	--@end-do-not-package@
+
+	if not self.charDB.lastAddonVersion then self.charDB.lastAddonVersion = "v4.4.15" end
+	if not self.globalDB.lastAddonVersion then self.globalDB.lastAddonVersion = "v4.4.15" end
 
 	if self.charDB.lastAddonVersion and compareVersion(currentVersion, self.charDB.lastAddonVersion) then
 		updateChar(self)
-		self.charDB.lastAddonVersion = currentVersion
 	end
 
 	if self.globalDB.lastAddonVersion and compareVersion(currentVersion, self.globalDB.lastAddonVersion) then
 		updateGlobal(self)
-		self.globalDB.lastAddonVersion = currentVersion
 	end
+
+	self.charDB.lastAddonVersion = currentVersion
+	self.globalDB.lastAddonVersion = currentVersion
 end
