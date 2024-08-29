@@ -399,6 +399,11 @@ do
 end
 
 
+function macroFrame:isMovingOrFalling()
+	return GetUnitSpeed("player") > 0 or IsFalling()
+end
+
+
 function macroFrame:getMacro(id, button)
 	-- MAGIC BROOM IS USABLE
 	self.magicBroom = self.config.useMagicBroom
@@ -426,7 +431,7 @@ function macroFrame:getMacro(id, button)
 			not self.classConfig.useMacroOnlyCanFly or self.sFlags.fly
 		)
 		or not self.magicBroom and (
-			self.sFlags.isIndoors or GetUnitSpeed("player") > 0 or IsFalling()
+			self.sFlags.isIndoors or self:isMovingOrFalling()
 		)
 	)
 	then
