@@ -341,6 +341,16 @@ end
 
 
 ---------------------------------------------------
+-- indoors
+conds.indoors = {}
+conds.indoors.text = L["The player is indoors"]
+
+function conds.indoors:getFuncText()
+	return "self.sFlags.isIndoors"
+end
+
+
+---------------------------------------------------
 -- swimming
 conds.swimming = {}
 conds.swimming.text = L["The player is swimming"]
@@ -351,12 +361,213 @@ end
 
 
 ---------------------------------------------------
+-- mounted
+conds.mounted = {}
+conds.mounted.text = L["The player is mounted"]
+
+function conds.mounted:getFuncText()
+	return "self.sFlags.isMounted"
+end
+
+
+---------------------------------------------------
+-- vehicle
+conds.vehicle = {}
+conds.vehicle.text = L["The player is within an vehicle"]
+
+function conds.vehicle:getFuncText()
+	return "self.sFlags.inVehicle"
+end
+
+
+
+---------------------------------------------------
 -- flyable
 conds.flyable = {}
 conds.flyable.text = L["Flyable area"]
 
 function conds.flyable:getFuncText()
 	return "self.sFlags.fly"
+end
+
+
+---------------------------------------------------
+-- hitem HAVE ITEM
+conds.hitem = {}
+conds.hitem.text = L["Have item"]
+conds.hitem.isNumeric = true
+
+function conds.hitem:getDescription()
+	return "ItemID"
+end
+
+function conds.hitem:getValueText(value)
+	return tostring(value or "")
+end
+
+function conds.hitem:getFuncText(value)
+	return ("C_Item.GetItemCount(%d) > 0"):format(value), "C_Item"
+end
+
+
+---------------------------------------------------
+-- ritem READY ITEM
+conds.ritem = {}
+conds.ritem.text = L["Item is ready"]
+conds.ritem.isNumeric = true
+
+function conds.ritem:getDescription()
+	return "ItemID"
+end
+
+function conds.ritem:getValueText(value)
+	return tostring(value or "")
+end
+
+function conds.ritem:getFuncText(value)
+	return ("C_Container.GetItemCooldown(%d) == 0"):format(value), "C_Container"
+end
+
+
+---------------------------------------------------
+-- rspell READY SPELL
+conds.rspell = {}
+conds.rspell.text = L["Spell is ready"]
+conds.rspell.isNumeric = true
+
+function conds.rspell:getDescription()
+	return "SpellID (61304 for GCD)"
+end
+
+function conds.rspell:getValueText(value)
+	return tostring(value or "")
+end
+
+function conds.rspell:getFuncText(value)
+	return ("self:isSpellReady(%d)"):format(value)
+end
+
+
+---------------------------------------------------
+-- hbuff HAS BUFF
+conds.hbuff = {}
+conds.hbuff.text = L["The player has a buff"]
+conds.hbuff.isNumeric = true
+
+function conds.hbuff:getDescription()
+	return "SpellID"
+end
+
+function conds.hbuff:getValueText(value)
+	return tostring(value or "")
+end
+
+function conds.hbuff:getFuncText(value)
+	return ("self:hasPlayerBuff(%d)"):format(value)
+end
+
+
+---------------------------------------------------
+-- hdebuff HAS DEBUFF
+conds.hdebuff = {}
+conds.hdebuff.text = L["The player has a debuff"]
+conds.hdebuff.isNumeric = true
+
+function conds.hdebuff:getDescription()
+	return "SpellID"
+end
+
+function conds.hdebuff:getValueText(value)
+	return tostring(value or "")
+end
+
+function conds.hdebuff:getFuncText(value)
+	return ("self:hasPlayerDebuff(%d)"):format(value)
+end
+
+
+---------------------------------------------------
+-- faction
+conds.faction = {}
+conds.faction.text = FACTION
+
+function conds.faction:getValueText(value)
+	return FACTION_LABELS[value]
+end
+
+function conds.faction:getValueList(value, func)
+	local list = {}
+	for i = 0, #PLAYER_FACTION_GROUP do
+		list[#list + 1] = {
+			text = self:getValueText(i),
+			value = i,
+			func = func,
+			checked = i == value,
+		}
+	end
+	return list
+end
+
+
+function conds.faction:getFuncText(value)
+	local faction = PLAYER_FACTION_GROUP[value]
+	return ("UnitFactionGroup('player') == '%s'"):format(faction:gsub("['\\]", "\\%1")), "UnitFactionGroup"
+end
+
+
+---------------------------------------------------
+-- race
+conds.race = {}
+conds.race.text = RACE
+
+local RACE_KEYS = {
+	1, -- Human
+	2, -- Orc
+	3, -- Dwarf
+	4, -- NightElf
+	5, -- Scourge
+	6, -- Tauren
+	7, -- Gnome
+	8, -- Troll
+	9, -- Goblin
+	10, -- BloodElf
+	11, -- Draenei
+	22, -- Worgen
+}
+local RACE_LABELS = {}
+
+for i = 1, #RACE_KEYS do
+	local info = C_CreatureInfo.GetRaceInfo(RACE_KEYS[i])
+	if not info then
+		fprint(i, RACE_KEYS[i])
+	else
+		RACE_KEYS[i] = info.clientFileString
+		RACE_LABELS[info.clientFileString] = info.raceName
+	end
+end
+sort(RACE_KEYS, function(a,b) return RACE_LABELS[a] < RACE_LABELS[b] end)
+
+function conds.race:getValueText(value)
+	return RACE_LABELS[value]
+end
+
+function conds.race:getValueList(value, func)
+	local list = {}
+	for i = 1, #RACE_KEYS do
+		local v = RACE_KEYS[i]
+		list[#list + 1] = {
+			text = self:getValueText(v),
+			value = v,
+			func = func,
+			checked = v == value,
+		}
+	end
+	return list
+end
+
+function conds.race:getFuncText(value)
+	local _, key = UnitRace("player")
+	return key == value and "true" or "false"
 end
 
 

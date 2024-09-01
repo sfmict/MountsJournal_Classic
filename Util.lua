@@ -282,6 +282,19 @@ function util.cleanText(text)
 end
 
 
+function util.checkAura(unit, spellID, filter)
+	local GetAuraSlots, GetAuraDataBySlot, count, ctok, a,b,c,d,e = C_UnitAuras.GetAuraSlots, C_UnitAuras.GetAuraDataBySlot
+	repeat
+		ctok, a,b,c,d,e = GetAuraSlots(unit, filter, 5, ctok)
+		while a do
+			if GetAuraDataBySlot(unit, a).spellId == spellID then return true end
+			a,b,c,d,e = b,c,d,e
+		end
+	until not ctok
+	return false
+end
+
+
 function util.getUnitMount(unit)
 	for i = 1, 255 do
 		local _,_,_,_,_,_,_,_,_, spellID = UnitBuff(unit, i)
