@@ -141,12 +141,24 @@ local function updateGlobal(self)
 		if self.filters.family then wipe(self.filters.family) end
 		if self.defFilters.family then wipe(self.defFilters.family) end
 	end
+
+	-- IF < 11.0.25 GLOBAL
+	if compareVersion("4.4.22", self.globalDB.lastAddonVersion) then
+		if self.globalDB.ruleConfig then
+			for i, rules in ipairs(self.globalDB.ruleConfig) do
+				self.globalDB.ruleSets[1][i] = rules
+			end
+			self.globalDB.ruleConfig = nil
+		end
+	end
 end
 
 
 local function updateChar(self)
 	-- IF < 4.4.17 CHAR
 	if compareVersion("4.4.17", self.charDB.lastAddonVersion) then
+		local rules = self.globalDB.ruleConfig and self.globalDB.ruleConfig[1] or self.globalDB.ruleSets[1][1]
+
 		if self.charDB.profileBySpecialization then
 			if self.charDB.profileBySpecialization.enable then
 				for i = 1, GetNumTalentGroups(false, false) do
@@ -155,7 +167,7 @@ local function updateChar(self)
 						{false, "spec", i},
 						action = {"rmount", profileName},
 					}
-					tinsert(self.globalDB.ruleConfig[1], 1, rule)
+					tinsert(rules, 1, rule)
 				end
 			end
 			self.charDB.profileBySpecialization = nil
@@ -174,7 +186,7 @@ local function updateChar(self)
 					{false, "holiday", data[1]},
 					action = {"rmount", data[2]},
 				}
-				tinsert(self.globalDB.ruleConfig[1], 1, rule)
+				tinsert(rules, 1, rule)
 			end
 			self.charDB.holidayProfiles = nil
 		end
@@ -193,8 +205,8 @@ local function updateChar(self)
 						{false, "zt", "pvp"},
 						action = {"rmount", profileName},
 					}
-					tinsert(self.globalDB.ruleConfig[1], 1, rule1)
-					tinsert(self.globalDB.ruleConfig[1], 1, rule2)
+					tinsert(rules, 1, rule1)
+					tinsert(rules, 1, rule2)
 				end
 			end
 			self.charDB.profileBySpecializationPVP = nil
@@ -208,7 +220,7 @@ function mounts:setOldChanges()
 
 	local currentVersion = C_AddOns.GetAddOnMetadata(addon, "Version")
 	--@do-not-package@
-	if currentVersion == "@project-version@" then currentVersion = "v4.4.17" end
+	if currentVersion == "@project-version@" then currentVersion = "v4.4.22" end
 	--@end-do-not-package@
 
 	if not self.charDB.lastAddonVersion then self.charDB.lastAddonVersion = "v4.4.15" end

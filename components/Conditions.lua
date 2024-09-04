@@ -1,5 +1,6 @@
 local _, ns = ...
 local L = ns.L
+local strcmputf8i = strcmputf8i
 local conds = {}
 ns.conditions = conds
 
@@ -262,7 +263,7 @@ function conds.zt:getValueList(value, func)
 			checked = v == value,
 		}
 	end
-	sort(list, function(a, b) return a.text < b.text end)
+	sort(list, function(a, b) return strcmputf8i(a.text, b.text) < 0 end)
 	return list
 end
 
@@ -508,7 +509,6 @@ function conds.faction:getValueList(value, func)
 	return list
 end
 
-
 function conds.faction:getFuncText(value)
 	local faction = PLAYER_FACTION_GROUP[value]
 	return ("UnitFactionGroup('player') == '%s'"):format(faction:gsub("['\\]", "\\%1")), "UnitFactionGroup"
@@ -545,7 +545,7 @@ for i = 1, #RACE_KEYS do
 		RACE_LABELS[info.clientFileString] = info.raceName
 	end
 end
-sort(RACE_KEYS, function(a,b) return RACE_LABELS[a] < RACE_LABELS[b] end)
+sort(RACE_KEYS, function(a,b) return strcmputf8i(RACE_LABELS[a], RACE_LABELS[b]) < 0 end)
 
 function conds.race:getValueText(value)
 	return RACE_LABELS[value]
@@ -585,7 +585,7 @@ function conds:getMenuList(value, func)
 			}
 		end
 	end
-	sort(list, function(a, b) return a.text < b.text end)
+	sort(list, function(a, b) return strcmputf8i(a.text, b.text) < 0 end)
 	return list
 end
 
