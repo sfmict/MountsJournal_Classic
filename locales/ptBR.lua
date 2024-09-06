@@ -155,6 +155,7 @@ L["Enable arrow buttons to browse mounts"] = "Ative os botões de seta para nave
 -- L["Have item"] = ""
 -- L["Item is ready"] = ""
 -- L["Spell is ready"] = ""
+-- L["Zone Name/Subzone Name"] = ""
 -- L["The player has a buff"] = ""
 -- L["The player has a debuff"] = ""
 -- L["The player is falling"] = ""
