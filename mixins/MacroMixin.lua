@@ -288,6 +288,7 @@ function macroFrame:setRuleFuncs()
 		local func = [[
 return function(self, button, profileLoad)
 	self.mounts:resetMountsList()
+	self.preUseMacro = nil
 		]]
 
 		for j = 1, #rules do
@@ -311,9 +312,17 @@ return function(self, button, profileLoad)
 		func = func..[[
 	self.mounts:updateFlagsWithMap()
 
-	if self.additionalMounts[self.useMount] then
-		local macro = self:addLine(self:getDefMacro(), self.additionalMounts[self.useMount].macro)
-		self.useMount = false
+	if self.useMount then
+		local macro = self:getDefMacro()
+
+		if self.preUseMacro then
+			macro = self:addLine(macro, self.preUseMacro)
+		end
+
+		if self.additionalMounts[self.useMount] then
+			macro = self:addLine(macro, self.additionalMounts[self.useMount].macro)
+			self.useMount = false
+		end
 		return macro
 	end
 
@@ -321,7 +330,6 @@ return function(self, button, profileLoad)
 	return self:getMacro()
 end
 		]]
-
 		self.checkRules[i] = self:loadString(func)
 	end
 end
@@ -515,6 +523,10 @@ function macroFrame:getMacro(id, button)
 				additionMount = self.additionalMounts[self.sFlags.targetMount]
 			else
 				additionMount = self.additionalMounts[self.mounts.summonedSpellID]
+			end
+
+			if self.preUseMacro then
+				macro = self:addLine(macro, self.preUseMacro)
 			end
 
 			if additionMount then
