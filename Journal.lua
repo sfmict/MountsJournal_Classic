@@ -259,11 +259,8 @@ function journal:init()
 		self.mountSpecial:SetShown(tab ~= 1)
 
 		if tab == 2 then
-			self.navBar:setMapID(self.mapTabID)
 			self.filtersPanel:SetPoint("TOPLEFT", self.navBar, "BOTTOMLEFT", -1, -1)
 		else
-			self.mapTabID = self.navBar.mapID
-			self.navBar:setDefMap()
 			self.filtersPanel:SetPoint("TOPLEFT", 4, -60)
 		end
 	end
