@@ -650,11 +650,6 @@ do
 end
 
 
-function mounts:isWaterWalkLocation()
-	return self.mapFlags and self.mapFlags.waterWalkOnly or false
-end
-
-
 function mounts:setFlags()
 	self.mapInfo = C_Map.GetMapInfo(MapUtil.GetDisplayableMapForPlayer())
 	local flags = self.sFlags
@@ -663,7 +658,6 @@ function mounts:setFlags()
 	local isFlyableLocation = flySpellKnown
 	                          and IsFlyableArea()
 	                          and self:isFlyLocation()
-	                          and not (self.mapFlags and self.mapFlags.groundOnly)
 
 	flags.modifier = self.modifier() or flags.forceModifier
 	flags.isSubmerged = IsSubmerged()
@@ -677,11 +671,21 @@ function mounts:setFlags()
 	            and (not flags.modifier or flags.isSubmerged)
 	flags.waterWalk = isFloating
 	                  or not isFlyableLocation and flags.modifier
-	                  or self:isWaterWalkLocation()
+	flags.targetMount = self:getTargetMount()
+end
+
+
+function mounts:updateFlagsWithMap()
+	local flags = self.sFlags
+	local groundOnly = self.mapFlags and self.mapFlags.groundOnly
+
+	flags.fly = flags.fly and not groundOnly
+	flags.waterWalk = flags.waterWalk
+	                  or groundOnly and flags.modifier
+	                  or self.mapFlags and self.mapFlags.waterWalkOnly
 	flags.useRepair = flags.repair and not flags.fly
 	                  or flags.flyableRepair and flags.fly
 	                  or self:notEnoughFreeSlots()
-	flags.targetMount = self:getTargetMount()
 end
 
 

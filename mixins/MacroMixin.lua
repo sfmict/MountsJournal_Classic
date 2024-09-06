@@ -309,6 +309,14 @@ return function(self, button, profileLoad)
 		end
 
 		func = func..[[
+	self.mounts:updateFlagsWithMap()
+
+	if self.additionalMounts[self.useMount] then
+		local macro = self:addLine(self:getDefMacro(), self.additionalMounts[self.useMount].macro)
+		self.useMount = false
+		return macro
+	end
+
 	self.mounts:setEmptyList()
 	return self:getMacro()
 end
@@ -511,8 +519,8 @@ function macroFrame:getMacro(id, button)
 
 			if additionMount then
 				macro = self:addLine(macro, additionMount.macro)
-			else
-				macro = self:addLine(macro, "/run MountsJournal:summon()")
+			elseif not self.useMount then
+				self.useMount = true
 			end
 		end
 	end
@@ -566,6 +574,17 @@ function MJMacroMixin:preClick(button, down)
 	else
 		self.mounts.sFlags.forceModifier = self.forceModifier
 		self.mounts:setFlags()
+		macroFrame.useMount = false
 		self:SetAttribute("macrotext", macroFrame.checkRules[self.id](macroFrame, button))
+	end
+end
+
+
+function MJMacroMixin:postClick(button, down)
+	if InCombatLockdown() or down ~= GetCVarBool("ActionButtonUseKeyDown") then return end
+	if macroFrame.useMount == true then
+		self.mounts:summon()
+	elseif macroFrame.useMount then
+		self.mounts:summon(macroFrame.useMount)
 	end
 end

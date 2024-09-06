@@ -111,7 +111,7 @@
 					</Layer>
 				</Layers>
 				<Frames>
-					<Button parentKey="overflow">
+					<Button parentKey="overflowButton">
 						<Size x="44" y="24"/>
 						<KeyValues>
 							<KeyValue key="LibSFDropDownNoGMEvent" value="true" type="boolean"/>
@@ -127,7 +127,7 @@
 							<TexCoords left=".54296875" right=".62890625" top=".7578125" bottom=".9921875"/>
 						</HighlightTexture>
 					</Button>
-					<Button parentKey="home" text="HOME">
+					<Button parentKey="homeButton" text="HOME">
 						<Size x="128" y="24"/>
 						<Layers>
 							<Layer level="OVERLAY">
@@ -2100,6 +2100,7 @@
 			<OnEvent method="onEvent"/>
 			<OnLoad method="onLoad"/>
 			<PreClick method="preClick"/>
+			<PostClick method="postClick"/>
 		</Scripts>
 	</Frame>
 
