@@ -12,7 +12,7 @@ function MJSetPetMixin:onLoad()
 
 	self:SetScript("OnEnter", function(self)
 		self.highlight:Show()
-		GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:SetText(L["Summonable Battle Pet"])
 		local description
 		if self.id ~= nil then
@@ -26,10 +26,26 @@ function MJSetPetMixin:onLoad()
 		end
 		GameTooltip:AddLine(description, 1, 1, 1, false)
 		GameTooltip:Show()
+
+		if self.displayID and self.speciesID then
+			local cardModelSceneID, loadoutModelSceneID = C_PetJournal.GetPetModelSceneInfoBySpeciesID(self.speciesID)
+			MJTooltipModel.model:SetFromModelSceneID(loadoutModelSceneID)
+
+			local battlePetActor = MJTooltipModel.model:GetActorByTag("pet")
+			if battlePetActor then
+				battlePetActor:SetModelByCreatureDisplayID(self.displayID)
+				battlePetActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
+
+				MJTooltipModel:ClearAllPoints()
+				MJTooltipModel:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 0, 2)
+				MJTooltipModel:Show()
+			end
+		end
 	end)
 	self:SetScript("OnLeave", function(self)
 		self.highlight:Hide()
 		GameTooltip:Hide()
+		MJTooltipModel:Hide()
 	end)
 end
 
@@ -63,6 +79,8 @@ function MJSetPetMixin:refresh()
 	local spellID = self.journal.selectedSpellID
 	local petID = self.journal.petForMount[spellID]
 	self.id = petID
+	self.displayID = nil
+	self.speciesID = nil
 
 	if not petID then
 		self.infoFrame:Hide()
@@ -71,10 +89,13 @@ function MJSetPetMixin:refresh()
 		self.infoFrame.favorite:SetShown(petID == 1)
 		self.infoFrame:Show()
 	else
-		local _,_,_,_,_,_, favorite, name, icon = C_PetJournal.GetPetInfoByPetID(petID)
+		-- speciesID, customName, level, xp, maxXp, displayID, favorite, name, icon, petType, creatureID, sourceText, description, isWild, canBattle, tradable, unique, obtainable = C_PetJournal.GetPetInfoByPetID(petID)
+		local speciesID, _,_,_,_, displayID, favorite, name, icon = C_PetJournal.GetPetInfoByPetID(petID)
 
 		if icon then
 			self.name = name
+			self.displayID = displayID
+			self.speciesID = speciesID
 			self.infoFrame.icon:SetTexture(icon)
 			self.infoFrame.favorite:SetShown(favorite)
 			self.infoFrame:Show()
@@ -265,10 +286,11 @@ end
 
 function MJCompanionsPanelMixin:initButton(btn, data)
 	local selectedPetID = self.journal.petForMount[self.journal.selectedSpellID]
-	local _, customName, level, _,_,_, favorite, name, icon, _, creatureID = C_PetJournal.GetPetInfoByPetID(data.petID)
+	local speciesID, customName, level, _,_, displayID, favorite, name, icon = C_PetJournal.GetPetInfoByPetID(data.petID)
 
 	btn.id = data.petID
-	btn.creatureID = creatureID
+	btn.displayID = displayID
+	btn.speciesID = speciesID
 	btn.selectedTexture:SetShown(data.petID == selectedPetID)
 	btn.name:SetText(name)
 	btn.infoFrame.icon:SetTexture(icon)
