@@ -381,7 +381,6 @@ function conds.vehicle:getFuncText()
 end
 
 
-
 ---------------------------------------------------
 -- flyable
 conds.flyable = {}
@@ -611,7 +610,7 @@ function conds:getFuncText(conds)
 
 	local vars = {}
 	for i = 1, #conds do
-		local cond, var = conds[i]
+		local cond = conds[i]
 		local condText, var = self[cond[2]]:getFuncText(cond[3])
 		if var then vars[#vars + 1] = var end
 		if i ~= 1 then text = text.."and " end
