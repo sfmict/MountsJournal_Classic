@@ -25,19 +25,6 @@ macroFrame:on("ADDON_INIT", function(self)
 	self.checkRules = {}
 	self.class = select(2, UnitClass("player"))
 	self.broomID = 37011
-	self.itemName = setmetatable({}, {__index = function(self, itemID)
-		if C_Item.DoesItemExistByID(itemID) then
-			local item = Item:CreateFromItemID(itemID)
-			if item:IsItemDataCached() then
-				self[itemID] = item:GetItemName()
-			else
-				item:ContinueOnItemLoad(function()
-					self[itemID] = item:GetItemName()
-				end)
-			end
-			return rawget(self, itemID)
-		end
-	end})
 
 	local classOptionMacro = ""
 	local defMacro = ""
@@ -478,7 +465,6 @@ function macroFrame:getMacro(id, button)
 	                  and GetItemCount(self.broomID) > 0
 	                  and not self.sFlags.isIndoors
 	                  and not self.sFlags.swimming
-	                  and self.itemName[self.broomID]
 
 	-- CLASS OPTIONS
 	local macro = self:getClassOptionMacro()
@@ -508,12 +494,7 @@ function macroFrame:getMacro(id, button)
 		macro = self:getDefMacro()
 
 		if self.magicBroom then
-			if self.magicBroom.itemID then
-				macro = self:addLine(macro, "/use item:"..self.magicBroom.itemID) -- USE ITEM BROOM
-			elseif self.magicBroom.mountID then
-				local name = C_MountJournal.GetMountInfoByID(self.magicBroom.mountID)
-				macro = self:addLine(macro, "/use "..name) -- USE MOUNT BROOM
-			end
+			macro = self:addLine(macro, "/use item:"..self.broomID) -- USE ITEM BROOM
 			self.lastUseTime = GetTime()
 		else
 			self.mounts:setSummonMount(true)
