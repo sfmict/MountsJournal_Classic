@@ -100,7 +100,7 @@ config:SetScript("OnShow", function(self)
 	self.createMacroBtn:SetSize(258, 30)
 	self.createMacroBtn:SetPoint("TOPLEFT", summon1, "BOTTOMLEFT", 0, -5)
 	self.createMacroBtn:SetText(L["CreateMacro"])
-	self.createMacroBtn:SetScript("OnClick", function() self:createMacro(self.macroName, self.secureButtonNameMount, 303868, true) end)
+	self.createMacroBtn:SetScript("OnClick", function() self:createMacro(self.macroName, util.secureButtonNameMount, 303868, true) end)
 
 	setTooltip(self.createMacroBtn, "ANCHOR_TOP", L["CreateMacro"], L["CreateMacroTooltip"])
 
@@ -153,7 +153,7 @@ config:SetScript("OnShow", function(self)
 	self.createSecondMacroBtn:SetSize(258, 30)
 	self.createSecondMacroBtn:SetPoint("TOPLEFT", summon2, "BOTTOMLEFT", 0, -5)
 	self.createSecondMacroBtn:SetText(L["CreateMacro"])
-	self.createSecondMacroBtn:SetScript("OnClick", function() self:createMacro(self.secondMacroName, self.secureButtonNameSecondMount, 237534, true) end)
+	self.createSecondMacroBtn:SetScript("OnClick", function() self:createMacro(self.secondMacroName, util.secureButtonNameSecondMount, 237534, true) end)
 
 	setTooltip(self.createSecondMacroBtn, "ANCHOR_TOP", L["CreateMacro"], L["CreateMacroTooltip"])
 
