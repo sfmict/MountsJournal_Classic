@@ -190,22 +190,19 @@ end
 
 
 function MJCompanionsPanelMixin:onShow()
-	self:SetScript("OnShow", nil)
-	C_Timer.After(0, function()
-		self:SetScript("OnShow", function(self)
-			if self.needSort then
-				self:petListSort()
-			else
-				self:updateScrollPetList()
-			end
-			self:scrollToSelectedPet()
-			self:on("UPDATE_PROFILE", self.updateScrollPetList)
-		end)
-		self:petListUpdate()
+	self:SetScript("OnShow", function(self)
+		if self.needSort then
+			self:petListSort()
+		else
+			self:updateScrollPetList()
+		end
 		self:scrollToSelectedPet()
 		self:on("UPDATE_PROFILE", self.updateScrollPetList)
-		self:on("PET_LIST_UPDATE", self.petListUpdate)
 	end)
+	self:petListUpdate()
+	self:scrollToSelectedPet()
+	self:on("UPDATE_PROFILE", self.updateScrollPetList)
+	self:on("PET_LIST_UPDATE", self.petListUpdate)
 end
 
 
@@ -300,7 +297,7 @@ end
 
 function MJCompanionsPanelMixin:petListUpdate()
 	self.needSort = true
-	if self:IsVisible() then
+	if self:IsShown() then
 		self:petListSort()
 	end
 end

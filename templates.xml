@@ -542,6 +542,11 @@
 									<OnEvent method="onEvent"/>
 								</Scripts>
 							</Button>
+							<Frame parentKey="mountHint" inherits="MJHelpPlate" scale=".7" alpha=".5">
+								<Anchors>
+									<Anchor point="TOPRIGHT" relativeKey="$parent.petSelectionBtn" relativePoint="BOTTOMRIGHT" x="16" y="14"/>
+								</Anchors>
+							</Frame>
 						</Frames>
 					</Frame>
 					<Button parentKey="modelSceneSettingsButton" alpha=".5">
