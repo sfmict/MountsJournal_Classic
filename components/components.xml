@@ -9,6 +9,7 @@
 	<Script file="Calendar.lua"/>
 	<Script file="AdditionalMounts.lua"/>
 	<Script file="MountListButtonInit.lua"/>
+	<Script file="SummonPanel.lua"/>
 	<Script file="Conditions.lua"/>
 	<Script file="Actions.lua"/>
 	<Include file="filter\filter.xml"/>

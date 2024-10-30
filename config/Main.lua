@@ -16,6 +16,8 @@ mounts:on("ADDON_INIT", function(self)
 	config.bindSummon2 = binding:createButtonBinding(util.secureButtonNameSecondMount, ("%s %s %d"):format(addon, SUMMONS, 2), "MJSecureActionButtonTemplate")
 	config.bindSummon2.secure.id = 2
 	config.bindSummon2.secure.forceModifier = true
+
+	self:event("CREATE_BUTTONS"):off("CREATE_BUTTONS")
 end)
 
 
@@ -96,23 +98,23 @@ config:SetScript("OnShow", function(self)
 	summon1:SetText(SUMMON.." 1")
 
 	-- CREATE MACRO
-	self.createMacroBtn = CreateFrame("BUTTON", nil, self.leftPanel, "UIPanelButtonTemplate")
-	self.createMacroBtn:SetSize(258, 30)
-	self.createMacroBtn:SetPoint("TOPLEFT", summon1, "BOTTOMLEFT", 0, -5)
-	self.createMacroBtn:SetText(L["CreateMacro"])
-	self.createMacroBtn:SetScript("OnClick", function() self:createMacro(self.macroName, util.secureButtonNameMount, 303868, true) end)
+	-- self.createMacroBtn = CreateFrame("BUTTON", nil, self.leftPanel, "UIPanelButtonTemplate")
+	-- self.createMacroBtn:SetSize(258, 30)
+	-- self.createMacroBtn:SetPoint("TOPLEFT", summon1, "BOTTOMLEFT", 0, -5)
+	-- self.createMacroBtn:SetText(L["CreateMacro"])
+	-- self.createMacroBtn:SetScript("OnClick", function() self:createMacro(self.macroName, util.secureButtonNameMount, 303868, true) end)
 
-	setTooltip(self.createMacroBtn, "ANCHOR_TOP", L["CreateMacro"], L["CreateMacroTooltip"])
+	-- setTooltip(self.createMacroBtn, "ANCHOR_TOP", L["CreateMacro"], L["CreateMacroTooltip"])
 
 	-- OR TEXT
-	local macroOrBind = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-	macroOrBind:SetPoint("TOP", self.createMacroBtn, "BOTTOM", 0, -3)
-	macroOrBind:SetText(L["or key bind"])
+	-- local macroOrBind = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	-- macroOrBind:SetPoint("TOP", self.createMacroBtn, "BOTTOM", 0, -3)
+	-- macroOrBind:SetText(L["or key bind"])
 
 	-- BIND MOUNT 1
 	self.bindSummon1:SetParent(self.leftPanel)
 	self.bindSummon1:SetSize(258, 22)
-	self.bindSummon1:SetPoint("TOPLEFT", self.createMacroBtn, "BOTTOMLEFT", 0, -20)
+	self.bindSummon1:SetPoint("TOPLEFT", summon1, "BOTTOMLEFT", 0, -20)
 
 	-- HELP PLATE SECOND MOUNT
 	local helpPlateSecond = CreateFrame("FRAME", nil, self.leftPanel, "MJHelpPlate")
@@ -148,24 +150,24 @@ config:SetScript("OnShow", function(self)
 	summon2:SetPoint("TOPLEFT", modifierText, "BOTTOMLEFT", 0, -20)
 	summon2:SetText(SUMMON.." 2")
 
-	-- CREATE SECOND MACRO
-	self.createSecondMacroBtn = CreateFrame("BUTTON", nil, self.leftPanel, "UIPanelButtonTemplate")
-	self.createSecondMacroBtn:SetSize(258, 30)
-	self.createSecondMacroBtn:SetPoint("TOPLEFT", summon2, "BOTTOMLEFT", 0, -5)
-	self.createSecondMacroBtn:SetText(L["CreateMacro"])
-	self.createSecondMacroBtn:SetScript("OnClick", function() self:createMacro(self.secondMacroName, util.secureButtonNameSecondMount, 237534, true) end)
+	-- -- CREATE SECOND MACRO
+	-- self.createSecondMacroBtn = CreateFrame("BUTTON", nil, self.leftPanel, "UIPanelButtonTemplate")
+	-- self.createSecondMacroBtn:SetSize(258, 30)
+	-- self.createSecondMacroBtn:SetPoint("TOPLEFT", summon2, "BOTTOMLEFT", 0, -5)
+	-- self.createSecondMacroBtn:SetText(L["CreateMacro"])
+	-- self.createSecondMacroBtn:SetScript("OnClick", function() self:createMacro(self.secondMacroName, util.secureButtonNameSecondMount, 237534, true) end)
 
-	setTooltip(self.createSecondMacroBtn, "ANCHOR_TOP", L["CreateMacro"], L["CreateMacroTooltip"])
+	-- setTooltip(self.createSecondMacroBtn, "ANCHOR_TOP", L["CreateMacro"], L["CreateMacroTooltip"])
 
-	-- OR TEXT SECOND
-	local macroOrBindSecond = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-	macroOrBindSecond:SetPoint("TOP", self.createSecondMacroBtn, "BOTTOM", 0, -3)
-	macroOrBindSecond:SetText(L["or key bind"])
+	-- -- OR TEXT SECOND
+	-- local macroOrBindSecond = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	-- macroOrBindSecond:SetPoint("TOP", self.createSecondMacroBtn, "BOTTOM", 0, -3)
+	-- macroOrBindSecond:SetText(L["or key bind"])
 
 	-- BIND MOUNT 2
 	self.bindSummon2:SetParent(self.leftPanel)
 	self.bindSummon2:SetSize(258, 22)
-	self.bindSummon2:SetPoint("TOPLEFT", self.createSecondMacroBtn, "BOTTOMLEFT", 0, -20)
+	self.bindSummon2:SetPoint("TOPLEFT", summon2, "BOTTOMLEFT", 0, -20)
 
 	-- UNBOUND MESSAGE
 	binding.unboundMessage:SetParent(self)
@@ -561,49 +563,49 @@ config:SetScript("OnShow", function(self)
 end)
 
 
-function config:createMacro(macroName, buttonName, texture, openMacroFrame, overwrite)
-	if InCombatLockdown() then return end
-	local _, ctexture = GetMacroInfo(macroName)
-	if ctexture and not overwrite then
-		StaticPopup_Show(util.addonName.."MACRO_EXISTS", macroName, nil, function()
-			self:createMacro(macroName, buttonName, ctexture, openMacroFrame, true)
-		end)
-		return
-	end
+-- function config:createMacro(macroName, buttonName, texture, openMacroFrame, overwrite)
+-- 	if InCombatLockdown() then return end
+-- 	local _, ctexture = GetMacroInfo(macroName)
+-- 	if ctexture and not overwrite then
+-- 		StaticPopup_Show(util.addonName.."MACRO_EXISTS", macroName, nil, function()
+-- 			self:createMacro(macroName, buttonName, ctexture, openMacroFrame, true)
+-- 		end)
+-- 		return
+-- 	end
 
-	local macro = "/click "..buttonName
-	if GetCVarBool("ActionButtonUseKeyDown") then
-		macro = macro.." LeftButton 1"
-	end
+-- 	local macro = "/click "..buttonName
+-- 	if GetCVarBool("ActionButtonUseKeyDown") then
+-- 		macro = macro.." LeftButton 1"
+-- 	end
 
-	if overwrite then
-		EditMacro(macroName, macroName, texture, macro)
-	else
-		CreateMacro(macroName, texture, macro)
-	end
+-- 	if overwrite then
+-- 		EditMacro(macroName, macroName, texture, macro)
+-- 	else
+-- 		CreateMacro(macroName, texture, macro)
+-- 	end
 
-	if not openMacroFrame then return end
+-- 	if not openMacroFrame then return end
 
-	if not IsAddOnLoaded("Blizzard_MacroUI") then
-		LoadAddOn("Blizzard_MacroUI")
-	end
+-- 	if not IsAddOnLoaded("Blizzard_MacroUI") then
+-- 		LoadAddOn("Blizzard_MacroUI")
+-- 	end
 
-	if not MacroFrame:IsShown() then
-		local centerFrame, allowOtherPanels = GetUIPanel("center")
-		if centerFrame then
-			allowOtherPanels = centerFrame:GetAttribute("UIPanelLayout-allowOtherPanels")
-			centerFrame:SetAttribute("UIPanelLayout-allowOtherPanels", 1)
-		end
-		ShowUIPanel(MacroFrame, 1)
-		if centerFrame then
-			centerFrame:SetAttribute("UIPanelLayout-allowOtherPanels", allowOtherPanels)
-		end
-	end
+-- 	if not MacroFrame:IsShown() then
+-- 		local centerFrame, allowOtherPanels = GetUIPanel("center")
+-- 		if centerFrame then
+-- 			allowOtherPanels = centerFrame:GetAttribute("UIPanelLayout-allowOtherPanels")
+-- 			centerFrame:SetAttribute("UIPanelLayout-allowOtherPanels", 1)
+-- 		end
+-- 		ShowUIPanel(MacroFrame, 1)
+-- 		if centerFrame then
+-- 			centerFrame:SetAttribute("UIPanelLayout-allowOtherPanels", allowOtherPanels)
+-- 		end
+-- 	end
 
-	local index = GetMacroIndexByName(macroName)
-	MacroFrame.MacroSelector:OnSelection(index)
-	MacroFrame.MacroSelector:ScrollToSelectedIndex()
-end
+-- 	local index = GetMacroIndexByName(macroName)
+-- 	MacroFrame.MacroSelector:OnSelection(index)
+-- 	MacroFrame.MacroSelector:ScrollToSelectedIndex()
+-- end
 
 
 config:SetScript("OnHide", function()

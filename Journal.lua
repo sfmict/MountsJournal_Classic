@@ -257,6 +257,7 @@ function journal:init()
 		self.mapSettings:SetShown(tab == 2)
 		self.bgFrame.profilesMenu:SetShown(tab ~= 1)
 		self.mountSpecial:SetShown(tab ~= 1)
+		self.bgFrame.summonPanelSettings:SetShown(tab ~= 1 and self.summonPanel:IsShown())
 
 		if tab == 2 then
 			self.filtersPanel:SetPoint("TOPLEFT", self.navBar, "BOTTOMLEFT", -1, -1)
@@ -319,17 +320,25 @@ function journal:init()
 	summon1.icon = summon1:GetNormalTexture()
 	summon1:SetAttribute("clickbutton", _G[util.secureButtonNameMount])
 	summon1:SetScript("OnDragStart", function()
-		if InCombatLockdown() then return end
-		if not GetMacroInfo(ns.config.macroName) then
-			ns.config:createMacro(ns.config.macroName, util.secureButtonNameMount, 303868)
-		end
-		PickupMacro(ns.config.macroName)
+		self.summonPanel:startDrag()
+		-- if InCombatLockdown() then return end
+		-- if not GetMacroInfo(ns.config.macroName) then
+		-- 	ns.config:createMacro(ns.config.macroName, util.secureButtonNameMount, 303868)
+		-- end
+		-- PickupMacro(ns.config.macroName)
+	end)
+	summon1:SetScript("OnDragStop", function()
+		self.summonPanel:stopDrag()
 	end)
 	summon1:SetScript("OnEnter", function(btn)
 		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
 		GameTooltip_SetTitle(GameTooltip, addon.." \""..SUMMONS.." 1\"")
 		GameTooltip:AddLine(L["Normal mount summon"])
-		GameTooltip_AddColoredLine(GameTooltip, "\nMacro: /click "..util.secureButtonNameMount, NIGHT_FAE_BLUE_COLOR, false)
+		GameTooltip_AddColoredLine(GameTooltip, "\n"..L["Drag to create a summon panel"], NIGHT_FAE_BLUE_COLOR, false)
+		GameTooltip_AddColoredLine(GameTooltip, L["UseBindingTooltip"], NIGHT_FAE_BLUE_COLOR, false)
+		if InCombatLockdown() then
+			GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
+		end
 		GameTooltip:Show()
 	end)
 
@@ -338,17 +347,25 @@ function journal:init()
 	summon2.icon = summon2:GetNormalTexture()
 	summon2:SetAttribute("clickbutton", _G[util.secureButtonNameSecondMount])
 	summon2:SetScript("OnDragStart", function()
-		if InCombatLockdown() then return end
-		if not GetMacroInfo(ns.config.secondMacroName) then
-			ns.config:createMacro(ns.config.secondMacroName, util.secureButtonNameSecondMount, 237534)
-		end
-		PickupMacro(ns.config.secondMacroName)
+		self.summonPanel:startDrag()
+		-- if InCombatLockdown() then return end
+		-- if not GetMacroInfo(ns.config.secondMacroName) then
+		-- 	ns.config:createMacro(ns.config.secondMacroName, util.secureButtonNameSecondMount, 237534)
+		-- end
+		-- PickupMacro(ns.config.secondMacroName)
+	end)
+	summon2:SetScript("OnDragStop", function()
+		self.summonPanel:stopDrag()
 	end)
 	summon2:SetScript("OnEnter", function(btn)
 		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
 		GameTooltip_SetTitle(GameTooltip, addon.." \""..SUMMONS.." 2\"")
 		GameTooltip_AddNormalLine(GameTooltip, L["SecondMountTooltipDescription"]:gsub("\n\n", "\n"))
-		GameTooltip_AddColoredLine(GameTooltip, "\nMacro: /click "..util.secureButtonNameSecondMount, NIGHT_FAE_BLUE_COLOR, false)
+		GameTooltip_AddColoredLine(GameTooltip, "\n"..L["Drag to create a summon panel"], NIGHT_FAE_BLUE_COLOR, false)
+		GameTooltip_AddColoredLine(GameTooltip, L["UseBindingTooltip"], NIGHT_FAE_BLUE_COLOR, false)
+		if InCombatLockdown() then
+			GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
+		end
 		GameTooltip:Show()
 	end)
 
