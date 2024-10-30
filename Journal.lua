@@ -989,10 +989,11 @@ function journal:init()
 		if InCombatLockdown() then return end
 		if type(self.selectedMountID) == "number" then
 			self:useMount(self.selectedMountID)
-			btn:SetAttribute("macrotext", "")
+			btn:SetAttribute("macrotext", nil)
 		elseif self.selectedMountID then
 			if self.selectedMountID:isActive() then
-				btn:SetAttribute("macrotext", "/dismount")
+				btn:SetAttribute("macrotext", nil)
+				Dismount()
 			else
 				btn:SetAttribute("macrotext", self.selectedMountID.macro)
 			end
@@ -1331,7 +1332,7 @@ function journal:getMountInfo(mount)
 		local name, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mount)
 		return name, spellID, icon, active, isUsable, mountsDB[mount][3], isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected
 	else
-		return mount.name, mount.spellID, mount.icon, mount:isActive(), mount:isUsable(), 0, mount:getIsFavorite(), false, nil, not mount:isShown(), true
+		return mount.name, mount.spellID, mount.icon, mount:isActive(), mount:isUsable(), 0, mount:getIsFavorite(), false, nil, not mount.isShown, mount:isCollected()
 	end
 end
 
@@ -1342,7 +1343,7 @@ function journal:getMountInfoExtra(mount)
 		local mountDB = mountsDB[mount]
 		return mountDB[1], mountDB[2], C_MountJournal.GetMountInfoExtraByID(mount)
 	else
-		return mount.expansion, 0, mount.creatureID, mount.description, mount.sourceText, true, mount.mountType, mount.modelSceneID
+		return mount.expansion, 0, mount.creatureID, mount.description, mount.sourceText, mount.selfMount, mount.mountType, mount.modelSceneID, 0, 0
 	end
 end
 
