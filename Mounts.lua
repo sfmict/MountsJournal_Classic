@@ -743,7 +743,9 @@ function mounts:init()
 	SLASH_MOUNTSJOURNAL1 = "/mount"
 	SlashCmdList["MOUNTSJOURNAL"] = function(msg)
 		if not SecureCmdOptionParse(msg) then return end
-		self.sFlags.forceModifier = nil
+		if msg ~= "notNilModifier" then
+			self.sFlags.forceModifier = nil
+		end
 		self:setFlags()
 		local flags = self.sFlags
 		if flags.inVehicle then
