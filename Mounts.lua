@@ -49,6 +49,8 @@ function mounts:ADDON_LOADED(addonName)
 		self.filters = self.globalDB.filters
 		self.defFilters = self.globalDB.defFilters
 		self.config = self.globalDB.config
+		self.config.summon1Icon = self.config.summon1Icon or 303868
+		self.config.summon2Icon = self.config.summon2Icon or 237534
 		self.config.wowheadLinkLang = self.config.wowheadLinkLang or "en"
 		if self.config.mountDescriptionToggle == nil then
 			self.config.mountDescriptionToggle = true

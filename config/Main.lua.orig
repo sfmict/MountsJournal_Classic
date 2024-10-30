@@ -23,8 +23,6 @@ end)
 
 -- SHOW CONFIG
 config:SetScript("OnShow", function(self)
-	local lsfdd = LibStub("LibSFDropDown-1.5")
-
 	StaticPopupDialogs[util.addonName.."MACRO_EXISTS"] = {
 		text = addon..": "..L["A macro named \"%s\" already exists, overwrite it?"],
 		button1 = ACCEPT,
@@ -104,8 +102,13 @@ config:SetScript("OnShow", function(self)
 
 	-- SUMMON 1
 	local summon1 = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	summon1:SetPoint("BOTTOMLEFT", self.summon1Icon, "BOTTOMRIGHT", 10, 0)
+<<<<<<< HEAD
+	summon1:SetPoint("TOPLEFT", self.waterJump, "BOTTOMLEFT", 0, -20)
 	summon1:SetText(SUMMON.." 1")
+=======
+	summon1:SetPoint("BOTTOMLEFT", self.summon1Icon, "BOTTOMRIGHT", 10, 0)
+	summon1:SetText(SUMMONS.." 1")
+>>>>>>> 960c18a (Added icon settings)
 
 	-- CREATE MACRO
 	-- self.createMacroBtn = CreateFrame("BUTTON", nil, self.leftPanel, "UIPanelButtonTemplate")
@@ -124,7 +127,11 @@ config:SetScript("OnShow", function(self)
 	-- BIND MOUNT 1
 	self.bindSummon1:SetParent(self.leftPanel)
 	self.bindSummon1:SetSize(258, 22)
+<<<<<<< HEAD
+	self.bindSummon1:SetPoint("TOPLEFT", summon1, "BOTTOMLEFT", 0, -20)
+=======
 	self.bindSummon1:SetPoint("TOPLEFT", self.summon1Icon, "BOTTOMLEFT", -3, -8)
+>>>>>>> 960c18a (Added icon settings)
 
 	-- HELP PLATE SECOND MOUNT
 	local helpPlateSecond = CreateFrame("FRAME", nil, self.leftPanel, "MJHelpPlate")
@@ -134,11 +141,11 @@ config:SetScript("OnShow", function(self)
 
 	-- MODIFIER TEXT
 	local modifierText = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-	modifierText:SetPoint("TOPLEFT", self.bindSummon1, "BOTTOMLEFT", 0, -70)
+	modifierText:SetPoint("TOPLEFT", self.bindSummon1, "BOTTOMLEFT", 0, -80)
 	modifierText:SetText(L["Modifier"]..":")
 
 	-- MODIFIER COMBOBOX
-	local modifierCombobox = lsfdd:CreateButton(self.leftPanel)
+	local modifierCombobox = LibStub("LibSFDropDown-1.5"):CreateButton(self.leftPanel)
 	self.modifierCombobox = modifierCombobox
 	modifierCombobox:SetPoint("LEFT", modifierText, "RIGHT", 7, 0)
 	modifierCombobox:ddSetInitFunc(function(self, level)
@@ -165,8 +172,13 @@ config:SetScript("OnShow", function(self)
 
 	-- SUMMON 2
 	local summon2 = self.leftPanel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	summon2:SetPoint("BOTTOMLEFT", self.summon2Icon, "BOTTOMRIGHT", 10, 0)
+<<<<<<< HEAD
+	summon2:SetPoint("TOPLEFT", modifierText, "BOTTOMLEFT", 0, -20)
 	summon2:SetText(SUMMON.." 2")
+=======
+	summon2:SetPoint("BOTTOMLEFT", self.summon2Icon, "BOTTOMRIGHT", 10, 0)
+	summon2:SetText(SUMMONS.." 2")
+>>>>>>> 960c18a (Added icon settings)
 
 	-- -- CREATE SECOND MACRO
 	-- self.createSecondMacroBtn = CreateFrame("BUTTON", nil, self.leftPanel, "UIPanelButtonTemplate")
@@ -185,7 +197,11 @@ config:SetScript("OnShow", function(self)
 	-- BIND MOUNT 2
 	self.bindSummon2:SetParent(self.leftPanel)
 	self.bindSummon2:SetSize(258, 22)
+<<<<<<< HEAD
+	self.bindSummon2:SetPoint("TOPLEFT", summon2, "BOTTOMLEFT", 0, -20)
+=======
 	self.bindSummon2:SetPoint("TOPLEFT", self.summon2Icon, "BOTTOMLEFT", -3, -8)
+>>>>>>> 960c18a (Added icon settings)
 
 	-- UNBOUND MESSAGE
 	binding.unboundMessage:SetParent(self)
@@ -328,7 +344,7 @@ config:SetScript("OnShow", function(self)
 	util.setCheckboxChild(self.freeSlots, self.freeSlotsNum)
 
 	-- REPAIR MOUNTS COMBOBOX
-	self.repairMountsCombobox = lsfdd:CreateButton(self.repairGroup, 230)
+	self.repairMountsCombobox = LibStub("LibSFDropDown-1.5"):CreateButton(self.repairGroup, 230)
 	self.repairMountsCombobox:SetPoint("TOPLEFT", self.freeSlots, "BOTTOMLEFT", 0, -8)
 	self.repairMountsCombobox:ddSetInitFunc(function(self, level)
 		local info = {}
@@ -503,8 +519,17 @@ config:SetScript("OnShow", function(self)
 		modifierCombobox:ddSetSelectedValue(mounts.config.modifier)
 		modifierCombobox:ddSetSelectedText(_G[mounts.config.modifier.."_KEY"])
 		self.waterJump:SetChecked(mounts.config.waterJump)
-		self.summon1Icon.icon:SetTexture(mounts.config.summon1Icon)
-		self.summon2Icon.icon:SetTexture(mounts.config.summon2Icon)
+<<<<<<< HEAD
+		self.showMinimapButton:SetChecked(not mounts.config.omb.hide)
+		self.lockMinimapButton:SetChecked(mounts.config.omb.lock)
+=======
+		self.summon1Icon:SetNormalTexture(mounts.config.summon1Icon)
+		self.summon2Icon:SetNormalTexture(mounts.config.summon2Icon)
+		self.useHerbMounts:SetChecked(mounts.config.useHerbMounts)
+		for _, child in ipairs(self.useHerbMounts.childs) do
+			child:SetChecked(child:checkFunc())
+		end
+>>>>>>> 960c18a (Added icon settings)
 		self.useRepairMounts:SetChecked(mounts.config.useRepairMounts)
 		self.repairFlyable:SetChecked(mounts.config.useRepairFlyable)
 		self.repairPercent:SetNumber(tonumber(mounts.config.useRepairMountsDurability) or 0)
@@ -538,9 +563,9 @@ config:SetScript("OnShow", function(self)
 	self:SetScript("OnShow", self.OnRefresh)
 
 	local function updateBtnIcon(i)
-		local icon = self["summon"..i.."Icon"].icon:GetTexture()
+		local icon = self["summon"..i.."Icon"]:GetNormalTexture():GetTexture()
 		mounts.config["summon"..i.."Icon"] = icon
-		journal.bgFrame["summon"..i].icon:SetTexture(icon)
+		journal.bgFrame["summon"..i]:SetNormalTexture(icon)
 		journal.summonPanel["summon"..i].icon:SetTexture(icon)
 	end
 

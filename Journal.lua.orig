@@ -316,7 +316,12 @@ function journal:init()
 
 	-- MACRO BUTTONS
 	local summon1 = self.bgFrame.summon1
-	summon1.icon:SetTexture(mounts.config.summon1Icon)
+<<<<<<< HEAD
+	summon1:SetNormalTexture(303868)
+=======
+	summon1:SetNormalTexture(mounts.config.summon1Icon)
+>>>>>>> 960c18a (Added icon settings)
+	summon1.icon = summon1:GetNormalTexture()
 	summon1:SetAttribute("clickbutton", _G[util.secureButtonNameMount])
 	summon1:SetScript("OnDragStart", function()
 		self.summonPanel:startDrag()
@@ -342,7 +347,12 @@ function journal:init()
 	end)
 
 	local summon2 = self.bgFrame.summon2
-	summon2.icon:SetTexture(mounts.config.summon2Icon)
+<<<<<<< HEAD
+	summon2:SetNormalTexture(237534)
+=======
+	summon2:SetNormalTexture(mounts.config.summon2Icon)
+>>>>>>> 960c18a (Added icon settings)
+	summon2.icon = summon2:GetNormalTexture()
 	summon2:SetAttribute("clickbutton", _G[util.secureButtonNameSecondMount])
 	summon2:SetScript("OnDragStart", function()
 		self.summonPanel:startDrag()

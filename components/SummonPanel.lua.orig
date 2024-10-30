@@ -272,7 +272,13 @@ mounts:on("CREATE_BUTTONS", function()
 	panel.summon1 = summon1
 	summon1:SetPropagateMouseClicks(true)
 	summon1:SetPropagateMouseMotion(true)
+<<<<<<< HEAD
+	summon1.icon:SetTexture(303868)
+=======
+	-- summon1:SetNormalTexture(413588)
+	-- summon1.icon = summon1:GetNormalTexture()
 	summon1.icon:SetTexture(mounts.config.summon1Icon)
+>>>>>>> 960c18a (Added icon settings)
 	summon1:SetAttribute("clickbutton", _G[util.secureButtonNameMount])
 	summon1:SetScript("OnEnter", function(btn)
 		if panel.isDrag then return end
@@ -294,7 +300,13 @@ mounts:on("CREATE_BUTTONS", function()
 	panel.summon2 = summon2
 	summon2:SetPropagateMouseClicks(true)
 	summon2:SetPropagateMouseMotion(true)
+<<<<<<< HEAD
+	summon2.icon:SetTexture(237534)
+=======
+	-- summon2:SetNormalTexture(631718)
+	-- summon2.icon = summon2:GetNormalTexture()
 	summon2.icon:SetTexture(mounts.config.summon2Icon)
+>>>>>>> 960c18a (Added icon settings)
 	summon2:SetAttribute("clickbutton", _G[util.secureButtonNameSecondMount])
 	summon2:SetScript("OnEnter", function(btn)
 		if panel.isDrag then return end
