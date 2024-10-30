@@ -143,12 +143,13 @@ local createMountFromItem do
 		additionalMounts[t.spellID] = t
 
 		t.icon = ltl:GetItemIcon(itemID)
-		t.name = ltl:GetItemName(itemID)
+		t.name = ""
 		t.sourceText = ""
 		t.description = ""
 		t.macro = "/use item:"..itemID
 
-		ltl:Spells(spellID):Then(function()
+		ltl:Everythings(itemID, spellID):Then(function()
+			t.name = ltl:GetItemName(itemID)
 			t.sourceText = ltl:GetSpellSubtext(spellID) or ""
 			t.description = ltl:GetSpellDescription(spellID)
 		end)

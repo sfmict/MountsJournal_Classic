@@ -1,5 +1,5 @@
 local addon, ns = ...
-local type, tremove, next = type, tremove, next
+local type, tremove, next, tostring = type, tremove, next, tostring
 local C_MountJournal, C_UnitAuras, UnitExists = C_MountJournal, C_UnitAuras, UnitExists
 local events, eventsMixin = {}, {}
 
@@ -12,7 +12,7 @@ function eventsMixin:on(event, func)
 		events[event] = {}
 	end
 	local handlerList = events[event]
-	local k = name or func
+	local k = tostring(self)..(name or tostring(func))
 	local handler = function(...) func(self, ...) end
 
 	if handlerList[k] then
@@ -32,12 +32,14 @@ function eventsMixin:off(event, func)
 
 	local handlerList = events[event]
 	if handlerList then
-		local k = name or func
-		if k then
-			tremove(handlerList, handlerList[k])
-			handlerList[k] = nil
-			if not next(handlerList) then
-				events[event] = nil
+		if name or func then
+			local k = tostring(self)..(name or tostring(func))
+			if handlerList[k] then
+				tremove(handlerList, handlerList[k])
+				handlerList[k] = nil
+				if not next(handlerList) then
+					events[event] = nil
+				end
 			end
 		else
 			events[event] = nil
