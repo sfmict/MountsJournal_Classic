@@ -11,7 +11,7 @@ ns.familyDB = {
 		["Scorpions"] = 201,
 		-- ["Spiders"] = 202,
 	},
-	-- ["Bats"] = 300,
+	["Bats"] = 300,
 	["Birds"] = {
 		-- ["Albatross"] = 400,
 		["Chickens"] = 401,

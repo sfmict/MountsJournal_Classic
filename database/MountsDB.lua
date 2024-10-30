@@ -358,6 +358,11 @@ ns.mountsDB = setmetatable({
 	[1936] = {4, 1301, 9}, -- 113120 Feldrake
 	[1937] = {4, 707, 8}, -- 121820 Obsidian Nightwing
 	[2147] = {4, 411, 1}, -- 446902 Polly Roger
+	[2260] = {4, 1301, 0}, -- 463045 Lava Drake
+	[2309] = {4, 300, 0}, -- 466948 Chaos-Born Dreadwing
+	[2310] = {4, 1504, 0}, -- 466977 Chaos-Born Wind Rider
+	[2311] = {4, 1501, 0}, -- 466980 Chaos-Born Hippogryph
+	[2312] = {4, 1500, 0}, -- 466983 Chaos-Born Gryphon
 }, {
 	__index = function(self, key)
 		self[key] = {tonumber(GetBuildInfo():match("(.-)%.")), 0, 0}

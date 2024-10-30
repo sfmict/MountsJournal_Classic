@@ -160,4 +160,4 @@ end
 
 ----------------------------------------------------------------------
 -- MAGIC BROOM
-local magicBroom = createMountFromItem(37011, 47977, 21939, 442, 2, 4)
+local magicBroom = createMountFromItem(37011, 47977, 21939, 248, 2, 4)

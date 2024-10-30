@@ -1675,7 +1675,7 @@ function journal:sortMounts()
 				t[mount][7] = db[mount][1]
 			end
 		else
-			t[mount] = {mount.name, mount:getIsFavorite(), true, mount.spellID, false, true}
+			t[mount] = {mount.name, mount:getIsFavorite(), mount:isCollected(), mount.spellID, false, true}
 			if fSort.by == "type" then
 				local mType = self.mountTypes[mount.mountType]
 				t[mount][7] = type(mType) == "number" and mType or mType[1]
