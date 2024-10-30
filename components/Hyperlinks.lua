@@ -16,7 +16,7 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
 		end
 
 		if mountID then
-			HideUIPanel(DressUpFrame)
+			-- HideUIPanel(DressUpFrame)
 			if not  C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
 				C_AddOns.LoadAddOn("Blizzard_Collections")
 			end
@@ -25,8 +25,3 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
 		end
 	end
 end)
-
--- FIX BLIZZ ERROR
-if not DressUpModel then
-	DressUpModel = DressUpModelFrame
-end

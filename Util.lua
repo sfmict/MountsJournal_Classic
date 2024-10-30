@@ -1,6 +1,6 @@
 local addon, ns = ...
 local type, select, strsplit, tremove = type, select, strsplit, tremove
-local C_MountJournal, UnitBuff = C_MountJournal, UnitBuff
+local C_MountJournal, C_UnitAuras, UnitExists = C_MountJournal, C_UnitAuras, UnitExists
 local events, eventsMixin = {}, {}
 
 
@@ -71,8 +71,7 @@ local menuOnUpdate = function(self, elapsed)
 	local r,g,b,a = self:GetBackdropBorderColor()
 	if r > .4 then self.delta = -.3
 	elseif r < .1 then self.delta = .3 end
-	elapsed = elapsed * self.delta
-	r = r + elapsed
+	r = r + elapsed * self.delta
 	self:SetBackdropBorderColor(r, r, r, a)
 end
 
@@ -294,7 +293,8 @@ end
 
 
 function util.checkAura(unit, spellID, filter)
-	local GetAuraSlots, GetAuraDataBySlot, count, ctok, a,b,c,d,e = C_UnitAuras.GetAuraSlots, C_UnitAuras.GetAuraDataBySlot
+	if not UnitExists(unit) then return false end
+	local GetAuraSlots, GetAuraDataBySlot, ctok, a,b,c,d,e = C_UnitAuras.GetAuraSlots, C_UnitAuras.GetAuraDataBySlot
 	repeat
 		ctok, a,b,c,d,e = GetAuraSlots(unit, filter, 5, ctok)
 		while a do
@@ -307,17 +307,20 @@ end
 
 
 function util.getUnitMount(unit)
-	for i = 1, 255 do
-		local _,_,_,_,_,_,_,_,_, spellID = UnitBuff(unit, i)
-		if spellID then
-			local mountID = C_MountJournal.GetMountFromSpell(spellID)
-			if mountID or ns.additionalMounts[spellID] then
-				return spellID, mountID
+	if not UnitExists(unit) then return end
+	local GetAuraSlots, GetAuraDataBySlot, ctok, a,b,c,d,e = C_UnitAuras.GetAuraSlots, C_UnitAuras.GetAuraDataBySlot
+	local filter = unit == "player" and "HELPFUL PLAYER" or "HELPFUL"
+	repeat
+		ctok, a,b,c,d,e = GetAuraSlots(unit, filter, 5, ctok)
+		while a do
+			local data = GetAuraDataBySlot(unit, a)
+			local mountID = C_MountJournal.GetMountFromSpell(data.spellId)
+			if mountID or ns.additionalMounts[data.spellId] then
+				return data.spellId, mountID
 			end
-		else
-			break
+			a,b,c,d,e = b,c,d,e
 		end
-	end
+	until not ctok
 end
 
 

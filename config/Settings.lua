@@ -3,7 +3,7 @@ local L = ns.L
 
 
 ns.mounts:on("MODULES_INIT", function()
-	local bg, activeContent = MountsJournalFrame.bgFrame.settingsBackground
+	local bg, activeContent = ns.journal.bgFrame.settingsBackground
 	bg.Tabs = {}
 
 	local function onTabClick(self)

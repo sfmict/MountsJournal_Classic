@@ -573,7 +573,7 @@ config:SetScript("OnShow", function(self)
 		mounts:setModifier(self.modifierCombobox:ddGetSelectedValue())
 		mounts:UPDATE_INVENTORY_DURABILITY()
 		ns.pets:setSummonEvery()
-		MountsJournalFrame:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
+		journal:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
 
 		local ldbi = LibStub("LibDBIcon-1.0")
 		if mounts.config.omb.hide then
