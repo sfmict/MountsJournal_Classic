@@ -1,6 +1,6 @@
 local _, ns = ...
 local util = ns.util
-local type, pairs, rawget, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item = type, pairs, rawget, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item
+local type, pairs, rawget, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item, GetCVarBool = type, pairs, rawget, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item, GetCVarBool
 local macroFrame = CreateFrame("FRAME")
 ns.macroFrame = macroFrame
 util.setEventsMixin(macroFrame)
@@ -537,8 +537,15 @@ end
 
 function MJMacroMixin:preClick(button, down)
 	self.mounts.sFlags.forceModifier = self.forceModifier
-	self.notUsable = InCombatLockdown() or down ~= GetCVarBool("ActionButtonUseKeyDown")
-	if self.notUsable then return end
+	local combat = InCombatLockdown()
+	local notAction = down ~= GetCVarBool("ActionButtonUseKeyDown")
+	self.notUsable = combat or notAction
+	if combat then
+		return
+	elseif notAction then
+		self:SetAttribute("macrotext", "")
+		return
+	end
 	self.mounts:setFlags()
 	macroFrame.useMount = false
 	self:SetAttribute("macrotext", macroFrame.checkRules[self.id](macroFrame, button))
