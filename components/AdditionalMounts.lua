@@ -52,6 +52,7 @@ local createMountFromSpell do
 			setIsFavorite = setIsFavorite,
 			getIsFavorite = getIsFavorite,
 			selfMount = true,
+			familyID = 1,
 		}
 		additionalMounts[t.spellID] = t
 
@@ -123,6 +124,7 @@ local createMountFromItem do
 			isCollected = isCollected,
 			isShown = true,
 			selfMount = false,
+			familyID = 2,
 			setIsFavorite = setIsFavorite,
 			getIsFavorite = getIsFavorite,
 		}

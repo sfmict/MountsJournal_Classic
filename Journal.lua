@@ -1338,12 +1338,12 @@ end
 
 
 function journal:getMountInfoExtra(mount)
-	-- expansion, creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview
+	-- expansion, familyID, creatureDisplayID, descriptionText, sourceText, isSelfMount, mountType, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview
 	if type(mount) == "number" then
 		local mountDB = mountsDB[mount]
 		return mountDB[1], mountDB[2], C_MountJournal.GetMountInfoExtraByID(mount)
 	else
-		return mount.expansion, 0, mount.creatureID, mount.description, mount.sourceText, mount.selfMount, mount.mountType, mount.modelSceneID, 0, 0
+		return mount.expansion, mount.familyID, mount.creatureID, mount.description, mount.sourceText, mount.selfMount, mount.mountType, mount.modelSceneID, 0, 0
 	end
 end
 

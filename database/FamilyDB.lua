@@ -222,5 +222,135 @@ ns.familyDB = {
 		-- ["Wilderlings"] = 3104,
 		["Wolves"] = 3105,
 	},
+	["additional"] = {
+		["spells"] = 1,
+		["items"] = 2,
+	},
 	["rest"] = 0,
+}
+
+
+ns.familyDBIcons = {
+	["Arachnids"] = {
+		[0] = 464143,
+		["Scorpions"] = 464143,
+	},
+	["Birds"] = {
+		[0] = 132198,
+		["Chickens"] = 132834,
+		["Hawkstriders"] = 132232,
+		["Pandaren Phoenixes"] = 464141,
+		["Parrots"] = 5617454,
+		["Phoenixes"] = 134337,
+		["Tallstriders"] = 132198,
+		["Talonbirds"] = 132372,
+	},
+	["Bovids"] = {
+		[0] = 132248,
+		["Rams"] = 132248,
+		["Talbuks"] = 134060,
+	},
+	["Carnivorans"] = {
+		[0] = 132117,
+		["Bears"] = 132117,
+	},
+	["Cats"] = {
+		[0] = 132242,
+		["Lions"] = 464140,
+		["Sabers"] = 132267,
+		["Stone Cats"] = 526356,
+		["Tigers"] = 132242,
+	},
+	["Demons"] = {
+		[0] = 132238,
+		["Demonic Steeds"] = 132238,
+	},
+	["Dinosaurs"] = {
+		[0] = 132253,
+		["Raptors"] = 132253,
+	},
+	["Dragonhawks"] = 132188,
+	["Drakes"] = {
+		[0] = 132250,
+		["Drakes"] = 236230,
+		["Grand Drakes"] = 236234,
+		["Nether Drakes"] = 132250,
+		["Others"] = 576138,
+		["Proto-Drakes"] = 236233,
+		["Stone Drakes"] = 461141,
+		["Undead Drakes"] = 303868,
+		["Wind Drakes"] = 461143,
+	},
+	["Elementals"] = {
+		[0] = 134468,
+		["Others"] = 5332198,
+		["Phoenixes"] = 134468,
+		["Stone Drakes"] = 461142,
+		["Wind Drakes"] = 461146,
+	},
+	["Feathermanes"] = {
+		[0] = 132265,
+		["Gryphons"] = 294468,
+		["Hippogryphs"] = 132265,
+		["Wyverns"] = 298596,
+	},
+	["Fish"] = {
+		[0] = 433440,
+		["Seahorses"] = 433440,
+	},
+	["Horses"] = {
+		[0] = 132226,
+		["Chargers"] = 132226,
+		["Demonic Steeds"] = 136103,
+		["Flying Steeds"] = 132251,
+		["Horned Steeds"] = 132261,
+		["Steeds"] = 132261,
+		["Undead Steeds"] = 132264,
+	},
+	["Insects"] = {
+		[0] = 134399,
+		["Silithids"] = 134399,
+	},
+	["Rays"] = {
+		[0] = 132191,
+		["Nether Rays"] = 132191,
+	},
+	["Reptiles"] = {
+		[0] = 133936,
+		["Kodos"] = 134175,
+		["Others"] = 3940790,
+		["Turtles"] = 133936,
+	},
+	["Rodent"] = {
+		[0] = 4687496,
+		["Rabbit"] = 4687496,
+	},
+	["Ungulates"] = {
+		[0] = 132254,
+		["Camels"] = 454771,
+		["Elekks"] = 132254,
+		["Mammoths"] = 236237,
+		["Rhinos"] = 236194,
+	},
+	["Vehicles"] = {
+		[0] = 132241,
+		["Carpets"] = 298590,
+		["Gyrocopters"] = 132241,
+		["Kites"] = 4501546,
+		["Mechanostriders"] = 132247,
+		["Motorcycles"] = 134248,
+		["Rockets"] = 134282,
+	},
+	["Wolves"] = {
+		[0] = 132266,
+		["Undead Wolves"] = 464162,
+		["War Wolves"] = 524154,
+		["Wolves"] = 132266,
+	},
+	["additional"] = {
+		[0] = 236552,
+		["items"] = 236552,
+		["spells"] = 514641,
+	},
+	["rest"] = 413588,
 }
