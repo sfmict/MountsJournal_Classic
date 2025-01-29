@@ -275,7 +275,7 @@ function macroFrame:setRuleFuncs()
 		local keys = {}
 		local func = [[
 local wipe = wipe
-return function(self, button, profileLoad)
+return function(self, button, profileLoad, noMacro)
 	self.mounts:resetMountsList()
 	self.preUseMacro = nil
 	self.useMount = nil
@@ -318,7 +318,7 @@ return function(self, button, profileLoad)
 	end
 
 	self.mounts:setEmptyList()
-	return self:getMacro()
+	return self:getMacro(noMacro)
 end
 		]]
 		self.checkRules[i] = self:loadString(func)
@@ -437,7 +437,9 @@ function macroFrame:isMovingOrFalling()
 end
 
 
-function macroFrame:getMacro(id, button)
+function macroFrame:getMacro(noMacro)
+
+	if noMacro then return end
 	-- MAGIC BROOM IS USABLE
 	self.magicBroom = self.config.useMagicBroom
 	                  and not self.sFlags.targetMount

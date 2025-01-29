@@ -56,18 +56,18 @@ function actions.rmount:getFuncText(value)
 	if value == 0 then
 		return [[
 			self.mounts:setMountsList(self.mounts.sp)
-			profileLoad = true
+			profileLoad = 1
 		]]
 	elseif value == 1 then
 		return [[
 			self.mounts:setMountsList(self.mounts.defProfile)
-			profileLoad = true
+			profileLoad = 1
 		]]
 	else
 		return ([[
 			local profile = self.mounts.profiles['%s']
 			self.mounts:setMountsList(profile)
-			profileLoad = true
+			profileLoad = 1
 		]]):format(value:gsub("[\\']", "\\%1"))
 	end
 end
@@ -101,10 +101,10 @@ function actions.mount:getFuncText(value)
 				return "/dismount"
 			end
 		-- MOUNT
-		else
+		elseif not (noMacro and self.additionalMounts[%s]) then
 			self.useMount = %s
 		end
-	]]):format(macroFrame.classDismount or "", value),
+	]]):format(macroFrame.classDismount or "", value, value),
 	{"GetTime"}
 end
 
@@ -179,7 +179,7 @@ function actions.iitem:getValueDescription()
 	local description = ""
 	for i = 1, #list do
 		local slot = list[i]
-		description = ("%s%s = %s\n"):format(description, list[i], i)
+		description = ("%s%s = %s\n"):format(description, i, list[i])
 	end
 	return description
 end
