@@ -1657,35 +1657,46 @@ function journal:sortMounts()
 	local numNeedingFanfare = C_MountJournal.GetNumMountsNeedingFanfare()
 
 	local mCache = setmetatable({}, {__index = function(t, mount)
+		local data = {}
 		if type(mount) == "number" then
 			local name, spellID, _,_,_,_, isFavorite, _,_,_, isCollected = C_MountJournal.GetMountInfoByID(mount)
-			t[mount] = {name, isFavorite, isCollected, spellID}
+			data.name = name
+			data.isFavorite = isFavorite
+			data.isCollected = isCollected
+			data.spellID = spellID
 			if numNeedingFanfare > 0 and C_MountJournal.NeedsFanfare(mount) then
-				t[mount][5] = true
+				data.needFanfare = true
 				numNeedingFanfare = numNeedingFanfare - 1
 			end
 			if fSort.by == "type" then
 				local _,_,_,_, mType = C_MountJournal.GetMountInfoExtraByID(mount)
 				mType = self.mountTypes[mType]
-				t[mount][7] = type(mType) == "number" and mType or mType[1]
+				data.by = type(mType) == "number" and mType or mType[1]
 			elseif fSort.by == "family" then
 				local family = db[mount][2]
-				t[mount][7] = type(family) == "number" and family or family[1]
+				data.by = type(family) == "number" and family or family[1]
 			elseif fSort.by == "expansion" then
-				t[mount][7] = db[mount][1]
+				data.by = db[mount][1]
 			end
 		else
-			t[mount] = {mount.name, mount:getIsFavorite(), mount:isCollected(), mount.spellID, false, true}
+			data.name = mount.name
+			data.isFavorite = mount:getIsFavorite()
+			data.isCollected = mount:isCollected()
+			data.spellID = mount.spellID
+			data.needsFanfare = false
+			data.additional = true
 			if fSort.by == "type" then
 				local mType = self.mountTypes[mount.mountType]
-				t[mount][7] = type(mType) == "number" and mType or mType[1]
+				data.by = type(mType) == "number" and mType or mType[1]
 			elseif fSort.by == "family" then
-				t[mount][7] = 0
+				local family = mount.familyID
+				data.by = type(family) == "number" and family or family[1]
 			elseif fSort.by == "expansion" then
-				t[mount][7] = mount.expansion
+				data.by = mount.expansion
 			end
 		end
-		return t[mount]
+		t[mount] = data
+		return data
 	end})
 
 	sort(self.mountIDs, function(a, b)
@@ -1694,57 +1705,40 @@ function journal:sortMounts()
 		local mb = mCache[b]
 
 		-- FANFARE
-		local needFanfareA = ma[5]
-		local needFanfareB = mb[5]
-
-		if needFanfareA and not needFanfareB then return true
-		elseif not needFanfareA and needFanfareB then return false end
+		if ma.needFanfare and not mb.needFanfare then return true
+		elseif not ma.needFanfare and mb.needFanfare then return false end
 
 		-- COLLECTED
 		if fSort.collectedFirst then
-			local isCollectedA = ma[3]
-			local isCollectedB = mb[3]
-
-			if isCollectedA and not isCollectedB then return true
-			elseif not isCollectedA and isCollectedB then return false end
+			if ma.isCollected and not mb.isCollected then return true
+			elseif not ma.isCollected and mb.isCollected then return false end
 		end
 
 		-- FAVORITES
 		if fSort.favoritesFirst then
-			local isFavoriteA = ma[2]
-			local isFavoriteB = mb[2]
-
-			if isFavoriteA and not isFavoriteB then return true
-			elseif not isFavoriteA and isFavoriteB then return false end
+			if ma.isFavorite and not mb.isFavorite then return true
+			elseif not ma.isFavorite and mb.isFavorite then return false end
 		end
 
 		-- ADDITIONAL
 		if fSort.additionalFirst then
-			local isAdditionalA = ma[6]
-			local isAdditionalB = mb[6]
-
-			if isAdditionalA and not isAdditionalB then return true
-			elseif not isAdditionalA and isAdditionalB then return false end
+			if ma.additional and not mb.additional then return true
+			elseif not ma.additional and mb.additional then return false end
 		end
 
 		-- BY
 		if fSort.by ~= "name" then
-			local byA = ma[7]
-			local byB = mb[7]
-
-			if byA < byB then return not fSort.reverse
-			elseif byA > byB then return fSort.reverse end
+			if ma.by < mb.by then return not fSort.reverse
+			elseif ma.by > mb.by then return fSort.reverse end
 		end
 
 		-- NAME
-		local nameA = ma[1]
-		local nameB = mb[1]
 		local reverse = fSort.by == "name" and fSort.reverse
 
-		if nameA < nameB then return not reverse
-		elseif nameA > nameB then return reverse end
+		if ma.name < mb.name then return not reverse
+		elseif ma.name > mb.name then return reverse end
 
-		return ma[4] < mb[4]
+		return ma.spellID < mb.spellID
 	end)
 
 	self:updateMountsList()
