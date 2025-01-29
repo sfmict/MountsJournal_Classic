@@ -136,7 +136,7 @@ end
 actions.item = {}
 actions.item.text = L["Use Item"]
 
-function actions.item:getDescription()
+function actions.item:getValueDescription()
 	return "ItemID"
 end
 
@@ -150,11 +150,11 @@ end
 
 
 ---------------------------------------------------
--- iitem
+-- iitem INVENTORY ITEM
 actions.iitem = {}
 actions.iitem.text = L["Use Inventory Item"]
 
-function actions.iitem:getDescription()
+function actions.iitem:getValueDescription()
 	local list = {
 		INVTYPE_HEAD,
 		INVTYPE_NECK,
@@ -196,7 +196,7 @@ end
 actions.spell = {}
 actions.spell.text = L["Cast Spell"]
 
-function actions.spell:getDescription()
+function actions.spell:getValueDescription()
 	return "SpellID"
 end
 
@@ -242,6 +242,19 @@ end
 
 
 ---------------------------------------------------
+-- sstate SET STATE
+actions.sstate = {}
+actions.sstate.text = L["Set State"]
+actions.sstate.description = L["Set a state that can be read in conditions using \"Get State\""]
+
+actions.sstate.getValueText = actions.macro.getValueText
+
+function actions.sstate:getFuncText(value)
+	return ("self.state['%s'] = true"):format(value:gsub("['\\]", "\\%1"))
+end
+
+
+---------------------------------------------------
 -- METHODS
 function actions:getMenuList(value, func)
 	local list = {}
@@ -254,6 +267,7 @@ function actions:getMenuList(value, func)
 		"iitem",
 		"macro",
 		"pmacro",
+		"sstate",
 	}
 	for i = 1, #types do
 		local v = types[i]
@@ -263,7 +277,6 @@ function actions:getMenuList(value, func)
 			value = v,
 			func = func,
 			checked = v == value,
-			arg1 = action.getDescription and action:getDescription(),
 		}
 		if action.description then
 			list[i].OnTooltipShow = function(btn, tooltip)

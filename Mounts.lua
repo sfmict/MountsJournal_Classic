@@ -347,19 +347,14 @@ end
 
 
 function mounts:updateProfessionsRank()
-	local engineeringName = GetSpellInfo(4036)
-	local tailoringName = GetSpellInfo(3908)
-
 	self.engineeringRank = nil
 	self.tailoringRank = nil
-
-	for i = 1, GetNumSkillLines() do
-		local skillName, _,_, skillRank = GetSkillLineInfo(i)
-		if skillName == engineeringName then
-			self.engineeringRank = skillRank
-		elseif skillName == tailoringName then
-			self.tailoringRank = skillRank
-		end
+	self.profs = {}
+	for i, id in next, {GetProfessions()} do
+		local _,_, skillRank, _,_,_, skillLineID = GetProfessionInfo(id)
+		if skillLineID == 202 then self.engineeringRank = skillRank
+		elseif skillLineID == 197 then self.tailoringRank = skillRank end
+		self.profs[skillLineID] = true
 	end
 end
 mounts.SKILL_LINES_CHANGED = mounts.updateProfessionsRank

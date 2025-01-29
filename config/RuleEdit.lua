@@ -3,6 +3,7 @@ local L, util, rules, conds, actions = ns.L, ns.util, ns.ruleConfig, ns.conditio
 local ruleEditor = CreateFrame("FRAME", nil, rules, "MJEscHideTemplate")
 rules.ruleEditor = ruleEditor
 ruleEditor:Hide()
+ruleEditor:SetScript("OnHide", ruleEditor.Hide)
 
 
 local escOnShow = ruleEditor:GetScript("OnShow")
@@ -255,12 +256,17 @@ ruleEditor:HookScript("OnShow", function(self)
 	end)
 
 	self.mountSelect.close = CreateFrame("BUTTON", nil, self.mountSelect, "UIPanelCloseButtonNoScripts")
-	self.mountSelect.close:SetSize(32, 32)
-	self.mountSelect.close:SetPoint("TOPRIGHT", 0, -3)
+	self.mountSelect.close:SetSize(22, 22)
+	self.mountSelect.close:SetPoint("TOPRIGHT", -4, -7)
 	self.mountSelect.close:SetFrameLevel(self.mountSelect:GetFrameLevel() + 1)
 	self.mountSelect.close:SetScript("OnClick", function(btn)
 		btn:GetParent():Hide()
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+	end)
+
+	-- EVENTS
+	ns.macroFrame:on("RULE_LIST_UPDATE", function()
+		if self:IsShown() then self:updateConditionList() end
 	end)
 end)
 
@@ -333,7 +339,7 @@ end
 
 function ruleEditor:getCondTooltip(condData)
 	local cond = conds[condData[2]]
-	return cond.getDescription and cond:getDescription()
+	return cond.getValueDescription and cond:getValueDescription()
 end
 
 
@@ -412,7 +418,7 @@ end
 
 function ruleEditor:getActionTooltip(actionData)
 	local action = actions[actionData[1]]
-	return action.getDescription and action:getDescription()
+	return action.getValueDescription and action:getValueDescription()
 end
 
 
@@ -448,7 +454,7 @@ function ruleEditor:setActionValueOption()
 		local editBox = panel.macro.editFrame:GetEditBox()
 		editBox.CHAR_LIMIT = MACROFRAME_CHAR_LIMIT:gsub("255", action.maxLetters)
 		editBox:SetMaxLetters(action.maxLetters)
-		editBox:SetText(rules:getActionValueText(actionData) or "")
+		editBox:SetText(rules:getActionValueText(actionData))
 		editBox:GetScript("OnTextChanged")(editBox)
 		panel.macro:Show()
 		return
@@ -464,9 +470,14 @@ function ruleEditor:setActionValueOption()
 		end)
 	else
 		panel.optionValue = self.editPool:Acquire()
-		panel.optionValue:SetNumeric(true)
+		panel.optionValue:SetNumeric(action.isNumeric)
 		panel.optionValue:SetScript("OnTextChanged", function(editBox)
-			actionData[2] = tonumber(editBox:GetText())
+			local text = editBox:GetText()
+			if action.isNumeric then
+				actionData[2] = tonumber(text)
+			else
+				actionData[2] = #text > 0 and text or nil
+			end
 			self:checkRule()
 		end)
 	end
@@ -475,7 +486,7 @@ function ruleEditor:setActionValueOption()
 	panel.optionValue:SetPoint("LEFT", panel.optionType, "RIGHT", 10, 0)
 	panel.optionValue:SetPoint("RIGHT", -30, 0)
 	panel.optionValue:Show()
-	panel.optionValue:SetText(rules:getActionValueText(actionData) or "")
+	panel.optionValue:SetText(rules:getActionValueText(actionData))
 	panel.optionValue.tooltip = self:getActionTooltip(actionData)
 end
 

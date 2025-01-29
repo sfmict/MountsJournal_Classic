@@ -2,6 +2,9 @@ local _, ns = ...
 local L = {}
 ns.L = L
 
+L.spells = SPELLS
+L.items = ITEMS
+
 L["author"] = "Author"
 L["Main"] = "Main"
 L["ConfigPanelTitle"] = "Global settings"
@@ -96,6 +99,7 @@ L["Y-axis accseleration"] = "Y-axis Accseleration"
 L["Minimum y-axis speed"] = "Minimum Y-axis Speed"
 L["Model"] = "Model"
 L["Map"] = "Map"
+L["Map flags"] = "Map flags"
 L["Settings"] = "Settings"
 L["Dungeons and Raids"] = "Dungeons and Raids"
 L["Current Location"] = "Current Location"
@@ -159,6 +163,7 @@ L["Nameless holiday"] = "Nameless holiday"
 L["Flyable area"] = "Flyable area"
 L["Have item"] = "Have item"
 L["Item is ready"] = "Item is ready"
+L["Item is equipped"] = "Item is equipped"
 L["Spell is known"] = "Spell is known"
 L["Spell is ready"] = "Spell is ready"
 L["Zone Name/Subzone Name"] = "Zone Name/Subzone Name"
@@ -172,6 +177,10 @@ L["The player is mounted"] = "The player is mounted"
 L["The player is within an vehicle"] = "The player is within an vehicle"
 L["The player is dead"] = "The player is dead"
 L["Sex"] = "Sex"
+L["Get State"] = "Get State"
+L["Get a state that can be set in actions using \"Set State\""] = "Get a state that can be set in actions using \"Set State\""
+L["Set State"] = "Set State"
+L["Set a state that can be read in conditions using \"Get State\""] = "Set a state that can be read in conditions using \"Get State\""
 L["Random Mount"] = "Random Mount"
 L["Selected profile"] = "Selected profile"
 L["Mount"] = "Mount"
@@ -180,6 +189,15 @@ L["Use Inventory Item"] = "Use Inventory Item"
 L["Cast Spell"] = "Cast Spell"
 L["Use macro before mounting"] = "Use macro before mounting"
 L["PMACRO_DESCRIPTION"] = "Register a macro to use before mounting"
+L["Snippet"] = "Snippet"
+L["Code Snippet"] = "Code Snippet"
+L["Code Snippets"] = "Code Snippets"
+L["Add Snippet"] = "Add Snippet"
+L["A snippet with the same name exists."] = "A snippet with the same name exists."
+L["Are you sure you want to delete snippet %s?"] = "Are you sure you want to delete snippet %s?"
+L["Line"] = "Line"
+L["Tab Size"] = "Tab Size"
+L["Do you want to save changes?"] = "Do you want to save changes?"
 L["About"] = "About"
 L["Help with translation of %s. Thanks."] = "Help with translation of %s. Thanks."
 L["Localization Translators:"] = "Localization Translators:"
@@ -405,6 +423,7 @@ L["Yaks"] = "Yaks"
 L["Yetis"] = "Yetis"
 
 setmetatable(L, {__index = function(self, key)
+	fprint("L", key)
 	self[key] = key or ""
 	return key
 end})

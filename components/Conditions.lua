@@ -115,7 +115,7 @@ end
 conds.mcond = {}
 conds.mcond.text = L["Macro condition"]
 
-function conds.mcond:getDescription()
+function conds.mcond:getValueDescription()
 	return [[|cffffffffexists
 help
 dead
@@ -407,7 +407,7 @@ conds.hitem = {}
 conds.hitem.text = L["Have item"]
 conds.hitem.isNumeric = true
 
-function conds.hitem:getDescription()
+function conds.hitem:getValueDescription()
 	return "ItemID"
 end
 
@@ -441,7 +441,7 @@ conds.kspell = {}
 conds.kspell.text = L["Spell is known"]
 conds.kspell.isNumeric = true
 
-function conds.kspell:getDescription()
+function conds.kspell:getValueDescription()
 	return "SpellID"
 end
 
@@ -458,7 +458,7 @@ conds.rspell = {}
 conds.rspell.text = L["Spell is ready"]
 conds.rspell.isNumeric = true
 
-function conds.rspell:getDescription()
+function conds.rspell:getValueDescription()
 	return "SpellID (61304 for GCD)"
 end
 
@@ -588,7 +588,7 @@ end
 conds.zone = {}
 conds.zone.text = ZONE
 
-function conds.zone:getDescription()
+function conds.zone:getValueDescription()
 	return L["Zone Name/Subzone Name"]
 end
 
@@ -619,11 +619,86 @@ end
 
 
 ---------------------------------------------------
+-- mapf MAP FLAGS
+conds.mapf = {}
+conds.mapf.text = L["Map flags"]
+
+function conds.mapf:getValueText(value)
+	local flag, profile = (":"):split(value, 2)
+
+	local flags = {
+		groundOnly = L["Ground Mounts Only"],
+		waterWalkOnly = L["Water Walking"],
+		herbGathering = L["Herb Gathering"],
+	}
+
+	if profile == "" then
+		profile = DEFAULT
+	elseif not ns.mounts.profiles[profile] then
+		profile = RED_FONT_COLOR:WrapTextInColorCode(profile)
+	end
+
+	return ("%s - %s"):format(profile, flags[flag])
+end
+
+function conds.mapf:getValueList(value, func)
+	local list = {}
+
+	local flags = {
+		groundOnly = L["Ground Mounts Only"],
+		waterWalkOnly = L["Water Walking"],
+		herbGathering = L["Herb Gathering"],
+	}
+
+	local profiles = {}
+	for k in next, ns.mounts.profiles do profiles[#profiles + 1] = k end
+	sort(profiles, function(a, b) return strcmputf8i(a, b) < 0 end)
+	tinsert(profiles, 1, DEFAULT)
+
+	list[1] = {
+		notCheckable = true,
+		isTitle = true,
+		text = L["Profiles"],
+	}
+
+	for i = 1, #profiles do
+		local profileName = profiles[i]
+		local flagList = {}
+
+		for k, name in next, flags do
+			local v = ("%s:%s"):format(k, profileName == DEFAULT and "" or profileName)
+			flagList[#flagList + 1] = {
+				text = name,
+				value = v,
+				func = func,
+				checked = v == value,
+			}
+		end
+
+		list[i + 1] = {
+			keepShownOnClick = true,
+			notCheckable = true,
+			hasArrow =  true,
+			text = profileName,
+			value = flagList,
+		}
+	end
+
+	return list
+end
+
+function conds.mapf:getFuncText(value)
+	local flag, profile = (":"):split(value, 2)
+	return ("self:isMapFlagActive('%s', '%s')"):format(flag, profile:gsub("['\\]", "\\%1"))
+end
+
+
+---------------------------------------------------
 -- instance
 conds.instance = {}
 conds.instance.text = INSTANCE
 
-function conds.instance:getDescription()
+function conds.instance:getValueDescription()
 	return {
 		INSTANCE.." or InstanceID",
 		{INSTANCE , ns.mounts.instanceName},
@@ -694,6 +769,42 @@ end
 
 
 ---------------------------------------------------
+-- tmog TRANSMOG
+conds.tmog = {}
+conds.tmog.text = TRANSMOGRIFY
+
+conds.tmog.getValueText = conds.mcond.getValueText
+
+function conds.tmog:getValueList(value, func)
+	local list = {}
+	for i, id in ipairs(C_TransmogCollection.GetOutfits()) do
+		local name, icon = C_TransmogCollection.GetOutfitInfo(id)
+		list[i] = {
+			text = name,
+			value = name,
+			icon = icon,
+			func = func,
+			checked = name == value,
+		}
+	end
+
+	if #list == 0 then
+		list[1] = {
+			notCheckable = true,
+			disabled = true,
+			text = EMPTY,
+		}
+	end
+
+	return list
+end
+
+function conds.tmog:getFuncText(value)
+	return ("self:isTtransmogOutfitActive('%s')"):format(value:gsub("['\\]", "\\%1"))
+end
+
+
+---------------------------------------------------
 -- sex
 conds.sex = {}
 conds.sex.text = L["Sex"]
@@ -730,6 +841,230 @@ function conds.sex:getFuncText(value)
 	local unit, sex = (":"):split(value, 2)
 	return ("UnitSex('%s') == %s"):format(unit, sex), "UnitSex"
 end
+
+
+---------------------------------------------------
+-- mtrack MINIMAP TRACKING
+conds.mtrack = {}
+conds.mtrack.text = TRACKING
+
+function conds.mtrack:getValueText(value)
+	local k, v, name = (":"):split(value, 2)
+	v = tonumber(v)
+	for i = 1, C_Minimap.GetNumTrackingTypes() do
+		local trackingInfo = C_Minimap.GetTrackingInfo(i)
+		if trackingInfo[k] == v then
+			name = trackingInfo.name
+			break
+		end
+	end
+	if not name and k == "spellID" then
+		name = C_Spell.GetSpellName(v)
+	end
+	if name then
+		return ("%s |cff808080(%s)|r"):format(name, value)
+	end
+	return value
+end
+
+function conds.mtrack:getValueList(value, func)
+	local list = {}
+
+	local hunterList = {}
+	local regularList = {}
+
+	for i = 1, C_Minimap.GetNumTrackingTypes() do
+		local trackingInfo = C_Minimap.GetTrackingInfo(i)
+		local v = trackingInfo.spellID and "spellID:"..trackingInfo.spellID or "texture:"..trackingInfo.texture
+
+		local info = {
+			text = ("%s |cff808080(%s)|r"):format(trackingInfo.name, v),
+			icon = trackingInfo.texture,
+			value = v,
+			func = func,
+			checked = v == value,
+		}
+
+		if trackingInfo.subType == HUNTER_TRACKING then
+			hunterList[#hunterList + 1] = info
+		else
+			regularList[#regularList + 1] = info
+		end
+	end
+
+	if #hunterList == 1 then
+		list[#list + 1] = hunterList[1]
+	elseif #hunterList > 1 then
+		list[#list + 1] = {
+			keepShownOnClick = true,
+			notCheckable = true,
+			text = HUNTER_TRACKING_TEXT,
+			hasArrow = true,
+			value = hunterList,
+		}
+	end
+
+	for i = 1, #regularList do
+		list[#list + 1] = regularList[i]
+	end
+
+	return list
+end
+
+function conds.mtrack:getFuncText(value)
+	local k, v = (":"):split(value, 2)
+	return ("self:checkTracking('%s', %s)"):format(k, v)
+end
+
+
+---------------------------------------------------
+-- prof PROFESSION
+conds.prof = {}
+conds.prof.text = TRADE_SKILLS
+
+function conds.prof:getValueText(value)
+	return C_TradeSkillUI.GetTradeSkillDisplayName(value)
+end
+
+function conds.prof:getValueList(value, func)
+	local list = {}
+	for id in next, WORLD_QUEST_ICONS_BY_PROFESSION do
+		local icon = C_TradeSkillUI.GetTradeSkillTexture(id)
+		if icon then
+			list[#list + 1] = {
+				text = self:getValueText(id),
+				icon = icon,
+				value = id,
+				func = func,
+				checked = id == value,
+			}
+		end
+	end
+	sort(list, function(a, b) return strcmputf8i(a.text, b.text) < 0 end)
+	return list
+end
+
+function conds.prof:getFuncText(value)
+	return ("self.mounts.profs[%d]"):format(value)
+end
+
+
+---------------------------------------------------
+-- equips EQUIPMENT SET
+conds.equips = {}
+conds.equips.text = PAPERDOLL_EQUIPMENTMANAGER
+
+function conds.equips:getValueText(value)
+	local setID, guid = (":"):split(value, 2)
+	if guid == UnitGUID("player") then
+		local name = C_EquipmentSet.GetEquipmentSetInfo(tonumber(setID))
+		if name then
+			return name
+		else
+			return RED_FONT_COLOR:WrapTextInColorCode(("ID:%s"):format(setID))
+		end
+	end
+	return ("ID:%s - %s"):format(setID, ns.macroFrame:getNameByGUID(guid))
+end
+
+function conds.equips:getValueList(value, func)
+	local list = {}
+	local guid = UnitGUID("player")
+
+	for i, setID in ipairs(C_EquipmentSet.GetEquipmentSetIDs()) do
+		local name, iconFileID = C_EquipmentSet.GetEquipmentSetInfo(setID)
+		local v = ("%d:%s"):format(setID, guid)
+		list[i] = {
+			text = ("%s |cff808080(ID:%d)|r"):format(name, setID),
+			icon = iconFileID,
+			value = v,
+			func = func,
+			checked = v == value,
+		}
+	end
+
+	if #list == 0 then
+		list[1] = {
+			notCheckable = true,
+			disabled = true,
+			text = EMPTY,
+		}
+	end
+
+	return list
+end
+
+function conds.equips:getFuncText(value)
+	local setID, guid = (":"):split(value, 2)
+	if guid == UnitGUID("player") then
+		return ("self:checkEquipmentSet(%s)"):format(setID)
+	end
+	return "false"
+end
+
+
+---------------------------------------------------
+-- equipi EQUIPPED ITEM
+conds.equipi = {}
+conds.equipi.text = L["Item is equipped"]
+
+conds.equipi.getValueText = conds.mcond.getValueText
+
+function conds.equipi:getFuncText(value)
+	return ("self:isItemEquipped('%s')"):format(value:gsub("['\\]", "\\%1"))
+end
+
+
+---------------------------------------------------
+-- gstate GET STATE
+conds.gstate = {}
+conds.gstate.text = L["Get State"]
+conds.gstate.description = L["Get a state that can be set in actions using \"Set State\""]
+
+function conds.gstate:getValueText(value)
+	local rules = ns.ruleConfig.rules
+	for i = 1, #rules do
+		local action = rules[i].action
+		if action[1] == "sstate" and action[2] == value then
+			return value
+		end
+	end
+	return RED_FONT_COLOR:WrapTextInColorCode(value)
+end
+
+function conds.gstate:getValueList(value, func)
+	local list = {}
+	local rules = ns.ruleConfig.rules
+
+	for i = 1, #rules do
+		local action = rules[i].action
+		if action[1] == "sstate" then
+			list[#list + 1] = {
+				text = action[2],
+				value = action[2],
+				func = func,
+				checked = action[2] == value,
+			}
+		end
+	end
+
+	if #list == 0 then
+		list[1] = {
+			notCheckable = true,
+			disabled = true,
+			text = EMPTY,
+		}
+	elseif #list > 1 then
+		sort(list, function(a, b) return strcmputf8i(a.text, b.text) < 0 end)
+	end
+
+	return list
+end
+
+function conds.gstate:getFuncText(value)
+	return ("self.state['%s']"):format(value:gsub("['\\]", "\\%1"))
+end
+
 
 ---------------------------------------------------
 -- METHODS
