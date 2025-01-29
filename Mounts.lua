@@ -97,7 +97,7 @@ function mounts:ADDON_LOADED(addonName)
 		self.charDB = MountsJournalChar
 		self.charDB.macrosConfig = self.charDB.macrosConfig or {}
 
-		-- Списки
+		-- Lists
 		self.swimmingVashjir = {
 			[75207] = true,
 		}

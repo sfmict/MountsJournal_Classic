@@ -278,6 +278,7 @@ local wipe = wipe
 return function(self, button, profileLoad)
 	self.mounts:resetMountsList()
 	self.preUseMacro = nil
+	self.useMount = nil
 	wipe(self.state)
 		]]
 
@@ -550,7 +551,6 @@ function MJMacroMixin:preClick(button, down)
 		return
 	end
 	self.mounts:setFlags()
-	macroFrame.useMount = false
 	self:SetAttribute("macrotext", macroFrame.checkRules[self.id](macroFrame, button))
 end
 

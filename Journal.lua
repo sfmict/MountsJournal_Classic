@@ -511,10 +511,44 @@ function journal:init()
 		self:setScrollGridMounts(checked)
 	end)
 
+	-- MODELSCENE
+	self.modelScene:HookScript("OnEnter", function(modelScene)
+		modelScene:GetParent():SetScript("OnUpdate", nil)
+		modelScene.modelControl:SetAlpha(.5)
+		modelScene.animationsCombobox:SetAlpha(.5)
+	end)
+
+	local function modelSceneControlsHide(mountDisplay, elapsed)
+		mountDisplay.time = mountDisplay.time - elapsed
+		local alpha = .5 / .2 * mountDisplay.time
+		local modelScene = mountDisplay.modelScene
+		if alpha <= 0 then
+			mountDisplay:SetScript("OnUpdate", nil)
+			modelScene.modelControl:SetAlpha(0)
+			modelScene.animationsCombobox:SetAlpha(0)
+		else
+			modelScene.modelControl:SetAlpha(alpha)
+			modelScene.animationsCombobox:SetAlpha(alpha)
+		end
+	end
+
+	self.modelScene:HookScript("OnLeave", function(modelScene)
+		local mountDisplay = modelScene:GetParent()
+		mountDisplay.time = .2
+		mountDisplay:SetScript("OnUpdate", modelSceneControlsHide)
+	end)
+
 	-- WOWHEAD LINK
+	self.mountDisplay.info.link:HookScript("OnEnter", function()
+		self.modelScene:GetScript("OnEnter")(self.modelScene)
+	end)
+	self.mountDisplay.info.link:HookScript("OnLeave", function()
+		self.modelScene:GetScript("OnLeave")(self.modelScene)
+	end)
 	util.setCopyBox(self.mountDisplay.info.link)
 
 	local langButton = self.mountDisplay.info.linkLang
+	langButton:SetPropagateMouseMotion(true)
 	langButton:SetText(mounts.config.wowheadLinkLang)
 
 	lsfdd:SetMixin(langButton)
@@ -765,7 +799,9 @@ function journal:init()
 	self.yMinSpeed:setText(L["Minimum y-axis speed"])
 
 	-- MODEL SCENE SETTINGS
-	local mssBtn = self.mountDisplay.modelSceneSettingsButton
+	local mssBtn = self.mountDisplay.info.modelSceneSettingsButton
+	mssBtn:SetPropagateMouseMotion(true)
+
 	lsfdd:SetMixin(mssBtn)
 	mssBtn:ddSetDisplayMode(addon)
 	mssBtn:ddHideWhenButtonHidden()
@@ -837,6 +873,7 @@ function journal:init()
 
 	-- MODEL SCENE MOUNT HINT
 	local msMountHint = self.mountDisplay.info.mountHint
+	msMountHint:SetPropagateMouseMotion(true)
 	msMountHint:SetScript("OnEnter", function(btn)
 		btn.highlight:Show()
 		btn:SetAlpha(1)
@@ -2077,7 +2114,6 @@ function journal:updateMountDisplay(forceSceneChange)
 
 		info:Show()
 		self.modelScene:Show()
-		self.mountDisplay.modelSceneSettingsButton:Show()
 		self.mountDisplay.yesMountsTex:Show()
 		self.mountDisplay.noMountsTex:Hide()
 		self.mountDisplay.noMounts:Hide()
@@ -2095,7 +2131,6 @@ function journal:updateMountDisplay(forceSceneChange)
 	else
 		info:Hide()
 		self.modelScene:Hide()
-		self.mountDisplay.modelSceneSettingsButton:Hide()
 		self.mountDisplay.yesMountsTex:Hide()
 		self.mountDisplay.noMountsTex:Show()
 		self.mountDisplay.noMounts:Show()
