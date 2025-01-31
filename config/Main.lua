@@ -443,6 +443,15 @@ config:SetScript("OnShow", function(self)
 	self.showWowheadLink.Text:SetText(L["Show wowhead link in mount preview"])
 	self.showWowheadLink:HookScript("OnClick", enableBtns)
 
+	-- STATISTIC COLLECTION
+	self.statisticCollection = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
+	self.statisticCollection:SetPoint("TOPLEFT", self.showWowheadLink, "BOTTOMLEFT", 0, -15)
+	self.statisticCollection.Text:SetPoint("RIGHT", self.rightPanelScroll)
+	self.statisticCollection.Text:SetText(L["Enable statistics collection"])
+	self.statisticCollection.tooltipText = L["Enable statistics collection"]
+	self.statisticCollection.tooltipRequirement = L["STATISTICS_DESCRIPTION"]
+	self.statisticCollection:HookScript("OnClick", enableBtns)
+
 		-- CANCEL
 	self.cancelBtn = CreateFrame("BUTTON", nil, self, "UIPanelButtonTemplate")
 	self.cancelBtn:SetSize(96, 22)
@@ -507,6 +516,7 @@ config:SetScript("OnShow", function(self)
 		self.arrowButtons:SetChecked(mounts.config.arrowButtonsBrowse)
 		self.openLinks:SetChecked(mounts.config.openHyperlinks)
 		self.showWowheadLink:SetChecked(mounts.config.showWowheadLink)
+		self.statisticCollection:SetChecked(mounts.config.statCollection)
 		self.cancelBtn:Disable()
 		self.applyBtn:Disable()
 	end
@@ -541,6 +551,7 @@ config:SetScript("OnShow", function(self)
 		mounts.config.arrowButtonsBrowse = self.arrowButtons:GetChecked()
 		mounts.config.openHyperlinks = self.openLinks:GetChecked()
 		mounts.config.showWowheadLink = self.showWowheadLink:GetChecked()
+		mounts.config.statCollection = self.statisticCollection:GetChecked()
 
 		updateBtnIcon(1)
 		updateBtnIcon(2)

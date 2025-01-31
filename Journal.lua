@@ -10,7 +10,6 @@ util.setEventsMixin(journal)
 
 -- local COLLECTION_ACHIEVEMENT_CATEGORY = 15246
 -- local MOUNT_ACHIEVEMENT_CATEGORY = 15248
-local NIGHT_FAE_BLUE_COLOR = CreateColor(.5020, .7098, .9922)
 
 
 journal.colors = {
@@ -102,11 +101,20 @@ function journal:init()
 		self:RegisterEvent("PLAYER_REGEN_DISABLED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", "player")
+		self:on("MOUNT_SPEED_UPDATE", self.updateSpeed)
+		self:on("MOUNTED_UPDATE", self.updateMounted)
 		self:updateCollectionTabs()
 		self.leftInset:EnableKeyboard(not InCombatLockdown())
-		self:updateMountsList()
+		local by = mounts.filters.sorting.by
+		if by == "summons" or by == "time" or by == "distance" then
+			self:sortMounts()
+		else
+			self:updateMountsList()
+		end
 		self:updateMountDisplay(true)
-		self.mountSpecial:SetEnabled(IsMounted())
+		local isMounted = not not util.getUnitMount("player")
+		self.mountSpecial:SetEnabled(isMounted)
+		self.mountSpeed:SetShown(mounts.config.statCollection and isMounted)
 	end)
 
 	self.bgFrame:SetScript("OnHide", function()
@@ -116,6 +124,8 @@ function journal:init()
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 		self:UnregisterEvent("UNIT_PORTRAIT_UPDATE")
+		self:off("MOUNT_SPEED_UPDATE", self.updateSpeed)
+		self:off("MOUNTED_UPDATE", self.updateMounted)
 		self:updateCollectionTabs()
 	end)
 
@@ -149,6 +159,7 @@ function journal:init()
 	self.summonButton = self.bgFrame.summonButton
 	self.percentSlider = self.bgFrame.percentSlider
 	self.mountSpecial = self.bgFrame.mountSpecial
+	self.mountSpeed = self.bgFrame.rightInset.mountSpeed
 
 	-- USE MountsJournal BUTTON
 	self.useMountsJournalButton:SetParent(self.CollectionsJournal)
@@ -300,6 +311,28 @@ function journal:init()
 
 	-- MOUNT COUNT
 	self.mountCount.collectedLabel:SetText(L["Collected:"])
+	self.mountCount:SetScript("OnLeave", GameTooltip_Hide)
+	self.mountCount:SetScript("OnEnter", function(frame)
+		local summons, mountTime, mountDistance = 0, 0, 0
+		for k, v in next, mounts.stat do
+			summons = summons + v[1]
+			mountTime = mountTime + v[2]
+			mountDistance = mountDistance + v[3]
+		end
+		if summons == 0 and mountTime == 0 and mountDistance == 0 then return end
+
+		GameTooltip:SetOwner(frame, "ANCHOR_TOPLEFT")
+		GameTooltip:SetText(TOTAL)
+
+		if summons > 0 then util.addTooltipDLine(SUMMONS, summons) end
+		if mountTime > 0 then util.addTooltipDLine(L["Travel time"], util.getTimeBreakDown(mountTime)) end
+		if mountDistance > 0 then
+			util.addTooltipDLine(L["Travel distance"], util:getFormattedDistance(mountDistance))
+			util.addTooltipDLine(L["Avg. speed"], util:getFormattedAvgSpeed(mountDistance, mountTime))
+		end
+
+		GameTooltip:Show()
+	end)
 	self:updateCountMounts()
 	self:RegisterEvent("COMPANION_LEARNED")
 	self:RegisterEvent("COMPANION_UNLEARNED")
@@ -332,8 +365,8 @@ function journal:init()
 		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
 		GameTooltip_SetTitle(GameTooltip, addon.." \""..SUMMONS.." 1\"")
 		GameTooltip:AddLine(L["Normal mount summon"])
-		GameTooltip_AddColoredLine(GameTooltip, "\n"..L["Drag to create a summon panel"], NIGHT_FAE_BLUE_COLOR, false)
-		GameTooltip_AddColoredLine(GameTooltip, L["UseBindingTooltip"], NIGHT_FAE_BLUE_COLOR, false)
+		GameTooltip_AddColoredLine(GameTooltip, "\n"..L["Drag to create a summon panel"], util.NIGHT_FAE_BLUE_COLOR, false)
+		GameTooltip_AddColoredLine(GameTooltip, L["UseBindingTooltip"], util.NIGHT_FAE_BLUE_COLOR, false)
 		if InCombatLockdown() then
 			GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
 		end
@@ -358,8 +391,8 @@ function journal:init()
 		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
 		GameTooltip_SetTitle(GameTooltip, addon.." \""..SUMMONS.." 2\"")
 		GameTooltip_AddNormalLine(GameTooltip, L["SecondMountTooltipDescription"]:gsub("\n\n", "\n"))
-		GameTooltip_AddColoredLine(GameTooltip, "\n"..L["Drag to create a summon panel"], NIGHT_FAE_BLUE_COLOR, false)
-		GameTooltip_AddColoredLine(GameTooltip, L["UseBindingTooltip"], NIGHT_FAE_BLUE_COLOR, false)
+		GameTooltip_AddColoredLine(GameTooltip, "\n"..L["Drag to create a summon panel"], util.NIGHT_FAE_BLUE_COLOR, false)
+		GameTooltip_AddColoredLine(GameTooltip, L["UseBindingTooltip"], util.NIGHT_FAE_BLUE_COLOR, false)
 		if InCombatLockdown() then
 			GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
 		end
@@ -894,7 +927,7 @@ function journal:init()
 		else
 			typeStr = L["MOUNT_TYPE_"..mType]
 		end
-		GameTooltip:AddDoubleLine(L["types"], typeStr, 1, 1, 1, NIGHT_FAE_BLUE_COLOR.r, NIGHT_FAE_BLUE_COLOR.g, NIGHT_FAE_BLUE_COLOR.b)
+		util.addTooltipDLine(L["types"], typeStr)
 
 		-- family
 		local function getPath(FID)
@@ -911,22 +944,35 @@ function journal:init()
 
 		if type(familyID) == "table" then
 			for i = 1, #familyID do
-				GameTooltip:AddDoubleLine(i == 1 and L["Family"] or " ", getPath(familyID[i]), 1, 1, 1, NIGHT_FAE_BLUE_COLOR.r, NIGHT_FAE_BLUE_COLOR.g, NIGHT_FAE_BLUE_COLOR.b)
+				util.addTooltipDLine(i == 1 and L["Family"] or " ", getPath(familyID[i]))
 			end
 		else
-			GameTooltip:AddDoubleLine(L["Family"], getPath(familyID), 1, 1, 1, NIGHT_FAE_BLUE_COLOR.r, NIGHT_FAE_BLUE_COLOR.g, NIGHT_FAE_BLUE_COLOR.b)
+			util.addTooltipDLine(L["Family"], getPath(familyID))
 		end
 
 		-- faction
-		GameTooltip:AddDoubleLine(L["factions"], L["MOUNT_FACTION_"..((faction or 2) + 1)], 1, 1, 1, NIGHT_FAE_BLUE_COLOR.r, NIGHT_FAE_BLUE_COLOR.g, NIGHT_FAE_BLUE_COLOR.b)
+		util.addTooltipDLine(L["factions"], L["MOUNT_FACTION_"..((faction or 2) + 1)])
 
 		-- expanstion
-		GameTooltip:AddDoubleLine(EXPANSION_FILTER_TEXT, _G["EXPANSION_NAME"..(expansion - 1)], 1, 1, 1, NIGHT_FAE_BLUE_COLOR.r, NIGHT_FAE_BLUE_COLOR.g, NIGHT_FAE_BLUE_COLOR.b)
+		util.addTooltipDLine(EXPANSION_FILTER_TEXT, _G["EXPANSION_NAME"..(expansion - 1)])
 
 		-- tags
 		local mTags = self.tags.mountTags[self.selectedSpellID]
 		if mTags then
-			GameTooltip:AddDoubleLine(L["tags"], table.concat(GetKeysArray(mTags), ", "), 1, 1, 1, NIGHT_FAE_BLUE_COLOR.r, NIGHT_FAE_BLUE_COLOR.g, NIGHT_FAE_BLUE_COLOR.b)
+			util.addTooltipDLine(L["tags"], table.concat(GetKeysArray(mTags), ", "))
+		end
+
+		-- statistic
+		local summons = mounts:getMountSummons(self.selectedSpellID)
+		if summons > 0 then util.addTooltipDLine(SUMMONS, summons) end
+
+		local mountTime = mounts:getMountTime(self.selectedSpellID)
+		if mountTime > 0 then util.addTooltipDLine(L["Travel time"], util.getTimeBreakDown(mountTime)) end
+
+		local mountDistance = mounts:getMountDistance(self.selectedSpellID)
+		if mountDistance > 0 then
+			util.addTooltipDLine(L["Travel distance"], util:getFormattedDistance(mountDistance))
+			util.addTooltipDLine(L["Avg. speed"], util:getFormattedAvgSpeed(mountDistance, mountTime))
 		end
 
 		GameTooltip:Show()
@@ -938,11 +984,14 @@ function journal:init()
 		GameTooltip:Hide()
 	end)
 
-	self:on("MOUNT_SELECT", function()
+	local function updateMountHint()
 		if msMountHint:IsMouseOver() then
 			msMountHint:GetScript("OnEnter")(msMountHint)
 		end
-	end)
+	end
+
+	self:on("MOUNT_SELECT", updateMountHint)
+	    :on("MOUNT_SUMMONED", updateMountHint)
 
 	-- MODEL SCENE CONTROL
 	local modelControl = self.modelScene.modelControl
@@ -1108,11 +1157,12 @@ function journal:init()
 	end)
 
 	-- MOUNT SPECIAL
+	local isMounted = not not util.getUnitMount("player")
 	self.mountSpecial:SetText("!")
 	self.mountSpecial.normal = self.mountSpecial:GetFontString()
 	self.mountSpecial.normal:ClearAllPoints()
 	self.mountSpecial.normal:SetPoint("CENTER")
-	self.mountSpecial:SetEnabled(IsMounted())
+	self.mountSpecial:SetEnabled(isMounted)
 	self.mountSpecial:SetScript("OnEnter", function(btn)
 		GameTooltip:SetOwner(btn, "ANCHOR_TOP")
 		GameTooltip_SetTitle(GameTooltip, "/MountSpecial")
@@ -1125,6 +1175,9 @@ function journal:init()
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 		DoEmote("MountSpecial")
 	end)
+
+	-- MOUNT SPEED
+	self.mountSpeed:SetShown(mounts.config.statCollection and isMounted)
 
 	-- FANFARE
 	hooksecurefunc(C_MountJournal, "ClearFanfare", function(mountID)
@@ -1151,6 +1204,8 @@ function journal:init()
 	self:RegisterEvent("UI_MODEL_SCENE_INFO_UPDATED")
 	self:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
 	self:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", "player")
+	self:on("MOUNT_SPEED_UPDATE", self.updateSpeed)
+	self:on("MOUNTED_UPDATE", self.updateMounted)
 
 	self:updateCollectionTabs()
 	self:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
@@ -1352,14 +1407,25 @@ function journal:updateCollectionTabs()
 end
 
 
+function journal:updateMounted(isMounted)
+	self.tags.doNotHideMenu = true
+	self:updateScrollMountList()
+	self.tags.doNotHideMenu = nil
+	self:updateMountDisplay()
+	self.mountSpecial:SetEnabled(isMounted)
+	self.mountSpeed:SetShown(mounts.config.statCollection and isMounted)
+end
+
+
 function journal:COMPANION_UPDATE(companionType)
-	if companionType == "MOUNT" then
-		self.tags.doNotHideMenu = true
-		self:updateScrollMountList()
-		self.tags.doNotHideMenu = nil
-		self:updateMountDisplay()
-		self.mountSpecial:SetEnabled(not not util.getUnitMount("player"))
+	if companionType == "MOUNT" and InCombatLockdown() then
+		self:updateMounted(not not util.getUnitMount("player"))
 	end
+end
+
+
+function journal:updateSpeed(speed)
+	self.mountSpeed:SetText(util:getFormattedSpeed(speed))
 end
 
 

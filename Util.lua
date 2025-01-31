@@ -1,4 +1,5 @@
 local addon, ns = ...
+local L = ns.L
 local type, tremove, next, tostring = type, tremove, next, tostring
 local C_MountJournal, C_UnitAuras, UnitExists = C_MountJournal, C_UnitAuras, UnitExists
 local events, eventsMixin = {}, {}
@@ -95,6 +96,7 @@ util.addonName = ("%s_ADDON_"):format(addon:upper())
 util.expansion = tonumber(GetBuildInfo():match("(.-)%."))
 util.secureButtonNameMount = addon.."_Mount"
 util.secureButtonNameSecondMount = addon.."_SecondMount"
+util.NIGHT_FAE_BLUE_COLOR = CreateColor(.502, .7098, .9922)
 
 
 -- 1 FLY, 2 GROUND, 3 SWIMMING
@@ -316,9 +318,11 @@ function util.getUnitMount(unit)
 		ctok, a,b,c,d,e = GetAuraSlots(unit, filter, 5, ctok)
 		while a do
 			local data = GetAuraDataBySlot(unit, a)
-			local mountID = C_MountJournal.GetMountFromSpell(data.spellId)
-			if mountID or ns.additionalMounts[data.spellId] then
-				return data.spellId, mountID
+			if ns.additionalMountBuffs[data.spellId] then
+				return ns.additionalMountBuffs[data.spellId].spellID, nil, data.auraInstanceID
+			else
+				local mountID = C_MountJournal.GetMountFromSpell(data.spellId)
+				if mountID then return data.spellId, mountID, data.auraInstanceID end
 			end
 			a,b,c,d,e = b,c,d,e
 		end
@@ -434,4 +438,76 @@ function util.createCancelOk(parent)
 	ok:SetSize(width, 22)
 
 	return cancel, ok
+end
+
+
+function util.addTooltipDLine(s1, s2)
+	GameTooltip:AddDoubleLine(s1, s2, 1, 1, 1, util.NIGHT_FAE_BLUE_COLOR.r, util.NIGHT_FAE_BLUE_COLOR.g, util.NIGHT_FAE_BLUE_COLOR.b)
+end
+
+
+function util.getTimeBreakDown(time)
+	local d,h,m,s = ChatFrame_TimeBreakDown(time)
+	if d > 0 then
+		return ("%d:%.2d:%.2d:%.2d"):format(d,h,m,s)
+	elseif h > 0 then
+		return ("%.2d:%.2d:%.2d"):format(h,m,s)
+	else
+		return ("%.2d:%.2d"):format(m,s)
+	end
+end
+
+
+do
+	local ABBR_YARD = " "..L["ABBR_YARD"]
+	local ABBR_MILE = " "..L["ABBR_MILE"]
+	function util.getImperialFormat(distance)
+		if distance < 1760 then
+			return math.floor(distance)..ABBR_YARD
+		elseif distance < 176e4 then
+			return (math.floor(distance / 176) / 10)..ABBR_MILE
+		end
+		return math.floor(distance / 1760)..ABBR_MILE
+	end
+end
+
+
+do
+	local ABBR_METER = " "..L["ABBR_METER"]
+	local ABBR_KILOMETER = " "..L["ABBR_KILOMETER"]
+	function util.getMetricFormat(distance)
+		distance = distance * .9144
+		if distance < 1e3 then
+			return math.floor(distance)..ABBR_METER
+		elseif distance < 1e6 then
+			return (math.floor(distance / 100) / 10)..ABBR_KILOMETER
+		end
+		return math.floor(distance / 1e3)..ABBR_KILOMETER
+	end
+end
+
+
+do
+	local text = "%s = %s"
+	function util:getFormattedDistance(distance)
+		return text:format(self.getImperialFormat(distance), self.getMetricFormat(distance))
+	end
+end
+
+
+do
+	local text = "%s/"..L["ABBR_HOUR"].." = %s/"..L["ABBR_HOUR"]
+	function util:getFormattedAvgSpeed(distance, time)
+		local avgSpeed = time > 0 and distance / time * 3600 or 0
+		return text:format(self.getImperialFormat(avgSpeed), self.getMetricFormat(avgSpeed))
+	end
+end
+
+
+do
+	local text = "%s/"..L["ABBR_HOUR"]
+	local speedFormat = GetLocale() ~= "enUS" and util.getMetricFormat or util.getImperialFormat
+	function util:getFormattedSpeed(speed)
+		return text:format(speedFormat(speed * 3600))
+	end
 end

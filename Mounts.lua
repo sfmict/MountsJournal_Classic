@@ -32,6 +32,8 @@ function mounts:ADDON_LOADED(addonName)
 		self.globalDB.defProfile = self.globalDB.defProfile or {}
 		self.globalDB.mountsProfiles = self.globalDB.mountsProfiles or {}
 		self.globalDB.holidayNames = self.globalDB.holidayNames or {}
+		self.globalDB.stat = self.globalDB.stat or {}
+		self.globalDB.snippets = self.globalDB.snippets or {}
 		self.globalDB.ruleSets = self.globalDB.ruleSets or {
 			{name = DEFAULT, isDefault = true}
 		}
@@ -64,6 +66,9 @@ function mounts:ADDON_LOADED(addonName)
 		if self.config.showWowheadLink == nil then
 			self.config.showWowheadLink = true
 		end
+		if self.config.statCollection == nil then
+			self.config.statCollection = true
+		end
 		self.config.useRepairMountsDurability = self.config.useRepairMountsDurability or 41
 		self.config.useRepairFlyableDurability = self.config.useRepairFlyableDurability or 31
 		self.config.useRepairFreeSlotsNum = self.config.useRepairFreeSlotsNum or 1
@@ -92,6 +97,10 @@ function mounts:ADDON_LOADED(addonName)
 		self.cameraConfig.yAcceleration = self.cameraConfig.yAcceleration or -1
 		self.cameraConfig.yMinAcceleration = nil
 		self.cameraConfig.yMinSpeed = self.cameraConfig.yMinSpeed or 0
+		self.stat = setmetatable(self.globalDB.stat, {__index = function(t, k)
+			t[k] = {0, 0, 0}
+			return t[k]
+		end})
 
 		MountsJournalChar = MountsJournalChar or {}
 		self.charDB = MountsJournalChar
@@ -190,6 +199,11 @@ function mounts:PLAYER_LOGIN()
 
 	-- MOUNT ADDED
 	self:RegisterEvent("NEW_MOUNT_ADDED")
+	hooksecurefunc(C_MountJournal, "ClearFanfare", function(mountID)
+		local _, spellID = C_MountJournal.GetMountInfoByID(mountID)
+		self:addMountDate(spellID)
+		self:autoAddNewMount(spellID)
+	end)
 	-- self:RegisterEvent("COMPANION_UPDATE")
 	-- self:RegisterEvent("COMPANION_LEARNED")
 	-- self:RegisterEvent("COMPANION_UNLEARNED")
@@ -198,6 +212,12 @@ function mounts:PLAYER_LOGIN()
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+
+	-- TRACKING
+	self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+	self:RegisterUnitEvent("UNIT_AURA", "player")
+	local spellID, mountID, auraInstanceID = util.getUnitMount("player")
+	if spellID then self:startTracking(spellID, auraInstanceID) end
 
 	-- PRFILE CHANGED
 	self:on("UPDATE_PROFILE", self.setSelectedProfile)
@@ -300,11 +320,15 @@ end
 
 function mounts:PLAYER_REGEN_DISABLED()
 	self:UnregisterEvent("UNIT_SPELLCAST_START")
+	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	if not self.isTracking then self:UnregisterEvent("UNIT_AURA") end
 end
 
 
 function mounts:PLAYER_REGEN_ENABLED()
 	self:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+	self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+	self:RegisterUnitEvent("UNIT_AURA", "player")
 end
 
 
@@ -355,8 +379,109 @@ do
 end
 
 
+function mounts:UNIT_SPELLCAST_SUCCEEDED(_,_, spellID)
+	if ns.additionalMounts[spellID] or C_MountJournal.GetMountFromSpell(spellID) then
+		local mountStat = self.stat[spellID]
+		mountStat[1] = mountStat[1] + 1
+		self:event("MOUNT_SUMMONED")
+	end
+end
+
+
+do
+	local GetGlidingInfo, GetUnitSpeed, mountStat = C_PlayerInfo.GetGlidingInfo, GetUnitSpeed
+	local function tracking(self, elapsed)
+		local speed = GetUnitSpeed("player")
+		if speed > 0 then
+			mountStat[2] = mountStat[2] + elapsed
+			mountStat[3] = mountStat[3] + speed * elapsed
+		end
+		self:event("MOUNT_SPEED_UPDATE", speed)
+	end
+
+
+	function mounts:startTracking(spellID, auraInstanceID)
+		self.isTracking = auraInstanceID
+		if self.config.statCollection then
+			mountStat = self.stat[spellID]
+			self:SetScript("OnUpdate", tracking)
+		end
+		self:event("MOUNTED_UPDATE", true)
+	end
+end
+
+
+function mounts:stopTracking()
+	self:SetScript("OnUpdate", nil)
+	self.isTracking = nil
+	if InCombatLockdown() then
+		self:UnregisterEvent("UNIT_AURA")
+	end
+	self:event("MOUNTED_UPDATE", false)
+end
+
+
+function mounts:UNIT_AURA(_, data)
+	if data.isFullUpdate then
+		self:stopTracking()
+		local spellID, mountID, auraInstanceID = util.getUnitMount("player")
+		if spellID then self:startTracking(spellID, auraInstanceID) end
+	end
+	if data.removedAuraInstanceIDs and self.isTracking then
+		for i = 1, #data.removedAuraInstanceIDs do
+			if data.removedAuraInstanceIDs[i] == self.isTracking then
+				self:stopTracking()
+				break
+			end
+		end
+	end
+	if data.addedAuras and not self.isTracking then
+		for i = 1, #data.addedAuras do
+			local aura = data.addedAuras[i]
+			local spellID
+			if ns.additionalMountBuffs[aura.spellId] then
+				spellID = ns.additionalMountBuffs[aura.spellId].spellID
+			elseif C_MountJournal.GetMountFromSpell(aura.spellId) then
+				spellID = aura.spellId
+			end
+			if spellID then
+				self:startTracking(spellID, aura.auraInstanceID)
+				break
+			end
+		end
+	end
+end
+
+
+function mounts:addMountDate(spellID, time)
+	local mountStat = self.stat[spellID]
+	if not mountStat[4] then
+		mountStat[4] = time or GetServerTime()
+	end
+end
+
+
+function mounts:getMountSummons(spellID)
+	local mountStat = rawget(self.stat, spellID)
+	return mountStat and mountStat[1] or 0
+end
+
+
+function mounts:getMountTime(spellID)
+	local mountStat = rawget(self.stat, spellID)
+	return mountStat and mountStat[2] or 0
+end
+
+
+function mounts:getMountDistance(spellID)
+	local mountStat = rawget(self.stat, spellID)
+	return mountStat and mountStat[3] or 0
+end
+
+
 function mounts:NEW_MOUNT_ADDED(mountID)
 	local _, spellID = C_MountJournal.GetMountInfoByID(mountID)
+	self:addMountDate(spellID)
 	self:autoAddNewMount(spellID)
 end
 

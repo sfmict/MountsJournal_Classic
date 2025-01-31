@@ -283,9 +283,9 @@ mounts:on("CREATE_BUTTONS", function()
 		GameTooltip:AddLine(L["Normal mount summon"])
 		if not panel:isLocked() then
 			GameTooltip:AddLine("\n")
-			GameTooltip_AddColoredLine(GameTooltip, leftIcon..L["Left-button to drag"], NIGHT_FAE_BLUE_COLOR, false)
+			GameTooltip_AddColoredLine(GameTooltip, leftIcon..L["Left-button to drag"], util.NIGHT_FAE_BLUE_COLOR, false)
 		end
-		-- GameTooltip_AddColoredLine(GameTooltip, rightIcon..L["Right-button to open context menu"], NIGHT_FAE_BLUE_COLOR, false)
+		-- GameTooltip_AddColoredLine(GameTooltip, rightIcon..L["Right-button to open context menu"], util.NIGHT_FAE_BLUE_COLOR, false)
 		if InCombatLockdown() then
 			GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
 		end
@@ -310,9 +310,9 @@ mounts:on("CREATE_BUTTONS", function()
 		GameTooltip_AddNormalLine(GameTooltip, L["SecondMountTooltipDescription"]:gsub("\n\n", "\n"))
 		if not panel:isLocked() then
 			GameTooltip:AddLine("\n")
-			GameTooltip_AddColoredLine(GameTooltip, leftIcon..L["Left-button to drag"], NIGHT_FAE_BLUE_COLOR, false)
+			GameTooltip_AddColoredLine(GameTooltip, leftIcon..L["Left-button to drag"], util.NIGHT_FAE_BLUE_COLOR, false)
 		end
-		-- GameTooltip_AddColoredLine(GameTooltip, rightIcon..L["Right-button to open context menu"], NIGHT_FAE_BLUE_COLOR, false)
+		-- GameTooltip_AddColoredLine(GameTooltip, rightIcon..L["Right-button to open context menu"], util.NIGHT_FAE_BLUE_COLOR, false)
 		if InCombatLockdown() then
 			GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
 		end

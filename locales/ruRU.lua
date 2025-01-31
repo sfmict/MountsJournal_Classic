@@ -1,5 +1,5 @@
 if GetLocale() ~= "ruRU" then
-	--return
+	return
 end
 
 local _, ns = ...
@@ -77,6 +77,9 @@ L["PET_2"] = "Со случайным питомцем"
 L["PET_3"] = "С питомцем"
 L["PET_4"] = "Без питомца"
 L["expansions"] = "Дополнения"
+L["Travel time"] = "Время в пути"
+L["Travel distance"] = "Расстояние в пути"
+L["Avg. speed"] = "Ср. скорость"
 L["Chance of summoning"] = "Шанс призыва"
 L["Any"] = "Любой"
 L["> (more than)"] = "> (больше чем)"
@@ -138,6 +141,8 @@ L["Enable arrow buttons to browse mounts"] = "Включить кнопки со
 L["Open links in %s"] = "Открывать ссылки в %s"
 L["Click opens in"] = "Клик открывает в"
 L["Show wowhead link in mount preview"] = "Показывать ссылку на wowhead в предпросмотре средств передвижения"
+L["Enable statistics collection"] = "Включить сбор статистики"
+L["STATISTICS_DESCRIPTION"] = "Собирает время и расстояние поездок верхом (загружеает ЦП, только когда персонаж сидит верхом)"
 L["Show Minimap Button"] = "Показывать кнопку миникарты"
 L["Lock Minimap Button"] = "Заблокировать кнопку миникарты"
 L["|cffff7f3fClick|r to open %s"] = "|cffff7f3fКлик|r чтобы открыть %s"
@@ -201,6 +206,11 @@ L["Do you want to save changes?"] = "Вы хотите сохранить изм
 L["About"] = "О аддоне"
 L["Help with translation of %s. Thanks."] = "Помогите с переводом %s. Спасибо."
 L["Localization Translators:"] = "Переводчики локализаций:"
+L["ABBR_YARD"] = "|4ярд:ярда:ярдов;"
+L["ABBR_MILE"] = "|4миля:мили:миль;"
+L["ABBR_METER"] = "м"
+L["ABBR_KILOMETER"] = "км"
+L["ABBR_HOUR"] = "ч"
 -- ANIMATIONS
 L["Default"] = "По умолчанию"
 L["Mount special"] = "Особая"

@@ -77,6 +77,9 @@ L["PET_2"] = "With Random Pet"
 L["PET_3"] = "With Pet"
 L["PET_4"] = "Without Pet"
 L["expansions"] = "Expansions"
+L["Travel time"] = "Travel time"
+L["Travel distance"] = "Travel distance"
+L["Avg. speed"] = "Avg. speed"
 L["Chance of summoning"] = "Chance of summoning"
 L["Any"] = "Any"
 L["> (more than)"] = "> (more than)"
@@ -138,6 +141,8 @@ L["Enable arrow buttons to browse mounts"] = "Enable arrow buttons to browse mou
 L["Open links in %s"] = "Open links in %s"
 L["Click opens in"] = "Click opens in"
 L["Show wowhead link in mount preview"] = "Show wowhead link in mount preview"
+L["Enable statistics collection"] = "Enable statistics collection"
+L["STATISTICS_DESCRIPTION"] = "Collects time and distance of mounts (CPU load, only when character is mounted)"
 L["Show Minimap Button"] = "Show Minimap Button"
 L["Lock Minimap Button"] = "Lock Minimap Button"
 L["|cffff7f3fClick|r to open %s"] = "|cffff7f3fClick|r to open %s"
@@ -201,6 +206,11 @@ L["Do you want to save changes?"] = "Do you want to save changes?"
 L["About"] = "About"
 L["Help with translation of %s. Thanks."] = "Help with translation of %s. Thanks."
 L["Localization Translators:"] = "Localization Translators:"
+L["ABBR_YARD"] = "yd"
+L["ABBR_MILE"] = "mi"
+L["ABBR_METER"] = "m"
+L["ABBR_KILOMETER"] = "km"
+L["ABBR_HOUR"] = "h"
 -- ANIMATIONS
 L["Default"] = "Default"
 L["Mount special"] = "Mount special"
@@ -423,7 +433,6 @@ L["Yaks"] = "Yaks"
 L["Yetis"] = "Yetis"
 
 setmetatable(L, {__index = function(self, key)
-	fprint("L", key)
 	self[key] = key or ""
 	return key
 end})
