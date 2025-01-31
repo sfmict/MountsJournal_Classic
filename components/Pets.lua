@@ -36,6 +36,7 @@ pets:RegisterEvent("UI_ERROR_MESSAGE")
 
 
 function pets:summon(petID)
+	if InCombatLockdown() then return end
 	if C_PetJournal.PetIsSummonable(petID) and not C_PetJournal.IsCurrentlySummoned(petID) then
 		C_PetJournal.SummonPetByGUID(petID)
 	end
@@ -43,6 +44,7 @@ end
 
 
 function pets:summonRandomPet(isFavorite)
+	if InCombatLockdown() then return end
 	local list = isFavorite and self.favoritesList or self.list
 	local num = #list
 

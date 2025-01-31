@@ -231,13 +231,23 @@ function MJCompanionsPanelMixin:companionOptionsMenu_Init(btn, level, petID)
 	info.notCheckable = true
 
 	if not (isRevoked or isLockedForConvert) then
-		info.disabled = not C_PetJournal.PetIsSummonable(petID)
+		local combat = InCombatLockdown()
+		info.disabled = not C_PetJournal.PetIsSummonable(petID) or combat
 		if active then
 			info.text = PET_DISMISS
 			info.func = function() C_PetJournal.DismissSummonedPet(petID) end
 		else
 			info.text = BATTLE_PET_SUMMON
-			info.func = function() C_PetJournal.SummonPetByGUID(petID) end
+			info.func = function()
+				if InCombatLockdown() then return end
+				C_PetJournal.SummonPetByGUID(petID)
+			end
+		end
+		if combat then
+			info.tooltipWhileDisabled = true
+			info.OnTooltipShow = function(btn, tooltip)
+				GameTooltip:SetText(RED_FONT_COLOR:WrapTextInColorCode(SPELL_FAILED_AFFECTING_COMBAT))
+			end
 		end
 		btn:ddAddButton(info, level)
 

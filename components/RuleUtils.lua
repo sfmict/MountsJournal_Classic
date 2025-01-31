@@ -34,6 +34,7 @@ end
 
 
 do
+	local noTransmogID = Constants.Transmog.NoTransmogID
 	local model = CreateFrame("DressUpModel")
 	model:Hide()
 	model:SetUnit("player",  false, true, false, true)
@@ -58,7 +59,7 @@ do
 
 		for slotID = 1, #currentItemTransmogInfoList do
 			local itemTransmogInfo = currentItemTransmogInfoList[slotID]
-			if itemTransmogInfo.appearanceID ~= Constants.Transmog.NoTransmogID and not itemTransmogInfo:IsEqual(outfitItemTransmogInfoList[slotID]) then
+			if itemTransmogInfo.appearanceID ~= noTransmogID and not itemTransmogInfo:IsEqual(outfitItemTransmogInfoList[slotID]) then
 				return
 			end
 		end
