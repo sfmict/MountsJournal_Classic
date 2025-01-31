@@ -2392,7 +2392,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button parentKey="minus" inherits="MJPlusMinusButtonTemplate">
+			<Button parentKey="minus" propagateMouseInput="Motion" inherits="MJPlusMinusButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT"/>
 				</Anchors>
@@ -2400,7 +2400,7 @@
 					<OnLoad>self.icon:SetTexCoord(.625, 1, 0, .4375)</OnLoad>
 				</Scripts>
 			</Button>
-			<EditBox parentKey="animationNum" numeric="true" letters="4" multiLine="false" autoFocus="false">
+			<EditBox parentKey="animationNum" propagateMouseInput="Motion" numeric="true" letters="4" multiLine="false" autoFocus="false">
 				<Size x="40" y="22"/>
 				<Anchors>
 					<Anchor point="LEFT" relativeKey="$parent.minus" relativePoint="RIGHT" x="-2"/>
@@ -2417,7 +2417,7 @@
 					<OnLoad>self:SetTextInsets(2, 2, 0, 0)</OnLoad>
 				</Scripts>
 			</EditBox>
-			<Button parentKey="plus" inherits="MJPlusMinusButtonTemplate">
+			<Button parentKey="plus" propagateMouseInput="Motion" inherits="MJPlusMinusButtonTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativeKey="$parent.animationNum" relativePoint="RIGHT" x="-2"/>
 				</Anchors>
@@ -2425,7 +2425,7 @@
 					<OnLoad>self.icon:SetTexCoord(0, .4375, 0, .4375)</OnLoad>
 				</Scripts>
 			</Button>
-			<Button inherits="UIPanelButtonTemplate" parentKey="playButton">
+			<Button parentKey="playButton" propagateMouseInput="Motion" inherits="UIPanelButtonTemplate">
 				<Size x="26" y="22"/>
 				<Anchors>
 					<Anchor point="LEFT" relativeKey="$parent.plus" relativePoint="RIGHT" x="20"/>
@@ -2441,7 +2441,7 @@
 					</Layer>
 				</Layers>
 			</Button>
-			<Button inherits="UIPanelButtonTemplate" parentKey="stopButton">
+			<Button parentKey="stopButton" propagateMouseInput="Motion" inherits="UIPanelButtonTemplate">
 				<Size x="26" y="22"/>
 				<Anchors>
 					<Anchor point="LEFT" relativeKey="$parent.playButton" relativePoint="RIGHT"/>
@@ -2457,7 +2457,7 @@
 					</Layer>
 				</Layers>
 			</Button>
-			<CheckButton parentKey="isKit" inherits="MJCheckButtonTemplate">
+			<CheckButton parentKey="isKit" propagateMouseInput="Motion" inherits="MJCheckButtonTemplate">
 				<HitRectInsets>
 					<AbsInset left="0" right="-35" top="0" bottom="0"/>
 				</HitRectInsets>
@@ -2465,7 +2465,7 @@
 					<Anchor point="TOPLEFT" y="-21"/>
 				</Anchors>
 			</CheckButton>
-			<CheckButton parentKey="loop" inherits="MJCheckButtonTemplate">
+			<CheckButton parentKey="loop" propagateMouseInput="Motion" inherits="MJCheckButtonTemplate">
 				<HitRectInsets>
 					<AbsInset left="0" right="-40" top="0" bottom="0"/>
 				</HitRectInsets>
@@ -2473,7 +2473,7 @@
 					<Anchor point="LEFT" relativeKey="$parent.isKit.Text" relativePoint="RIGHT" x="4"/>
 				</Anchors>
 			</CheckButton>
-			<EditBox inherits="InputBoxInstructionsTemplate" parentKey="nameBox" letters="15" autoFocus="false">
+			<EditBox parentKey="nameBox" propagateMouseInput="Motion" inherits="InputBoxInstructionsTemplate" letters="15" autoFocus="false">
 				<Size x="80" y="20"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="7" y="2"/>
@@ -2542,7 +2542,7 @@
 					</OnTextChanged>
 				</Scripts>
 			</EditBox>
-			<Button inherits="UIPanelButtonTemplate" text="SAVE" parentKey="save">
+			<Button parentKey="save" propagateMouseInput="Motion" text="SAVE" inherits="UIPanelButtonTemplate">
 				<Size x="80" y="22"/>
 				<Anchors>
 					<Anchor point="LEFT" relativeKey="$parent.nameBox" relativePoint="RIGHT" x="0" y="0"/>

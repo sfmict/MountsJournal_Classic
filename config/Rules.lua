@@ -155,7 +155,6 @@ rules:SetScript("OnShow", function(self)
 	self.summons = lsfdd:CreateButtonOriginal(self)
 	self.summons:SetPoint("LEFT", 20, 0)
 	self.summons:SetPoint("TOP", self.title, "BOTTOM", 0, -15)
-	self.summons:ddSetDisplayMode(addon)
 
 	self.summons:ddSetInitFunc(function(dd)
 		local info = {}
