@@ -298,6 +298,7 @@ function journal:init()
 			frame:SetAttribute("tab", ]]..i..[[)
 			frame:RunAttribute("tabUpdate")
 		]])
+		tab:GetScript("OnEvent")(tab)
 		tab:HookScript("OnClick", function() setTab(i) end)
 	end
 
