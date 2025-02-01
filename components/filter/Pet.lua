@@ -26,8 +26,8 @@ function journal.filters.pet(btn, level)
 
 	local icons = {
 		922035,
-		652131,
-		647701,
+		"Interface/AddOns/MountsJournal/textures/INV_Pet_Achievement_CaptureAPetFromEachFamily_Battle",
+		"Interface/AddOns/MountsJournal/textures/inv_pet_mouse",
 		136509,
 	}
 	local iconInfo = {
