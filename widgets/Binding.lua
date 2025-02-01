@@ -60,15 +60,12 @@ end
 
 
 function binding:createBindingButtons(name, parent, description, secureTemplate)
+	local secure = CreateFrame("Button", name, UIParent, secureTemplate or "SecureActionButtonTemplate")
 	local command = "CLICK "..name..":LeftButton"
 	local button1 = self:createBindingButton(parent, 1, command)
 	local button2 = self:createBindingButton(parent, 2, command)
 	button2:SetPoint("TOPLEFT", button1, "BOTTOMLEFT", 0, -5)
 	button2:SetPoint("TOPRIGHT", button1, "BOTTOMRIGHT", 0, -5)
-
-	local secure = CreateFrame("Button", name, UIParent, secureTemplate or "SecureActionButtonTemplate")
-	secure:RegisterForClicks("AnyUp", "AnyDown")
-	secure:SetAttribute("type", "macro")
 
 	_G["BINDING_NAME_"..command] = description or name
 	return button1, button2, secure

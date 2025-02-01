@@ -284,6 +284,7 @@ function macroFrame:setRuleFuncs()
 		local func = [[
 local wipe = wipe
 return function(self, button, profileLoad, noMacro)
+	self.mounts:setFlags()
 	self.mounts:resetMountsList()
 	self.preUseMacro = nil
 	self.useMount = nil
@@ -461,11 +462,13 @@ function macroFrame:getMacro(noMacro)
 
 	-- EXIT VEHICLE
 	if self.sFlags.inVehicle then
-		macro = "/leavevehicle"
+		VehicleExit()
+		--macro = "/leavevehicle"
 	-- DISMOUNT
 	elseif self.sFlags.isMounted then
 		if not self.lastUseTime or GetTime() - self.lastUseTime > .5 then
-			macro = "/dismount"
+			Dismount()
+			--macro = "/dismount"
 		end
 	-- CLASSMACRO
 	elseif self.macro and (
@@ -540,6 +543,9 @@ MJMacroMixin = {}
 
 function MJMacroMixin:onLoad()
 	self.mounts = ns.mounts
+	self.sFlags = ns.mounts.sFlags
+	self:RegisterForClicks("AnyUp", "AnyDown")
+	self:SetAttribute("type", "macro")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 end
 
@@ -550,7 +556,8 @@ end
 
 
 function MJMacroMixin:preClick(button, down)
-	self.mounts.sFlags.forceModifier = self.forceModifier
+	self.sFlags.forceModifier = macroFrame.currentRuleSet[self.id].altMode
+	self.sFlags.summonID = self.id
 	local combat = InCombatLockdown()
 	local notAction = down ~= GetCVarBool("ActionButtonUseKeyDown")
 	self.notUsable = combat or notAction
@@ -560,7 +567,6 @@ function MJMacroMixin:preClick(button, down)
 		self:SetAttribute("macrotext", "")
 		return
 	end
-	self.mounts:setFlags()
 	self:SetAttribute("macrotext", macroFrame.checkRules[self.id](macroFrame, button))
 end
 
