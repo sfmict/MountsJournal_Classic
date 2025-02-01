@@ -153,8 +153,11 @@ macroFrame:on("ADDON_INIT", function(self)
 			-- 33943 - flight form
 			-- 40120 - swift flight from
 			-- 24858 - moonkin form
+			local spellID = self.getFormSpellID()
 			if self.classConfig.useLastDruidForm then
-				local spellID = self.getFormSpellID()
+				if not self.charMacrosConfig.lastDruidFormSpellID then
+					self.charMacrosConfig.lastDruidFormSpellID = spellID
+				end
 
 				if self.charMacrosConfig.lastDruidFormSpellID
 				and spellID ~= 24858
@@ -168,7 +171,7 @@ macroFrame:on("ADDON_INIT", function(self)
 				then
 					local spellName = self:getSpellName(self.charMacrosConfig.lastDruidFormSpellID)
 					if spellName then
-						return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..spellName)
+						return self:addLine(self:getDismountMacro(), "/cast "..spellName)
 					end
 				end
 
@@ -177,6 +180,11 @@ macroFrame:on("ADDON_INIT", function(self)
 					self.lastDruidFormTime = GetTime()
 				elseif not spellID and GetTime() - (self.lastDruidFormTime or 0) > 1 then
 					self.charMacrosConfig.lastDruidFormSpellID = nil
+				end
+			elseif spellID == 783 or spellID == 1066 or spellID == 33943 or spellID == 40120 then
+				local spellName = self:getSpellName(spellID)
+				if spellName then
+					return "/cast "..spellName
 				end
 			end
 
@@ -192,7 +200,6 @@ macroFrame:on("ADDON_INIT", function(self)
 			     or not self.magicBroom and (GetUnitSpeed("player") > 0
 			                                 or IsFalling()))
 			then
-				local spellID = self.getFormSpellID()
 				if spellID == 783 then
 					return self:addLine(self:getDismountMacro(), "/cancelform")
 				elseif spellID ~= 33943 and spellID ~= 40120 then
