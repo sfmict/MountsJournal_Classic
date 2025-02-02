@@ -257,6 +257,7 @@ function journal:init()
 
 		self.bgFrame.settingsBackground:SetShown(tab == 1)
 		self.mountCount:SetShown(tab ~= 1)
+		self.bgFrame.hint:SetShown(tab ~= 1)
 		self.bgFrame.targetMount:SetShown(tab ~= 1)
 		self.navBar:SetShown(tab == 2)
 		self.filtersPanel:SetShown(tab ~= 1)
