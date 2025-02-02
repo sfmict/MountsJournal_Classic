@@ -110,6 +110,23 @@
 				</Scripts>
 			</Button>
 
+			<Button parentKey="targetMount" inherits="MJIconButtonTemplate" hidden="true">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.summonPanelSettings" relativePoint="LEFT" x="-30"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="3">
+						<Texture parentKey="checkedTexture" file="Interface\Buttons\UI-Quickslot-Depress" alphaMode="ADD" hidden="true">
+							<Size x="37" y="37"/>
+							<Anchors>
+								<Anchor point="CENTER" x="0" y="0"/>
+							</Anchors>
+							<Color r=".3" g=".9" b=".3"/>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Button>
+
 			<Frame parentKey="navBar" clipChildren="true" inherits="NavBarTemplate" mixin="MJNavBarMixin" hidden="true">
 				<Size x="600" y="32"/>
 				<Anchors>
@@ -2242,8 +2259,11 @@
 					</Anchors>
 				</Texture>
 			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="icon" setAllPoints="true"/>
+			</Layer>
 		</Layers>
-		<NormalTexture parentKey="icon"/>
+		<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
 		<HighlightTexture parentKey="highlight" file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
 	</Button>
 
