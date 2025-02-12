@@ -1078,7 +1078,6 @@ function conds.snip:getValueText(value)
 	return RED_FONT_COLOR:WrapTextInColorCode(value)
 end
 
-
 function conds.snip:getValueList(value, func)
 	local list = {}
 
@@ -1103,7 +1102,6 @@ function conds.snip:getValueList(value, func)
 
 	return list
 end
-
 
 function conds.snip:getFuncText(value)
 	return ("self:callSnippet('%s')"):format(value:gsub("['\\]", "\\%1"))
