@@ -48,5 +48,3 @@ ns.mounts:on("MODULES_INIT", function()
 	bg:SetScript("OnShow", function() activeContent:Show() end)
 	bg:SetScript("OnHide", function() activeContent:Hide() end)
 end)
-
-

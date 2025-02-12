@@ -194,6 +194,7 @@ local L = ns.L
 -- L["Set State"] = ""
 -- L["Set a state that can be read in conditions using \"Get State\""] = ""
 -- L["Random Mount"] = ""
+-- L["Random Mount of Selected Type"] = ""
 -- L["Selected profile"] = ""
 -- L["Mount"] = ""
 -- L["Use Item"] = ""

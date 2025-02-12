@@ -194,6 +194,7 @@ L["Get a state that can be set in actions using \"Set State\""] = "使用“设�
 L["Set State"] = "设置状态"
 L["Set a state that can be read in conditions using \"Get State\""] = "设置可通过 “获取状态 ”读取的状态"
 L["Random Mount"] = "随机坐骑"
+-- L["Random Mount of Selected Type"] = ""
 L["Selected profile"] = "已选配置文件"
 L["Mount"] = "坐骑"
 L["Use Item"] = "使用物品"

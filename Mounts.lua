@@ -877,6 +877,24 @@ function mounts:setSummonMount(withAdditional)
 end
 
 
+function mounts:setSummonMountByType(mType, withAdditional)
+	self.withAdditional = withAdditional
+	self.summonedSpellID = nil
+	self.fromPriority = true
+	local flags = self.sFlags
+	-- repair mounts
+	if not (flags.useRepair and self:setUsableID(self.usableRepairMounts, self.sp.mountsWeight))
+	-- target's mount
+	and not (flags.targetMount and self:summon(flags.targetMount))
+	and not (mType == "swimming" and flags.isVashjir and self:setUsableID(self.swimmingVashjir, self.sp.mountsWeight))
+	and not self:setUsableID(self.list[mType], self.list[mType.."Weight"])
+	and not self:setUsableID(self.lowLevel, self.sp.mountsWeight) then
+		self.fromPriority = nil
+		if not self.noError then self:errorSummon() end
+	end
+end
+
+
 function mounts:init()
 	self.init = nil
 	local flags = self.sFlags
@@ -899,7 +917,11 @@ function mounts:init()
 			if ns.macroFrame.useMount then
 				self:summon(ns.macroFrame.useMount)
 			else
-				self:setSummonMount()
+				if ns.macroFrame.summonMType then
+					self:setSummonMountByType(ns.macroFrame.summonMType)
+				else
+					self:setSummonMount()
+				end
 				self:summon()
 			end
 		end

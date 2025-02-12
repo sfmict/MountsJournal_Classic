@@ -288,6 +288,7 @@ return function(self, button, profileLoad, noMacro)
 	self.mounts:resetMountsList()
 	self.preUseMacro = nil
 	self.useMount = nil
+	self.summonMType = nil
 	wipe(self.state)
 		]]
 
@@ -493,7 +494,11 @@ function macroFrame:getMacro(noMacro)
 			macro = self:addLine(macro, "/use item:"..self.broomID) -- USE ITEM BROOM
 			self.lastUseTime = GetTime()
 		else
-			self.mounts:setSummonMount(true)
+			if self.summonMType then
+				self.mounts:setSummonMountByType(self.summonMType, true)
+			else
+				self.mounts:setSummonMount(true)
+			end
 
 			local additionMount
 			if self.sFlags.targetMount then
@@ -504,7 +509,7 @@ function macroFrame:getMacro(noMacro)
 
 			if additionMount then
 				macro = self:addLine(macro, additionMount.macro)
-			elseif not self.useMount then
+			elseif not (self.useMount or self.sFlags.targetMount) then
 				self.useMount = true
 			end
 		end
