@@ -298,6 +298,23 @@ return "" -- macro text (255 symbols) / nil
 		dd:ddAddButton(info)
 	end)
 
+	-- NEXT BTN
+	self.nextBtn = CreateFrame("BUTTON", nil, self, "MJControlBackButtonTemplate")
+	self.nextBtn:SetPoint("RIGHT", self.examples, "LEFT", -20, 0)
+	self.nextBtn.Icon:SetTexCoord(1, 0, 0, 1)
+	self.nextBtn:SetScript("OnClick", function(btn)
+		self:setHistory(-1)
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+	end)
+
+	-- BACK BTN
+	self.backBtn = CreateFrame("BUTTON", nil, self, "MJControlBackButtonTemplate")
+	self.backBtn:SetPoint("RIGHT", self.nextBtn, "LEFT")
+	self.backBtn:SetScript("OnClick", function(btn)
+		self:setHistory(1)
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+	end)
+
 	-- CONTROL BTNS
 	self.cancelBtn = CreateFrame("BUTTON", nil, self, "UIPanelButtonTemplate")
 	self.cancelBtn:SetPoint("BOTTOMRIGHT", -35, 20)
@@ -366,6 +383,9 @@ return "" -- macro text (255 symbols) / nil
 		elseif key == "Y" then
 			self.skipAddHistory = true
 			self:setHistory(-1)
+		elseif key == "G" then
+			self.line:SetFocus()
+			self.line:HighlightText()
 		end
 	end)
 
@@ -418,7 +438,7 @@ return "" -- macro text (255 symbols) / nil
 	-- ERROR TEXT
 	self.errText = self:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	self.errText:SetPoint("TOPLEFT", self.codeBtn, "BOTTOMLEFT", 40, -10)
-	self.errText:SetPoint("RIGHT", self.cancelBtn, "LEFt", -10, 0)
+	self.errText:SetPoint("RIGHT", self.completeBtn, "LEFt", -10, 0)
 	self.errText:SetPoint("BOTTOM", 0, 10)
 	self.errText:SetTextColor(1, 0, 0)
 	self.errText:SetJustifyH("LEFT")
@@ -473,6 +493,8 @@ function codeEdit:addHistory()
 	-- remove overlimit (50)
 	for i = 51, #self.history do self.history[i] = nil end
 	self.historyPos = 1
+
+	self:updateHistoryBtns()
 end
 
 
@@ -487,4 +509,12 @@ function codeEdit:setHistory(delta)
 		self.line.SetText(self.editBox, self.history[self.historyPos][1])
 		self.editBox:SetCursorPosition(self.history[self.historyPos][2])
 	end
+
+	self:updateHistoryBtns()
+end
+
+
+function codeEdit:updateHistoryBtns()
+	self.backBtn:SetEnabled(#self.history > self.historyPos)
+	self.nextBtn:SetEnabled(self.historyPos > 1)
 end

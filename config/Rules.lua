@@ -329,8 +329,7 @@ rules:SetScript("OnShow", function(self)
 	function self.dragBtn.onUpdate(btn, elapsed)
 		local x, y = GetCursorDelta()
 		local scale = btn:GetEffectiveScale()
-		local point, rFrame, rPoint, xPos, yPos = btn:GetPoint()
-		btn:SetPoint(point, rFrame, xPos + x / scale, yPos + y / scale)
+		btn:AdjustPointsOffset(x / scale, y / scale)
 		self.separator:Hide()
 		self.separator.id = nil
 		for i, f in ipairs(self.view:GetFrames()) do
@@ -347,7 +346,7 @@ rules:SetScript("OnShow", function(self)
 							self.separator:Show()
 						end
 					else
-						if btn.id ~= f.id + 1 and math.floor(f:GetBottom() + .5) >=  math.floor(self.scrollBox:GetBottom() + .5) then
+						if btn.id ~= f.id + 1 and math.floor(f:GetBottom() + .5) >= math.floor(self.scrollBox:GetBottom() + .5) then
 							self.separator.id = f.id + 1
 							self.separator:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 5, 5)
 							self.separator:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", -5, 5)
