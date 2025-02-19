@@ -20,6 +20,10 @@ ns.journal:on("MODULES_INIT", function(journal)
 		end
 		self.icon:SetTexture(icon)
 
+		if self:IsMouseOver() then
+			self:GetScript("OnEnter")(self)
+		end
+
 		if ns.mounts.config.autoTargetMount then
 			journal:setSelectedMount(self.mountID)
 		end
@@ -53,6 +57,14 @@ ns.journal:on("MODULES_INIT", function(journal)
 		self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	end)
 
+	local function addLines()
+		GameTooltip:AddLine(L["Target Mount"], HIGHLIGHT_FONT_COLOR:GetRGB())
+		GameTooltip:AddLine(L["Shows the mount of current target"])
+		GameTooltip:AddLine(("\n%s - %s"):format(L["LMB"], L["Select mount"]))
+		GameTooltip:AddLine(("%s - %s"):format(L["RMB"], L["Auto select Mount"]))
+		GameTooltip:Show()
+	end
+
 	tm:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 
@@ -64,11 +76,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 			GameTooltip:AddLine(" ")
 		end
 
-		GameTooltip:AddLine(L["Target Mount"], HIGHLIGHT_FONT_COLOR:GetRGB())
-		GameTooltip:AddLine(L["Shows the mount of current target"])
-		GameTooltip:AddLine(("\n%s - %s"):format(L["LMB"], L["Select mount"]))
-		GameTooltip:AddLine(("%s - %s"):format(L["RMB"], L["Auto select Mount"]))
-		GameTooltip:Show()
+		addLines()
 	end)
 
 	tm:SetScript("OnLeave", GameTooltip_Hide)
