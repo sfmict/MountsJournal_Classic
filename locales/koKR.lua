@@ -92,6 +92,7 @@ local L = ns.L
 -- L["< (less than)"] = ""
 -- L["= (equal to)"] = ""
 -- L["sorting"] = ""
+-- L["Then Sort By"] = ""
 -- L["Reverse Sort"] = ""
 -- L["Collected First"] = ""
 -- L["Favorites First"] = ""
