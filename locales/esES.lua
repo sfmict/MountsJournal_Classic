@@ -150,6 +150,7 @@ local L = ns.L
 -- L["Show wowhead link in mount preview"] = ""
 -- L["Enable statistics collection"] = ""
 -- L["STATISTICS_DESCRIPTION"] = ""
+-- L["Show mount in unit tooltip"] = ""
 -- L["Show Minimap Button"] = ""
 -- L["Lock Minimap Button"] = ""
 -- L["|cffff7f3fClick|r to open %s"] = ""

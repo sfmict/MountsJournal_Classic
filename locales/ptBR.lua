@@ -150,6 +150,7 @@ L["Enable arrow buttons to browse mounts"] = "Ative os botões de seta para nave
 -- L["Show wowhead link in mount preview"] = ""
 L["Enable statistics collection"] = "Habilitar coleta de estatísticas"
 -- L["STATISTICS_DESCRIPTION"] = ""
+-- L["Show mount in unit tooltip"] = ""
 -- L["Show Minimap Button"] = ""
 -- L["Lock Minimap Button"] = ""
 -- L["|cffff7f3fClick|r to open %s"] = ""

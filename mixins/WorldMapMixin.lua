@@ -10,9 +10,9 @@ function MJMapCanvasMixin:onLoad()
 	self.zoom = 0
 	self.detailLayerPool = CreateFramePool("FRAME", self.child, "MapCanvasDetailLayerTemplate")
 	self.explorationLayerPool = CreateTexturePool(self.child.Exploration, "ARTWORK", 0)
-	self.navigation = LibStub("LibSFDropDown-1.5"):CreateModernButtonOriginal(self)
+	self.navigation = LibStub("LibSFDropDown-1.5"):CreateButtonOriginal(self)
 	self.navigation:SetFrameLevel(self:GetFrameLevel() + 10)
-	self.navigation:SetPoint("TOPLEFT", 4, -4)
+	self.navigation:SetPoint("TOPLEFT", 2, -5)
 	self.navigation:ddSetDisplayMode(addon)
 	self.navigation:ddSetInitFunc(function(...) self:dropDownInit(...) end)
 end
