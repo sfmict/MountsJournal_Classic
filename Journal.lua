@@ -257,6 +257,12 @@ function journal:init()
 		PlaySound(SOUNDKIT.UI_TOYBOX_TABS)
 		PanelTemplates_SetTab(self.bgFrame, tab)
 
+		if tab == 2 then
+			self.filtersPanel:SetPoint("TOPLEFT", self.navBar, "BOTTOMLEFT", -1, -1)
+		else
+			self.filtersPanel:SetPoint("TOPLEFT", 4, -60)
+		end
+
 		self.bgFrame.settingsBackground:SetShown(tab == 1)
 		self.mountCount:SetShown(tab ~= 1)
 		self.bgFrame.hint:SetShown(tab ~= 1)
@@ -271,12 +277,6 @@ function journal:init()
 		self.bgFrame.profilesMenu:SetShown(tab ~= 1)
 		self.mountSpecial:SetShown(tab ~= 1)
 		self.bgFrame.summonPanelSettings:SetShown(tab ~= 1 and self.summonPanel:IsShown())
-
-		if tab == 2 then
-			self.filtersPanel:SetPoint("TOPLEFT", self.navBar, "BOTTOMLEFT", -1, -1)
-		else
-			self.filtersPanel:SetPoint("TOPLEFT", 4, -60)
-		end
 	end
 
 	self.bgFrame.settingsTab:SetText(L["Settings"])
