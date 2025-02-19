@@ -89,13 +89,6 @@ function journal:init()
 	self.bgFrame.TitleText:SetText(MOUNTS)
 	SetPortraitToTexture(self.bgFrame.portrait, 303868)
 
-	local minWidth, minHeight = self.CollectionsJournal:GetSize()
-	local maxWidth = UIParent:GetWidth() - self.bgFrame:GetLeft() * 2
-	local maxHeight = self.bgFrame:GetTop() - CollectionsJournalTab1:GetHeight()
-	local width = max(min(mounts.config.journalWidth or minWidth, maxWidth), minWidth)
-	local height = max(min(mounts.config.journalHeight or minHeight, maxHeight), minHeight)
-	self.bgFrame:SetSize(width, height)
-
 	self.bgFrame:SetScript("OnShow", function(bgFrame)
 		self:RegisterEvent("COMPANION_UPDATE")
 		self:RegisterEvent("UI_MODEL_SCENE_INFO_UPDATED")
@@ -308,6 +301,15 @@ function journal:init()
 	self.bgFrame.numTabs = 3
 	PanelTemplates_SetTab(self.bgFrame, self.bgFrame.numTabs)
 	sMountJournal:SetAttribute("numTabs", self.bgFrame.numTabs)
+
+	-- SET SIZE
+	local minWidth, minHeight = self.CollectionsJournal:GetSize()
+	local maxWidth = UIParent:GetWidth() - self.bgFrame:GetLeft() * 2
+	local maxHeight = self.bgFrame:GetTop() - CollectionsJournalTab1:GetHeight()
+	self.minTabWidth = _G["CollectionsJournalTab"..self.CollectionsJournal.numTabs]:GetRight() - self.CollectionsJournal:GetLeft() + self.bgFrame:GetRight() - self.bgFrame.Tabs[#self.bgFrame.Tabs]:GetLeft() + 20
+	local width = Clamp(mounts.config.journalWidth or minWidth, max(minWidth, self.minTabWidth), maxWidth)
+	local height = Clamp(mounts.config.journalHeight or minHeight, minHeight, maxHeight)
+	self.bgFrame:SetSize(width, height)
 
 	-- CLOSE BUTTON
 	self.bgFrame.closeButton:SetAttribute("type", "click")
@@ -1140,7 +1142,7 @@ function journal:init()
 		local minWidth, minHeight = self.CollectionsJournal:GetSize()
 		local maxWidth = UIParent:GetWidth() - parent:GetLeft() * 2
 		local maxHeight = parent:GetTop() - CollectionsJournalTab1:GetHeight()
-		parent:SetResizeBounds(minWidth, minHeight, maxWidth, maxHeight)
+		parent:SetResizeBounds(max(minWidth, self.minTabWidth), minHeight, maxWidth, maxHeight)
 		parent:StartSizing("BOTTOMRIGHT", true)
 	end)
 	resize:SetScript("OnDragStop", function(btn)
