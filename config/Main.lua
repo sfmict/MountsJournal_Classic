@@ -451,6 +451,13 @@ config:SetScript("OnShow", function(self)
 	self.statisticCollection.tooltipRequirement = L["STATISTICS_DESCRIPTION"]
 	self.statisticCollection:HookScript("OnClick", enableBtns)
 
+	-- TOOLTIP MOUNT
+	self.tooltipMount = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
+	self.tooltipMount:SetPoint("TOPLEFT", self.statisticCollection, "BOTTOMLEFT", 0, -15)
+	self.tooltipMount.Text:SetPoint("RIGHT", self.rightPanelScroll)
+	self.tooltipMount.Text:SetText(L["Show mount in unit tooltip"])
+	self.tooltipMount:HookScript("OnClick", enableBtns)
+
 		-- CANCEL
 	self.cancelBtn = CreateFrame("BUTTON", nil, self, "UIPanelButtonTemplate")
 	self.cancelBtn:SetSize(96, 22)
@@ -516,6 +523,7 @@ config:SetScript("OnShow", function(self)
 		self.openLinks:SetChecked(mounts.config.openHyperlinks)
 		self.showWowheadLink:SetChecked(mounts.config.showWowheadLink)
 		self.statisticCollection:SetChecked(mounts.config.statCollection)
+		self.tooltipMount:SetChecked(mounts.config.tooltipMount)
 		self.cancelBtn:Disable()
 		self.applyBtn:Disable()
 	end
@@ -551,6 +559,7 @@ config:SetScript("OnShow", function(self)
 		mounts.config.openHyperlinks = self.openLinks:GetChecked()
 		mounts.config.showWowheadLink = self.showWowheadLink:GetChecked()
 		mounts.config.statCollection = self.statisticCollection:GetChecked()
+		mounts.config.tooltipMount = self.tooltipMount:GetChecked()
 
 		updateBtnIcon(1)
 		updateBtnIcon(2)
