@@ -85,7 +85,7 @@ ns.familyDB = {
 	},
 	["Dragonhawks"] = 1200,
 	["Drakes"] = {
-		-- ["Cloud Serpents"] = 1300,
+		["Cloud Serpents"] = 1300,
 		["Drakes"] = 1301,
 		["Grand Drakes"] = 1302,
 		["Nether Drakes"] = 1303,
@@ -235,6 +235,7 @@ ns.familyDBIcons = {
 		[0] = 464143,
 		["Scorpions"] = 464143,
 	},
+	["Bats"] = 6127582,
 	["Birds"] = {
 		[0] = 132198,
 		["Chickens"] = 132834,
@@ -272,6 +273,7 @@ ns.familyDBIcons = {
 	["Dragonhawks"] = 132188,
 	["Drakes"] = {
 		[0] = 132250,
+		["Cloud Serpents"] = 6238482,
 		["Drakes"] = 236230,
 		["Grand Drakes"] = 236234,
 		["Nether Drakes"] = 132250,
