@@ -165,6 +165,7 @@ function journal:init()
 
 	-- SECURE FRAMES
 	local sMountJournal = CreateFrame("FRAME", nil, self.MountJournal, "SecureHandlerShowHideTemplate")
+	self._s = sMountJournal
 	sMountJournal:SetFrameRef("useMountsJournalButton", self.useMountsJournalButton)
 	sMountJournal:SetFrameRef("bgFrame", self.bgFrame)
 	sMountJournal:SetFrameRef("CollectionsJournalTab1", CollectionsJournalTab1)
@@ -257,7 +258,7 @@ function journal:init()
 	]])
 
 	-- TABS
-	local function setTab(tab)
+	self.bgFrame.setTab = function(tab)
 		PlaySound(SOUNDKIT.UI_TOYBOX_TABS)
 		PanelTemplates_SetTab(self.bgFrame, tab)
 
@@ -306,7 +307,7 @@ function journal:init()
 			frame:RunAttribute("tabUpdate")
 		]])
 		tab:GetScript("OnEvent")(tab)
-		tab:HookScript("OnClick", function() setTab(i) end)
+		tab:HookScript("OnClick", function() self.bgFrame.setTab(i) end)
 	end
 
 	self.bgFrame.numTabs = 3

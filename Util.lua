@@ -527,10 +527,31 @@ end
 do
 	local libSerialize = LibStub("LibSerialize")
 	local libDeflate = LibStub("LibDeflate")
+	local compressedCache
 
 	function util.getStringFromData(data, forPrint, config)
 		local serialized = libSerialize:Serialize(data)
-		local compressed = libDeflate:CompressDeflate(serialized, config)
+		local serverTime, compressed = GetServerTime()
+		compressedCache = compressedCache or {}
+
+		-- get from / add to cache
+		if compressedCache[serialized] then
+			compressed = compressedCache[serialized].compressed
+			compressedCache[serialized].lastAccess = serverTime
+		else
+			compressed = libDeflate:CompressDeflate(serialized, config)
+			compressedCache[serialized] = {
+				compressed = compressed,
+				lastAccess = serverTime,
+			}
+		end
+
+		-- remove cache after 5 min
+		local expiredTime = serverTime - 300
+		for k, v in next, compressedCache do
+			if v.lastAccess < expiredTime then compressedCache[k] = nil end
+		end
+
 		if forPrint then
 			return libDeflate:EncodeForPrint(compressed)
 		else
@@ -550,5 +571,92 @@ do
 		if not decompressed then return end
 		local success, data = libSerialize:Deserialize(decompressed)
 		if success then return data end
+	end
+end
+
+
+do
+	-- WORKAROUND
+	-- Blizzard in its infinite wisdom did:
+	-- * Force enable the profanity filter for the chinese region
+	-- * Add a realm name's part to the profanity filter
+	local function obfuscateName(name)
+		if GetCurrentRegion() == 5 then
+			local result = ""
+			for i = 1, #name do
+				local b = name:byte(i)
+				if (b >= 196 and i ~= 1) then
+					-- UTF8 Start byte
+					result = result..string.char(46, b)
+				else
+					result = result..string.char(b)
+				end
+			end
+			return result
+		else
+			return name
+		end
+	end
+
+	local fullName
+	local function getFullName()
+		local name, realm = UnitFullName("player")
+		fullName = realm and name.."-"..obfuscateName(realm) or name
+		return fullName
+	end
+
+	local linked
+	function util.getLink(dataType, id, characterName)
+		local playerName = fullName or getFullName()
+		local linkID = dataType..":"..id
+		if not characterName or playerName == characterName then
+			linked = linked or {}
+			linked[linkID] = GetServerTime()
+		end
+		return ("[MountsJournal:%s:%s:MJ]"):format(characterName or playerName, linkID)
+	end
+
+	function util.isLinkValid(dataType, id)
+		if not linked then return false end
+
+		local expiredLinkTime = GetServerTime() - 300
+		for linkID, time in next, linked do
+			if time < expiredLinkTime then linked[linkID] = nil end
+		end
+
+		local linkID = dataType..":"..id
+		return not not linked[linkID]
+	end
+end
+
+
+function util.insertChatLink(...)
+	local editBox = GetCurrentKeyBoardFocus()
+	if editBox then
+		editBox:Insert(util.getLink(...))
+		editBox:SetFocus()
+	end
+end
+
+
+function util.openJournalTab(tab1, tab2)
+	if InCombatLockdown() then return end
+	if not C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
+		C_AddOns.LoadAddOn("Blizzard_Collections")
+	end
+	ShowUIPanel(CollectionsJournal)
+	CollectionsJournal_SetTab(CollectionsJournal, COLLECTIONS_JOURNAL_TAB_INDEX_MOUNTS)
+	if ns.mounts.config.useDefaultJournal then
+		if ns.journal.useMountsJournalButton:IsProtected() then
+			ns.journal._s:SetAttribute("useDefaultJournal", false)
+			ns.journal._s:Execute(ns.journal._s:GetAttribute("update"))
+		end
+		ns.journal.useMountsJournalButton:Click()
+	end
+	ns.journal.bgFrame.setTab(tab1)
+	ns.journal._s:SetAttribute("tab", tab1)
+	ns.journal._s:Execute(ns.journal._s:GetAttribute("tabUpdate"))
+	if tab1 == 1 and tab2 then
+		ns.journal.bgFrame.settingsBackground.Tabs[tab2]:Click()
 	end
 end

@@ -186,16 +186,10 @@ function test:PLAYER_ENTERING_WORLD()
 	-- end
 
 	-- JOURNAL OPEN
-	-- if not C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
-	-- 	C_AddOns.LoadAddOn("Blizzard_Collections")
-	-- end
-	-- ShowUIPanel(CollectionsJournal)
-	-- MountsJournalFrame.bgFrame.profilesMenu:Click()
-	-- CollectionsJournal_SetTab(CollectionsJournal, COLLECTIONS_JOURNAL_TAB_INDEX_MOUNTS) -- DISABLE
-	-- journal.mountDisplay.info.petSelectionBtn:Click()
-
-	-- local sbg = journal.bgFrame.settingsBackground
-	-- sbg:Show()
+	--ns.util.openJournalTab(3, 3)
+	--ns.ruleConfig.snippetToggle:Click() -- snippets
+	--ns.snippets.addSnipBtn:Click() -- codeEdit
+	--journal.mountDisplay.info.petSelectionBtn:Click()
 
 	-- local bgWidth = journal.bgFrame:GetWidth()
 	-- for i = 1, sbg:GetNumPoints() do
