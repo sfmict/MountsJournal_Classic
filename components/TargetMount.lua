@@ -5,6 +5,7 @@ local L = ns.L
 ns.journal:on("MODULES_INIT", function(journal)
 	local tm = journal.bgFrame.targetMount
 	tm.icon:SetTexture("Interface\\ICONS\\Ability_Mount_RidingHorse")
+	tm.icon:SetDesaturated(true)
 	tm:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	tm.checkedTexture:SetShown(ns.mounts.config.autoTargetMount)
 
@@ -18,6 +19,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 		else
 			icon = self.mountID.icon
 		end
+		self.icon:SetDesaturated()
 		self.icon:SetTexture(icon)
 
 		if self:IsMouseOver() then

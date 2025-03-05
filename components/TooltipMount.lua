@@ -9,7 +9,7 @@ GameTooltip:HookScript("OnTooltipSetUnit", function(tooltip)
 			local spellID, mountID = util.getUnitMount(unit)
 			if spellID then
 				local name, _, icon = journal:getMountInfo(mountID or ns.additionalMounts[spellID])
-				tooltip:AddLine(("|T%s:16:16|t %s"):format(icon, name))
+				tooltip:AddLine(("\n|T%s:16:16|t %s"):format(icon, name))
 			end
 		end
 	end

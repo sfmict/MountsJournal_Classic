@@ -16,7 +16,6 @@ externals:
 	libs/LibDeflate:
 		site: https://www.curseforge.com/wow/addons/libdeflate
 		url: https://github.com/SafeteeWoW/LibDeflate
-		tag: latest
 	libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
 	libs/LibDataBroker-1.1:
 		site: https://www.curseforge.com/wow/addons/libdatabroker-1-1

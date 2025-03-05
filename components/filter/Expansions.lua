@@ -48,7 +48,7 @@ function journal.filters.expansions(btn, level)
 		3256381,
 		4465334,
 		5409250,
-		5907274,
+		6377935,
 	}
 	local iconInfo = {
 		tSizeX = 40,

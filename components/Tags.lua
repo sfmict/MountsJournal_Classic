@@ -222,6 +222,7 @@ function tags:mountOptionsMenu_Init(btn, level, value)
 		end
 		--@do-not-package@
 		if isMount then
+			info.disabled = nil
 			info.keepShownOnClick = true
 			info.hasArrow = true
 			info.text = L["Family"]
@@ -233,6 +234,7 @@ function tags:mountOptionsMenu_Init(btn, level, value)
 		info.disabled = nil
 		info.hasArrow = nil
 		info.notCheckable = nil
+		info.keepShownOnClick = true
 		info.isNotRadio = true
 		info.text = HIDE
 		info.func = function(_,_,_, checked)

@@ -743,7 +743,7 @@
 									<Anchor point="TOPLEFT"/>
 								</Anchors>
 								<Layers>
-									<Layer level="ARTWORK">
+									<Layer level="OVERLAY">
 										<Texture parentKey="HighlightTexture" alphaMode="ADD" hidden="true">
 											<Anchors>
 												<Anchor point="TOPLEFT"/>
@@ -752,7 +752,7 @@
 									</Layer>
 								</Layers>
 								<Frames>
-									<Frame parentKey="Exploration" setAllPoints="true"/>
+									<Frame parentKey="Exploration" useParentLevel="true" setAllPoints="true"/>
 								</Frames>
 							</Frame>
 						</ScrollChild>
