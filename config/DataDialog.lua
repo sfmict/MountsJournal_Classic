@@ -66,7 +66,7 @@ dataDialog:HookScript("OnShow", function(self)
 	self.editBox:HookScript("OnTextChanged", function(editBox)
 		if self.info.type ~= "import" then return end
 		local data = util.getDataFromPrint(editBox:GetText())
-		if type(data) == "table" and data.v == "retail" and (not self.info.valid or self.info.valid(data)) then
+		if type(data) == "table" and data.v == "classic" and (not self.info.valid or self.info.valid(data)) then
 			if self.info.defName then
 				self.nameEdit:SetFocus()
 				self.nameEdit:HighlightText()
@@ -149,7 +149,7 @@ function dataDialog:open(info)
 		self.nameEdit:Hide()
 		self.codeBtn:SetPoint("TOPLEFT", 7, -24)
 
-		info.data.v = "retail"
+		info.data.v = "classic"
 		local str = util.getPrintFromData(info.data)
 
 		self.editBox:SetText(str)
