@@ -17,8 +17,8 @@ journal.colors = {
 	gray = CreateColor(.5, .5, .5),
 	dark = CreateColor(.3, .3, .3),
 	mount1 = CreateColor(.824, .78, .235),
-	mount2 = CreateColor(.42, .302, .224),
-	mount3 = CreateColor(.031, .333, .388),
+	mount2 = CreateColor(.62, .502, .424),
+	mount3 = CreateColor(.231, .533, .588),
 }
 
 
@@ -31,6 +31,9 @@ function journal:init()
 
 	local lsfdd = LibStub("LibSFDropDown-1.5")
 	local texPath = "Interface/AddOns/MountsJournal/textures/"
+	self.tFly = texPath.."fly"
+	self.tGround = texPath.."ground"
+	self.tSwimming = texPath.."swimming"
 	self.mountIDs = C_MountJournal.GetMountIDs()
 
 	-- FILTERS INIT
@@ -737,9 +740,9 @@ function journal:init()
 
 	-- FILTERS TYPES BUTTONS
 	local typesTextures = {
-		{path = texPath.."fly", width = 32, height = 16},
-		{path = texPath.."ground", width = 32, height = 16},
-		{path = texPath.."swimming", width = 32, height = 16},
+		{path = self.tFly, width = 32, height = 16},
+		{path = self.tGround, width = 32, height = 16},
+		{path = self.tSwimming, width = 32, height = 16},
 	}
 
 	for i = 1, #typesTextures do
@@ -1471,15 +1474,17 @@ function journal:setScrollGridMounts(grid)
 	local template
 
 	if grid then
-		template = "MJMountGrid3ListButtons"
-		self.initMountButton = self.grid3InitMountButton
-		self.view:SetPadding(0,0,2,0,0)
-		index = math.ceil(index / 3)
+		template = "MJMountGridListButtons"
+		self.initMountButton = self.gridInitMountButton
+		self.view:SetPadding(0,0,7,0,0)
+		self.view:SetElementExtent(44)
+		index = math.ceil(index / 4)
 	else
 		template = "MJMountDefaultListButton"
 		self.initMountButton = self.defaultInitMountButton
-		self.view:SetPadding(0,0,41,25,0)
-		index = (index - 1) * 3 + 1
+		self.view:SetPadding(0,0,41,0,0)
+		self.view:SetElementExtent(40)
+		index = (index - 1) * 4 + 1
 	end
 
 	self.view:SetElementInitializer(template, function(...)
@@ -1494,16 +1499,43 @@ end
 
 
 do
-	local function setColor(self, btn, checked)
-		local color = checked and self.colors.gold or self.colors.gray
-		btn.icon:SetVertexColor(color:GetRGB())
-		btn:SetChecked(checked)
+	local function showNext(toggles, texture, color)
+		for i = 1, #toggles do
+			local toggle = toggles[i]
+			if not toggle:IsShown() then
+				toggle:SetTexture(texture)
+				toggle:SetVertexColor(color:GetRGB())
+				toggle:Show()
+				break
+			end
+		end
 	end
 
-	function journal:updateMountToggleButton(btn)
-		setColor(self, btn.fly, self.list and self.list.fly[btn.spellID])
-		setColor(self, btn.ground, self.list and self.list.ground[btn.spellID])
-		setColor(self, btn.swimming, self.list and self.list.swimming[btn.spellID])
+	function journal:updateMountToggleButton(btn, reverse)
+		for i = 1, #btn.toggle do btn.toggle[i]:Hide() end
+		if self.list then
+			if reverse then
+				if self.list.swimming[btn.spellID] then
+					showNext(btn.toggle, self.tSwimming, self.colors.mount3)
+				end
+				if self.list.ground[btn.spellID] then
+					showNext(btn.toggle, self.tGround, self.colors.mount2)
+				end
+				if self.list.fly[btn.spellID] then
+					showNext(btn.toggle, self.tFly, self.colors.mount1)
+				end
+			else
+				if self.list.fly[btn.spellID] then
+					showNext(btn.toggle, self.tFly, self.colors.mount1)
+				end
+				if self.list.ground[btn.spellID] then
+					showNext(btn.toggle, self.tGround, self.colors.mount2)
+				end
+				if self.list.swimming[btn.spellID] then
+					showNext(btn.toggle, self.tSwimming, self.colors.mount3)
+				end
+			end
+		end
 	end
 end
 
@@ -1579,56 +1611,55 @@ function journal:defaultInitMountButton(btn, data)
 		btn.name:SetFontObject("GameFontDisable")
 	end
 
-	self:updateMountToggleButton(btn)
+	self:updateMountToggleButton(btn, true)
 end
 
 
-function journal:grid3InitMountButton(btn, data)
+function journal:gridInitMountButton(btn, data)
 	for i = 1, #btn.mounts do
-		local g3btn = btn.mounts[i]
+		local gbtn = btn.mounts[i]
 
 		if data[i] then
 			local mountID = data[i].mountID
 			local creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, isFiltered, isCollected = self:getMountInfo(mountID)
 			local needsFanfare = type(data.mountID) == "number" and C_MountJournal.NeedsFanfare(mountID)
 
-			g3btn.spellID = spellID
-			g3btn.mountID = mountID
-			g3btn.icon:SetTexture(needsFanfare and COLLECTIONS_FANFARE_ICON or icon)
-			g3btn.icon:SetVertexColor(1, 1, 1)
-			g3btn:Enable()
-			g3btn.selectedTexture:SetShown(mountID == self.selectedMountID)
-			g3btn.hidden:SetShown(self:isMountHidden(spellID))
-			g3btn.favorite:SetShown(isFavorite)
+			gbtn.spellID = spellID
+			gbtn.mountID = mountID
+			gbtn.icon:SetTexture(needsFanfare and COLLECTIONS_FANFARE_ICON or icon)
+			gbtn.icon:SetVertexColor(1, 1, 1)
+			gbtn:Enable()
+			gbtn.selectedTexture:SetShown(mountID == self.selectedMountID)
+			gbtn.hidden:SetShown(self:isMountHidden(spellID))
+			gbtn.favorite:SetShown(isFavorite)
 
 			local mountWeight = self.mountsWeight[spellID]
 			if mountWeight then
-				g3btn.mountWeight:SetText(getColorWeight(mountWeight))
-				g3btn.mountWeight:Show()
-				g3btn.mountWeightBG:Show()
+				gbtn.mountWeight:SetText(getColorWeight(mountWeight))
+				gbtn.mountWeight:Show()
+				gbtn.mountWeightBG:Show()
 			else
-				g3btn.mountWeight:Hide()
-				g3btn.mountWeightBG:Hide()
+				gbtn.mountWeight:Hide()
+				gbtn.mountWeightBG:Hide()
 			end
 
 			if isUsable and mounts:isUsable(spellID) or needsFanfare then
-				g3btn.icon:SetDesaturated()
-				g3btn.icon:SetAlpha(1)
+				gbtn.icon:SetDesaturated()
+				gbtn.icon:SetAlpha(1)
 			elseif isCollected then
-				g3btn.icon:SetDesaturated(true)
-				g3btn.icon:SetVertexColor(.58823529411765, .19607843137255, .19607843137255)
-				g3btn.icon:SetAlpha(.75)
+				gbtn.icon:SetDesaturated(true)
+				gbtn.icon:SetVertexColor(.58823529411765, .19607843137255, .19607843137255)
+				gbtn.icon:SetAlpha(.75)
 			else
-				g3btn.icon:SetDesaturated(true)
-				g3btn.icon:SetAlpha(.5)
+				gbtn.icon:SetDesaturated(true)
+				gbtn.icon:SetAlpha(.35)
 			end
 
-			g3btn:Show()
+			self:updateMountToggleButton(gbtn)
+			gbtn:Show()
 		else
-			g3btn:Hide()
+			gbtn:Hide()
 		end
-
-		self:updateMountToggleButton(g3btn)
 	end
 end
 
@@ -1664,7 +1695,7 @@ function journal:setArrowSelectMount(enabled)
 
 				delta = (key == "UP" or key == "LEFT") and -1 or 1
 				if mounts.config.gridToggle and (key == "UP" or key == "DOWN") then
-					delta = delta * 3
+					delta = delta * 4
 				end
 
 				index = nil
@@ -1978,7 +2009,7 @@ function journal:getRemoveMountList(mapID)
 	local list = self.zoneMounts[mapID]
 
 	local flags
-	for _, value in pairs(list.flags) do
+	for _, value in next, list.flags do
 		if value then
 			flags = true
 			break
@@ -1994,25 +2025,20 @@ function journal:getRemoveMountList(mapID)
 end
 
 
-function journal:mountToggle(btn)
+function journal:mountToggle(mountType, spellID, mountID)
 	if not self.list then
 		self:createMountList(self.listMapID)
 	end
-	local tbl = self.list[btn.type]
-	local spellID = btn:GetParent().spellID
+	local tbl = self.list[mountType]
+	tbl[spellID] = not tbl[spellID] or nil
+	self:getRemoveMountList(self.listMapID)
 
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-	if tbl[spellID] then
-		tbl[spellID] = nil
-		btn.icon:SetVertexColor(self.colors.gray:GetRGB())
-		self:getRemoveMountList(self.listMapID)
-	else
-		tbl[spellID] = true
-		btn.icon:SetVertexColor(self.colors.gold:GetRGB())
-	end
+	local btn = self:getMountButtonByMountID(mountID)
+	if btn then self:initMountButton(btn, btn:GetElementData()) end
 
 	-- mounts:setMountsList()
 	self.existingLists:refresh()
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 end
 
 
@@ -2835,7 +2861,7 @@ function journal:updateMountsList()
 		and tags:getFilterMount(spellID) then
 			numMounts = numMounts + 1
 			if mounts.config.gridToggle then
-				if data and #data < 3 then
+				if data and #data < 4 then
 					data[#data + 1] = {index = numMounts, mountID = mountID}
 				else
 					data = {{index = numMounts, mountID = mountID}}
