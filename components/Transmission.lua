@@ -5,7 +5,7 @@ local type, select, Ambiguate, UnitInRaid, UnitInParty, IsGuildMember, BNGetNumF
 
 local function filterFunc(_, event, msg, player, l, cs, t, flag, channelId, ...)
 	if flag == "GM" or flag == "DEV"
-	or (event == "CHAT_MSG_CHANNEL" and type(channelId) == "number" and channelId > 0)
+	or event == "CHAT_MSG_CHANNEL" and type(channelId) == "number" and channelId > 0
 	then return end
 
 	local newMsg, finish, start, newStart, type, id, anyLinkFound = "", 0
@@ -24,7 +24,7 @@ local function filterFunc(_, event, msg, player, l, cs, t, flag, channelId, ...)
 	if anyLinkFound then
 		newMsg = newMsg..msg:sub(newStart)
 		local trimmedPlayer = Ambiguate(player, "none")
-		if event == "CHAT_MSG_WHISPER" and not UnitInRaid(trimmedPlayer) and not UnitInParty(trimmedPlayer) and not IsGuildMember(select(5, ...)) then
+		if event == "CHAT_MSG_WHISPER" and not (UnitInRaid(trimmedPlayer) or UnitInParty(trimmedPlayer) or IsGuildMember(select(5, ...))) then
 			local _, num = BNGetNumFriends()
 			for i = 1, num do
 				for j = 1, C_BattleNet.GetFriendNumGameAccounts(i) do
@@ -61,7 +61,10 @@ ChatFrame_AddMessageEventFilter("CHAT_MSG_INSTANCE_CHAT_LEADER", filterFunc)
 
 -- TEST
 --C_Timer.After(0, function()
---	SendChatMessage(util.getLink("Profile", "").." "..util.getLink("Snippet", next(mounts.globalDB.snippets)), "WHISPER", select(2, GetDefaultLanguage()), UnitName("player"))
+--	SendChatMessage(util.getLink("Profile", "").." "..util.getLink("Profile", next(mounts.profiles), nil), "WHISPER", select(2, GetDefaultLanguage()), UnitName("player"))
+--	SendChatMessage(util.getLink("Snippet", next(mounts.globalDB.snippets), nil), "WHISPER", select(2, GetDefaultLanguage()), UnitName("player"))
+--	SendChatMessage(util.getLink("Rule Set", mounts.globalDB.ruleSets[1].name), "WHISPER", select(2, GetDefaultLanguage()), UnitName("player"))
+--	SendChatMessage(util.getLink("Rule", "1:1:"..mounts.globalDB.ruleSets[1].name), "WHISPER", select(2, GetDefaultLanguage()), UnitName("player"))
 --end)
 
 
@@ -103,10 +106,11 @@ do
 		if link:sub(1, 18) == "addonMountsJournal" then
 			local _,_, dataType, characterName, typeLang, id = text:gsub("|[Cc]%x%x%x%x%x%x%x%x", ""):gsub("|[Rr]", ""):find("|HaddonMountsJournal(.-)|h%[MJ:(.-) %- (.-):(.-)%]|h")
 			if dataType and characterName and typeLang and id then
+				id = util.deobfuscateName(id)
 				if IsShiftKeyDown() then
 					util.insertChatLink(dataType, id, characterName)
 				else
-					characterName = characterName:gsub("%.", "")
+					characterName = util.deobfuscateName(characterName)
 					local r,g,b = NIGHT_FAE_BLUE_COLOR:GetRGB()
 					local displayID = id == "" and DEFAULT or id
 					showTooltip({
