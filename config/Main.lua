@@ -352,6 +352,7 @@ config:SetScript("OnShow", function(self)
 	self.useMagicBroom.tooltipRequirement = L["UseMagicBroomDescription"]
 	self.useMagicBroom:HookScript("OnClick", enableBtns)
 
+	-- PET GROUP
 	self.petGroup = createGropPanel(self.rightPanelScroll.child, 4)
 	self.petGroup:SetPoint("TOPLEFT", self.useMagicBroom, "BOTTOMLEFT", -3, -12)
 
@@ -399,34 +400,45 @@ config:SetScript("OnShow", function(self)
 	-- NO PET IN RAID
 	self.noPetInRaid = CreateFrame("CheckButton", nil, self.petGroup, "MJCheckButtonTemplate")
 	self.noPetInRaid:SetPoint("TOPLEFT", self.summonPetOnlyFavorites, "BOTTOMLEFT", -20, -3)
-	self.noPetInRaid.Text:SetSize(245, 25)
+	self.noPetInRaid.Text:SetPoint("RIGHT", self.petGroup, -4, 0)
 	self.noPetInRaid.Text:SetText(L["NoPetInRaid"])
 	self.noPetInRaid:HookScript("OnClick", enableBtns)
 
 	-- NO PET IN GROUP
 	self.noPetInGroup = CreateFrame("CheckButton", nil, self.petGroup, "MJCheckButtonTemplate")
 	self.noPetInGroup:SetPoint("TOPLEFT", self.noPetInRaid, "BOTTOMLEFT", 0, -3)
-	self.noPetInGroup.Text:SetSize(245, 25)
+	self.noPetInGroup.Text:SetPoint("RIGHT", self.petGroup, -4, 0)
 	self.noPetInGroup.Text:SetText(L["NoPetInGroup"])
 	self.noPetInGroup:HookScript("OnClick", enableBtns)
 
-	-- COPY MOUNT TARGET
-	self.copyMountTarget = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
-	self.copyMountTarget:SetPoint("TOPLEFT", self.noPetInGroup, "BOTTOMLEFT", 0, -15)
-	self.copyMountTarget.Text:SetSize(245, 25)
-	self.copyMountTarget.Text:SetText(L["CopyMountTarget"])
-	self.copyMountTarget:HookScript("OnClick", enableBtns)
+	-- MOUNT LIST GROUP
+	self.mountListGroup = createGropPanel(self.rightPanelScroll.child, 2)
+	self.mountListGroup:SetPoint("TOPLEFT", self.petGroup, "BOTTOMLEFT", 0, -5)
 
 	-- ARROW BUTTONS
-	self.arrowButtons = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
-	self.arrowButtons:SetPoint("TOPLEFT", self.copyMountTarget, "BOTTOMLEFT", 0, -15)
-	self.arrowButtons.Text:SetSize(245, 25)
+	self.arrowButtons = CreateFrame("CheckButton", nil, self.mountListGroup, "MJCheckButtonTemplate")
+	self.arrowButtons:SetPoint("TOPLEFT", self.mountListGroup, 3, -3)
+	self.arrowButtons.Text:SetPoint("RIGHT", self.mountListGroup, -4, 0)
 	self.arrowButtons.Text:SetText(L["Enable arrow buttons to browse mounts"])
 	self.arrowButtons:HookScript("OnClick", enableBtns)
 
+	-- TYPE SELECTION BUTTONS
+	self.showTypeSelBtn = CreateFrame("CheckButton", nil, self.mountListGroup, "MJCheckButtonTemplate")
+	self.showTypeSelBtn:SetPoint("TOPLEFT", self.arrowButtons, "BOTTOMLEFT", 0, -3)
+	self.showTypeSelBtn.Text:SetPoint("RIGHT", self.mountListGroup, -4, 0)
+	self.showTypeSelBtn.Text:SetText(L["Show mount type selection buttons"])
+	self.showTypeSelBtn:HookScript("OnClick", enableBtns)
+
+		-- COPY MOUNT TARGET
+	self.copyMountTarget = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
+	self.copyMountTarget:SetPoint("TOPLEFT", self.showTypeSelBtn, "BOTTOMLEFT", 0, -15)
+	self.copyMountTarget.Text:SetPoint("RIGHT", self.rightPanelScroll)
+	self.copyMountTarget.Text:SetText(L["CopyMountTarget"])
+	self.copyMountTarget:HookScript("OnClick", enableBtns)
+
 	-- OPEN HYPERLINKS
 	self.openLinks = CreateFrame("CheckButton", nil, self.rightPanelScroll.child, "MJCheckButtonTemplate")
-	self.openLinks:SetPoint("TOPLEFT", self.arrowButtons, "BOTTOMLEFT", 0, -15)
+	self.openLinks:SetPoint("TOPLEFT", self.copyMountTarget, "BOTTOMLEFT", 0, -15)
 	self.openLinks.Text:SetSize(245, 25)
 	self.openLinks.Text:SetText(L["Open links in %s"]:format(addon))
 	self.openLinks.tooltipText = L["Open links in %s"]:format(addon)
@@ -518,8 +530,9 @@ config:SetScript("OnShow", function(self)
 		end
 		self.noPetInRaid:SetChecked(mounts.config.noPetInRaid)
 		self.noPetInGroup:SetChecked(mounts.config.noPetInGroup)
-		self.copyMountTarget:SetChecked(mounts.config.copyMountTarget)
 		self.arrowButtons:SetChecked(mounts.config.arrowButtonsBrowse)
+		self.showTypeSelBtn:SetChecked(mounts.config.showTypeSelBtn)
+		self.copyMountTarget:SetChecked(mounts.config.copyMountTarget)
 		self.openLinks:SetChecked(mounts.config.openHyperlinks)
 		self.showWowheadLink:SetChecked(mounts.config.showWowheadLink)
 		self.statisticCollection:SetChecked(mounts.config.statCollection)
@@ -554,8 +567,9 @@ config:SetScript("OnShow", function(self)
 		mounts.config.summonPetOnlyFavorites = self.summonPetOnlyFavorites:GetChecked()
 		mounts.config.noPetInRaid = self.noPetInRaid:GetChecked()
 		mounts.config.noPetInGroup = self.noPetInGroup:GetChecked()
-		mounts.config.copyMountTarget = self.copyMountTarget:GetChecked()
 		mounts.config.arrowButtonsBrowse = self.arrowButtons:GetChecked()
+		mounts.config.showTypeSelBtn = self.showTypeSelBtn:GetChecked()
+		mounts.config.copyMountTarget = self.copyMountTarget:GetChecked()
 		mounts.config.openHyperlinks = self.openLinks:GetChecked()
 		mounts.config.showWowheadLink = self.showWowheadLink:GetChecked()
 		mounts.config.statCollection = self.statisticCollection:GetChecked()
@@ -568,6 +582,7 @@ config:SetScript("OnShow", function(self)
 		mounts:setModifier(self.modifierCombobox:ddGetSelectedValue())
 		mounts:UPDATE_INVENTORY_DURABILITY()
 		ns.pets:setSummonEvery()
+		journal:setScrollGridMounts(mounts.config.gridToggle, true)
 		journal:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
 
 		local ldbi = LibStub("LibDBIcon-1.0")
