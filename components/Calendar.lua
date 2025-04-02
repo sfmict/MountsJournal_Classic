@@ -23,29 +23,29 @@ local CALENDAR_MONTH_NAMES = {
 
 
 function calendar:setBackup()
-	local backup = calendar.filterBackup
+	local backup = self.filterBackup
 	backup.calendarShowBattlegrounds = GetCVarBool("calendarShowBattlegrounds")
 	backup.calendarShowDarkmoon = GetCVarBool("calendarShowDarkmoon")
 	backup.calendarShowLockouts = GetCVarBool("calendarShowLockouts")
 	backup.calendarShowResets = GetCVarBool("calendarShowResets")
 	backup.calendarShowWeeklyHolidays = GetCVarBool("calendarShowWeeklyHolidays")
 
-	if backup.calendarShowBattlegrounds then SetCVar("calendarShowBattlegrounds", "0") end
-	if not backup.calendarShowDarkmoon then SetCVar("calendarShowDarkmoon", "1") end
-	if backup.calendarShowLockouts then SetCVar("calendarShowLockouts", "0") end
-	if backup.calendarShowResets then SetCVar("calendarShowResets", "0") end
-	if not backup.calendarShowWeeklyHolidays then SetCVar("calendarShowWeeklyHolidays", "1") end
-
 	self.dateBackup = C_Calendar.GetMonthInfo()
 	if CalendarFrame then
 		CalendarFrame:UnregisterEvent("CALENDAR_UPDATE_EVENT_LIST")
 		CalendarEventPickerFrame:UnregisterEvent("CALENDAR_UPDATE_EVENT_LIST")
 	end
+
+	if backup.calendarShowBattlegrounds then SetCVar("calendarShowBattlegrounds", "0") end
+	if not backup.calendarShowDarkmoon then SetCVar("calendarShowDarkmoon", "1") end
+	if backup.calendarShowLockouts then SetCVar("calendarShowLockouts", "0") end
+	if backup.calendarShowResets then SetCVar("calendarShowResets", "0") end
+	if not backup.calendarShowWeeklyHolidays then SetCVar("calendarShowWeeklyHolidays", "1") end
 end
 
 
 function calendar:restoreBackup()
-	local backup = calendar.filterBackup
+	local backup = self.filterBackup
 	if backup.calendarShowBattlegrounds then SetCVar("calendarShowBattlegrounds", "1") end
 	if not backup.calendarShowDarkmoon then SetCVar("calendarShowDarkmoon", "0") end
 	if backup.calendarShowLockouts then SetCVar("calendarShowLockouts", "1") end
@@ -104,17 +104,36 @@ function calendar:getHolidayList()
 	C_Calendar.SetAbsMonth(self.date.month, self.date.year)
 	local monthInfo = C_Calendar.GetMonthInfo()
 
+	-- CALENDAR_CALENDARTYPE_TCOORDS Blizzard_calendar.lua
+	local iconInfo = {
+		tCoordLeft = 0,
+		tCoordRight = .7109375,
+		tCoordTop = 0,
+		tCoordBottom = .7109375,
+	}
+
 	for day = 1, monthInfo.numDays do
-		local numEvents = C_Calendar.GetNumDayEvents(0, day)
-		for i = 1, numEvents do
+		for i = 1, C_Calendar.GetNumDayEvents(0, day) do
 			local e = C_Calendar.GetDayEvent(0, day, i)
-			if not addedIDs[e.eventID] then
-				holidays[#holidays + 1] = {
-					eventID = e.eventID,
-					name = e.title,
-					isActive = self.activeHolidays[e.eventID],
-				}
-				addedIDs[e.eventID] = true
+			if e.calendarType == "HOLIDAY" then
+				if not addedIDs[e.eventID] then
+					local eInfo = C_Calendar.GetHolidayInfo(0, day, i)
+					local data = {
+						eventID = e.eventID,
+						sequenceType = e.sequenceType,
+						icon = eInfo.texture,
+						iconInfo = iconInfo,
+						name = e.title,
+						st = e.startTime,
+						et = e.endTime,
+						description = eInfo.description,
+						isActive = self.activeHolidays[e.eventID],
+					}
+					holidays[#holidays + 1] = data
+					addedIDs[e.eventID] = data
+				elseif e.sequenceType and e.sequenceType ~= "ONGOING" and (not addedIDs[e.eventID].sequenceType or addedIDs[e.eventID].sequenceType == "ONGOING") then
+					addedIDs[e.eventID].icon = C_Calendar.GetHolidayInfo(0, day, i).texture
+				end
 			end
 		end
 	end
@@ -170,8 +189,7 @@ function calendar:updateTodayEvents()
 	self:setBackup()
 
 	C_Calendar.SetAbsMonth(date.month, date.year)
-	local numEvents = C_Calendar.GetNumDayEvents(0, date.monthDay)
-	for i = 1, numEvents do
+	for i = 1, C_Calendar.GetNumDayEvents(0, date.monthDay) do
 		local e = C_Calendar.GetDayEvent(0, date.monthDay, i)
 
 		if e.sequenceType == "START" then

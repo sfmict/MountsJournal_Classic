@@ -301,15 +301,28 @@ function conds.holiday:getValueList(value, cb, dd, notReset)
 		cb(btn)
 	end
 
+	local OnTooltipShow = function(btn, tooltip, _, description)
+		tooltip:AddLine(description, nil, nil, nil, true)
+		tooltip:AddDoubleLine("ID", btn.value, 1,1,1,1,1,1)
+	end
+
 	local eList = ns.calendar:getHolidayList()
 	for i = 1, #eList do
 		local e = eList[i]
+		local startDate = FormatShortDate(e.st.monthDay, e.st.month)
+		local endDate = FormatShortDate(e.et.monthDay, e.et.month)
 		subList[i] = {
-			text = ("%s |cff808080(ID:%d)|r"):format(e.isActive and ("%s (|cff00cc00%s|r)"):format(e.name, L["HOLIDAY_ACTIVE"]) or e.name, e.eventID),
+			icon = e.icon,
+			iconInfo = e.iconInfo,
+			text = e.isActive and ("%s (|cff00cc00%s|r)"):format(e.name, L["HOLIDAY_ACTIVE"]) or e.name,
+			rightText = ("|cff80b5fd%s - %s|r"):format(startDate, endDate),
+			rightFont = ns.util.codeFont,
 			arg1 = e.name,
+			arg2 = e.description,
 			value = e.eventID,
 			func = func,
 			checked = e.eventID == value,
+			OnTooltipShow = OnTooltipShow,
 		}
 	end
 
@@ -728,18 +741,16 @@ function conds.difficulty:getValueText(value)
 	local name, instanceType, _,_,_,_,_, isLFR, minPlayers, maxPlayers = GetDifficultyInfo(value)
 
 	if name then
-		local n = {name}
-
 		if instanceType == "raid" then
-			n[#n + 1] = LEGENDARY_ORANGE_COLOR:WrapTextInColorCode(RAID)
+			name = name.." | "..LEGENDARY_ORANGE_COLOR:WrapTextInColorCode(RAID)
 		elseif instanceType == "party" then
-			n[#n + 1] = EPIC_PURPLE_COLOR:WrapTextInColorCode(LFG_TYPE_DUNGEON)
+			name = name.." | "..EPIC_PURPLE_COLOR:WrapTextInColorCode(LFG_TYPE_DUNGEON)
 		end
 
-		if isLFR then n[#n + 1] = HEIRLOOM_BLUE_COLOR:WrapTextInColorCode(("%d - %d"):format(minPlayers, maxPlayers)) end
-		if IsLegacyDifficulty(value) then n[#n + 1] = ARTIFACT_GOLD_COLOR:WrapTextInColorCode(LFG_LIST_LEGACY) end
+		if isLFR then name = name.." | "..HEIRLOOM_BLUE_COLOR:WrapTextInColorCode(minPlayers.." - "..maxPlayers) end
+		if IsLegacyDifficulty(value) then name = name.." | "..ARTIFACT_GOLD_COLOR:WrapTextInColorCode(LFG_LIST_LEGACY) end
 
-		return table.concat(n, " | ")
+		return name
 	end
 end
 
@@ -878,8 +889,9 @@ function conds.mtrack:getValueList(value, func)
 		local v = trackingInfo.spellID and "spellID:"..trackingInfo.spellID or "texture:"..trackingInfo.texture
 
 		local info = {
-			text = ("%s |cff808080(%s)|r"):format(trackingInfo.name, v),
-			icon = trackingInfo.texture,
+			text = trackingInfo.name,
+			rightText = ("|cff808080%s|r"):format(v),
+			rightFont = ns.util.codeFont,
 			value = v,
 			func = func,
 			checked = v == value,
@@ -975,7 +987,9 @@ function conds.equips:getValueList(value, func)
 		local name, iconFileID = C_EquipmentSet.GetEquipmentSetInfo(setID)
 		local v = ("%d:%s"):format(setID, guid)
 		list[i] = {
-			text = ("%s |cff808080(ID:%d)|r"):format(name, setID),
+			text = name,
+			rightText = ("|cff808080ID:%d|r"):format(setID),
+			rightFont = ns.util.codeFont,
 			icon = iconFileID,
 			value = v,
 			func = func,
