@@ -238,49 +238,20 @@
 					<Anchor point="TOPLEFT" x="4" y="-60"/>
 				</Anchors>
 				<Frames>
-					<CheckButton parentKey="btnToggle" inherits="MJArrowToggle">
+					<Button parentKey="gridToggleButton" inherits="MJViewToggleTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" x="3" y="-3"/>
 						</Anchors>
-					</CheckButton>
-					<CheckButton parentKey="gridToggleButton" inherits="UIMenuButtonStretchTemplate" virtual="true">
-						<Size x="24" y="24"/>
+					</Button>
+					<CheckButton parentKey="btnToggle" inherits="MJArrowToggle">
 						<Anchors>
-							<Anchor point="LEFT" relativeKey="$parent.btnToggle" relativePoint="RIGHT" x="-2" y="0"/>
+							<Anchor point="LEFT" relativeKey="$parent.gridToggleButton" relativePoint="RIGHT" x="-2" y="0"/>
 						</Anchors>
-						<Layers>
-							<Layer level="ARTWORK">
-								<Texture parentKey="icon" file="Interface/AddOns/MountsJournal/textures/grid">
-									<Size x="10" y="8"/>
-									<Anchors>
-										<Anchor point="CENTER"/>
-									</Anchors>
-									<Color r=".74117647058824" g=".61960784313725" b=".062745098039216"/>
-								</Texture>
-							</Layer>
-						</Layers>
-						<HighlightTexture file="Interface/Buttons/UI-Common-MouseHilight" alpha=".75" alphaMode="ADD"/>
-						<Scripts>
-							<OnMouseDown>
-								if self:IsEnabled() then
-									self:SetTextures("Interface/Buttons/UI-Silver-Button-Down")
-									local point, _,_, x, y = self.icon:GetPoint(1)
-									self.icon:SetPoint(point, x - 1, y - 1)
-								end
-							</OnMouseDown>
-							<OnMouseUp>
-								if self:IsEnabled() then
-									self:SetTextures("Interface/Buttons/UI-Silver-Button-Up")
-									local point, _,_, x, y = self.icon:GetPoint(1)
-									self.icon:SetPoint(point, x + 1, y + 1)
-								end
-							</OnMouseUp>
-						</Scripts>
 					</CheckButton>
 					<EditBox parentKey="searchBox" inherits="SearchBoxTemplate" letters="40">
 						<Size x="131" y="20"/>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="54" y="-4"/>
+							<Anchor point="TOPRIGHT" x="-95" y="-5"/>
 						</Anchors>
 					</EditBox>
 					<Frame parentKey="filtersBar" inherits="BackdropTemplate">
@@ -305,11 +276,12 @@
 							</OnLoad>
 						</Scripts>
 					</Frame>
-					<Frame parentKey="shownPanel" useParentLevel="false" inherits="InsetFrameTemplate" hidden="true">
+					<Frame parentKey="shownPanel" useParentLevel="false" collapsesLayout="true" inherits="InsetFrameTemplate" hidden="true">
 						<Size y="26"/>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="0" y="-2"/>
-							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="-2"/>
+							<Anchor point="TOP" relativePoint="BOTTOM" y="-2"/>
+							<Anchor point="LEFT" relativeKey="$parent.$parent" x="4"/>
+							<Anchor point="RIGHT"/>
 						</Anchors>
 						<Layers>
 							<Layer level="ARTWORK">
@@ -355,12 +327,37 @@
 				</Frames>
 			</Frame>
 
+			<Frame parentKey="gridModelSettings">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="30" y="-60"/>
+					<Anchor point="RIGHT" relativeKey="$parent.filtersPanel.searchBox" relativePoint="LEFT" x="-6"/>
+				</Anchors>
+				<Frames>
+					<Frame parentKey="strideSlider" inherits="MJSliderFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="4" y="5"/>
+							<Anchor point="RIGHT" x="-160"/>
+						</Anchors>
+					</Frame>
+				</Frames>
+			</Frame>
+
 			<Frame parentKey="leftInset" useParentLevel="true" inherits="InsetFrameTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.filtersPanel" relativePoint="BOTTOMLEFT" x="0" y="-2"/>
-					<Anchor point="TOPRIGHT" relativeKey="$parent.filtersPanel" relativePoint="BOTTOMRIGHT" x="-17" y="-2"/>
-					<Anchor point="BOTTOMLEFT" y="26"/>
+					<Anchor point="TOP" relativeKey="$parent.filtersPanel.shownPanel" relativePoint="BOTTOM" y="-2"/>
+					<Anchor point="RIGHT" relativeKey="$parent.filtersPanel" x="-17"/>
+					<Anchor point="LEFT" x="4"/>
+					<Anchor point="BOTTOM" y="26"/>
 				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString parentKey="mountSpeed" inherits="GameFontNormal" justifyH="RIGHT" hidden="true">
+							<Anchors>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent" x="-38" y="9"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
 				<Frames>
 					<Frame parentKey="scrollBox" inherits="WowScrollBoxList">
 						<Anchors>
@@ -374,7 +371,7 @@
 							<Anchor point="BOTTOMLEFT" relativeKey="$parent.scrollBox" relativePoint="BOTTOMRIGHT" x="8" y="-1"/>
 						</Anchors>
 					</EventFrame>
-					<Frame parentKey="updateAnimFrame" alpha="0" setAllPoints="true" useParentLevel="true" virtual="true">
+					<Frame parentKey="updateAnimFrame" alpha="0" setAllPoints="true" useParentLevel="true">
 						<Layers>
 							<Layer level="BACKGROUND">
 								<Texture setAllPoints="true">
@@ -393,15 +390,6 @@
 			</Frame>
 
 			<Frame parentKey="rightInset" useParentLevel="true" inherits="InsetFrameTemplate">
-				<Layers>
-					<Layer level="BACKGROUND">
-						<FontString parentKey="mountSpeed" inherits="GameFontNormal" justifyH="RIGHT" hidden="true">
-							<Anchors>
-								<Anchor point="BOTTOMRIGHT" x="-36" y="-18"/>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.filtersPanel" relativePoint="TOPRIGHT" x="1" y="0"/>
 					<Anchor point="RIGHT" x="-4"/>
@@ -519,53 +507,13 @@
 									</OnLeave>
 								</Scripts>
 							</Button>
-							<Button parentKey="petSelectionBtn" mixin="MJSetPetMixin">
-								<Size x="38" y="38"/>
+							<Button parentKey="petSelectionBtn" inherits="MJPetSelectionBtnTemplate" mixin="MJSetPetMixin">
 								<Anchors>
 									<Anchor point="LEFT" relativeKey="$parent.name" relativePoint="RIGHT" x="12"/>
 								</Anchors>
-								<Layers>
-									<Layer level="BACKGROUND">
-										<Texture parentKey="bg" file="Interface/PaperDoll/UI-Backpack-EmptySlot">
-											<Size x="36" y="36"/>
-											<Anchors>
-												<Anchor point="CENTER"/>
-											</Anchors>
-										</Texture>
-									</Layer>
-									<Layer level="BORDER">
-										<Texture parentKey="border" file="Interface/Buttons/UI-Quickslot2">
-											<Size x="65" y="65"/>
-											<Anchors>
-												<Anchor point="CENTER"/>
-											</Anchors>
-										</Texture>
-									</Layer>
-									<Layer level="ARTWORK">
-										<Texture file="Interface/Buttons/SquareButtonTextures" parentKey="arrow">
-											<Size x="12" y="12"/>
-											<Anchors>
-												<Anchor point="LEFT" relativePoint="RIGHT" x="-3"/>
-											</Anchors>
-											<TexCoords left=".421875" right=".234375" top=".015625" bottom=".203125"/>
-										</Texture>
-									</Layer>
-									<Layer level="OVERLAY" textureSubLevel="1">
-										<Texture parentKey="highlight" file="Interface/Buttons/ButtonHilight-Square" alphaMode="ADD" setAllPoints="true" hidden="true"/>
-									</Layer>
-								</Layers>
-								<Frames>
-									<Frame inherits="MJPetInfo" parentKey="infoFrame" useParentLevel="true">
-										<Anchors>
-											<Anchor point="CENTER"/>
-										</Anchors>
-									</Frame>
-								</Frames>
 								<Scripts>
-									<OnLoad method="onLoad"/>
-									<OnClick method="onClick"/>
-									<OnShow method="onShow"/>
 									<OnEvent method="onEvent"/>
+									<OnShow method="onShow"/>
 								</Scripts>
 							</Button>
 							<Button parentKey="modelSceneSettingsButton" alpha=".5">
@@ -616,6 +564,51 @@
 							<Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
 						</Anchors>
 						<Frames>
+							<Button parentKey="multipleMountBtn" alpha="0">
+								<Size x="34" y="34"/>
+								<Anchors>
+									<Anchor point="BOTTOMLEFT" x="13" y="5.5"/>
+								</Anchors>
+								<Layers>
+									<Layer level="ARTWORK">
+										<Texture parentKey="icon" file="Interface/ICONS/INV_Jewelcrafting_DragonsEye02">
+											<Size x="45" y="45"/>
+											<Anchors>
+												<Anchor point="CENTER"/>
+											</Anchors>
+											<Color r=".8" g=".8" b=".8"/>
+										</Texture>
+										<MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+											<Size x="34" y="34"/>
+											<Anchors>
+												<Anchor point="CENTER"/>
+											</Anchors>
+											<MaskedTextures>
+												<MaskedTexture childKey="icon"/>
+											</MaskedTextures>
+										</MaskTexture>
+									</Layer>
+								</Layers>
+								<Scripts>
+									<OnEnter>
+										local parent = self:GetParent()
+										parent:GetScript("OnEnter")(parent)
+										self:SetAlpha(1)
+									</OnEnter>
+									<OnLeave>
+										local parent = self:GetParent()
+										parent:GetScript("OnLeave")(parent)
+									</OnLeave>
+									<OnMouseDown>
+										self.icon:SetPoint("CENTER", 1, -1)
+										self.mask:SetPoint("CENTER", 1, -1)
+									</OnMouseDown>
+									<OnMouseUp>
+										self.icon:SetPoint("CENTER")
+										self.mask:SetPoint("CENTER")
+									</OnMouseUp>
+								</Scripts>
+							</Button>
 							<Frame parentKey="modelControl" alpha="0">
 								<Anchors>
 									<Anchor point="BOTTOM" x="-72" y="10"/>
@@ -1081,6 +1074,52 @@
 		</Frames>
 	</Frame>
 
+	<Button name="MJPetSelectionBtnTemplate" propagateMouseInput="Motion" virtual="true">
+		<Size x="38" y="38"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="bg" file="Interface/PaperDoll/UI-Backpack-EmptySlot">
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="border" file="Interface/Buttons/UI-Quickslot2">
+					<Size x="65" y="65"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture file="Interface/Buttons/SquareButtonTextures" parentKey="arrow">
+					<Size x="12" y="12"/>
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="-3"/>
+					</Anchors>
+					<TexCoords left=".421875" right=".234375" top=".015625" bottom=".203125"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="highlight" file="Interface/Buttons/ButtonHilight-Square" alphaMode="ADD" setAllPoints="true" hidden="true"/>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame inherits="MJPetInfo" parentKey="infoFrame" useParentLevel="true">
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnEnter method="onEnter"/>
+			<OnLeave method="onLeave"/>
+			<OnClick method="onClick"/>
+		</Scripts>
+	</Button>
+
 	<Frame name="MJOptionBackgroundTemplate" inherits="InsetFrameTemplate" virtual="true">
 		<Layers>
 			<Layer level="BACKGROUND">
@@ -1311,6 +1350,36 @@
 		</Scripts>
 	</Button>
 
+	<Button name="MJViewToggleTemplate" inherits="UIMenuButtonStretchTemplate" virtual="true">
+		<Size x="24" y="24"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="icon" file="Interface/AddOns/MountsJournal/textures/grid">
+					<Size x="10" y="8"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<Color r=".74117647058824" g=".61960784313725" b=".062745098039216"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<HighlightTexture file="Interface/Buttons/UI-Common-MouseHilight" alpha=".75" alphaMode="ADD"/>
+		<Scripts>
+			<OnMouseDown>
+				if self:IsEnabled() then
+					self:SetTextures("Interface/Buttons/UI-Silver-Button-Down")
+					self.icon:AdjustPointsOffset(-1, -1)
+				end
+			</OnMouseDown>
+			<OnMouseUp>
+				if self:IsEnabled() then
+					self:SetTextures("Interface/Buttons/UI-Silver-Button-Up")
+					self.icon:AdjustPointsOffset(1, 1)
+				end
+			</OnMouseUp>
+		</Scripts>
+	</Button>
+
 	<Button name="MJClearButtonTemplate" virtual="true">
 		<Size x="18" y="18"/>
 		<HitRectInsets>
@@ -1433,7 +1502,6 @@
 	</CheckButton>
 
 	<Button name="MJMountDefaultListButtonTemplate" virtual="true">
-		<Size x="184" y="40"/>
 		<Anchors>
 			<Anchor point="LEFT" relativeKey="$parent.dragButton" relativePoint="RIGHT" x="0" y="0"/>
 		</Anchors>
@@ -1537,6 +1605,7 @@
 	</Button>
 
 	<Button name="MJMountDefaultListButton" inherits="MJMountDefaultListButtonTemplate" virtual="true">
+		<Size x="214" y="40"/>
 		<Layers>
 			<Layer level="OVERLAY">
 				<Texture parentKey="toggle1" parentArray="toggle">
@@ -1562,6 +1631,7 @@
 	</Button>
 
 	<Button name="MJMountDefaultListButtonWithTypeBtns" inherits="MJMountDefaultListButtonTemplate" virtual="true">
+		<Size x="188" y="40"/>
 		<Frames>
 			<CheckButton parentKey="fly" inherits="MJSetFlyToggleTemplate">
 				<Anchors>
@@ -1658,32 +1728,6 @@
 		</Layers>
 	</Button>
 
-	<Frame name="MJMountGridListButtonDef" virtual="true">
-		<Size x="248" y="44"/>
-		<Frames>
-			<Button parentArray="mounts" inherits="MjGridMountButtonDefTemplate">
-				<Anchors>
-					<Anchor point="LEFT" x="0" y="0"/>
-				</Anchors>
-			</Button>
-			<Button parentArray="mounts" inherits="MjGridMountButtonDefTemplate">
-				<Anchors>
-					<Anchor point="LEFT" x="64" y="0"/>
-				</Anchors>
-			</Button>
-			<Button parentArray="mounts" inherits="MjGridMountButtonDefTemplate">
-				<Anchors>
-					<Anchor point="LEFT" x="126" y="0"/>
-				</Anchors>
-			</Button>
-			<Button parentArray="mounts" inherits="MjGridMountButtonDefTemplate">
-				<Anchors>
-					<Anchor point="LEFT" x="188" y="0"/>
-				</Anchors>
-			</Button>
-		</Frames>
-	</Frame>
-
 	<Button name="MjGridMountButtonWithTypeBtnsTemplate" inherits="MJGridMountButtonTemplate" virtual="true">
 		<Frames>
 			<CheckButton parentKey="fly" inherits="MJSetFlyToggleTemplate">
@@ -1704,26 +1748,90 @@
 		</Frames>
 	</Button>
 
-	<Frame name="MJMountGridListButtonWithTypeBtns" virtual="true">
-		<Size x="249" y="44"/>
+	<Button name="MJGridModelSceneTemplate" propagateMouseInput="Clicks" inherits="BackdropTemplate" virtual="true">
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture parentKey="factionIcon">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="3" y="3"/>
+					</Anchors>
+					<Size x="38" y="38"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="name" inherits="GameFontNormal" justifyH="LEFT" justifyV="MIDDLE" maxLines="2">
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="TOPLEFT" x="44" y="-17"/>
+						<Anchor point="RIGHT" x="-36"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
 		<Frames>
-			<Button parentArray="mounts" inherits="MjGridMountButtonWithTypeBtnsTemplate">
+			<Button parentKey="dragButton" propagateMouseInput="Motion" inherits="MJGridMountButtonTemplate">
+				<Size x="38" y="38"/>
 				<Anchors>
-					<Anchor point="LEFT" x="14" y="0"/>
+					<Anchor point="TOPLEFT" x="4" y="-4"/>
 				</Anchors>
 			</Button>
-			<Button parentArray="mounts" inherits="MjGridMountButtonWithTypeBtnsTemplate">
+			<Button parentKey="petSelectionBtn" scale=".7" inherits="MJPetSelectionBtnTemplate" mixin="MJSetPetToModelMixin">
 				<Anchors>
-					<Anchor point="LEFT" x="93" y="0"/>
+					<Anchor point="TOPRIGHT" x="-12" y="-7"/>
 				</Anchors>
 			</Button>
-			<Button parentArray="mounts" inherits="MjGridMountButtonWithTypeBtnsTemplate">
+			<ModelScene parentKey="modelScene" inherits="WrappedAndUnwrappedModelScene">
 				<Anchors>
-					<Anchor point="LEFT" x="172" y="0"/>
+					<Anchor point="TOPLEFT" x="4" y="-4"/>
+					<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
 				</Anchors>
-			</Button>
+			</ModelScene>
 		</Frames>
-	</Frame>
+	</Button>
+
+	<Button name="MJGridModelSceneDefTemplate" inherits="MJGridModelSceneTemplate" virtual="true">
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="toggle1" parentArray="toggle">
+					<Size x="20" y="10"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="4" y="-44"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="toggle2" parentArray="toggle">
+					<Size x="20" y="10"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.toggle1" relativePoint="BOTTOM" y="-1"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="toggle3" parentArray="toggle">
+					<Size x="20" y="10"/>
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.toggle2" relativePoint="BOTTOM" y="-1"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="MJGridModelSceneWithTypeBtnsTemplate" inherits="MJGridModelSceneTemplate" virtual="true">
+		<Frames>
+			<CheckButton parentKey="fly" inherits="MJSetFlyToggleTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="6" y="-44"/>
+				</Anchors>
+			</CheckButton>
+			<CheckButton parentKey="ground" inherits="MJSetGroundToggleTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.fly" relativePoint="BOTTOM" y="-2"/>
+				</Anchors>
+			</CheckButton>
+			<CheckButton parentKey="swimming" inherits="MJSetSwimmingToggleTemplate">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.ground" relativePoint="BOTTOM" y="-2"/>
+				</Anchors>
+			</CheckButton>
+		</Frames>
+	</Button>
 
 	<Frame name="MJOptionsPanel" inherits="BackdropTemplate" virtual="true">
 		<Scripts>
@@ -2703,7 +2811,24 @@
 			<Layer level="ARTWORK">
 				<Texture parentKey="icon" setAllPoints="true"/>
 			</Layer>
+			<Layer level="ARTWORK" textureSubLevel="1">
+				<Texture parentKey="qualityBorder" setAllPoints="true" file="Interface/Common/WhiteIconFrame"/>
+			</Layer>
 			<Layer level="OVERLAY">
+				<Texture parentKey="isDead" file="Interface/PetBattles/DeadPetIcon" hidden="true" setAllPoints="true"/>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture parentKey="levelBG" atlas="PetJournal-LevelBubble" useAtlasSize="true" hidden="true">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="5" y="-6"/>
+					</Anchors>
+				</Texture>
+				<FontString inherits="GameFontNormalSmall" parentKey="level" justifyH="CENTER" hidden="true">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.levelBG" x="1" y="-1"/>
+					</Anchors>
+				</FontString>
 				<Texture atlas="PetJournal-FavoritesIcon" parentKey="favorite" hidden="true">
 					<Size x="20" y="20"/>
 					<Anchors>
@@ -2715,7 +2840,7 @@
 	</Frame>
 
 	<Button name="MJPetListButton" motionScriptsWhileDisabled="true" virtual="true">
-		<Size x="214" y="41"/>
+		<Size x="216" y="41"/>
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture parentKey="background" file="Interface/AddOns/MountsJournal/textures/ListButtons">
@@ -2736,11 +2861,18 @@
 				</Texture>
 			</Layer>
 			<Layer level="ARTWORK">
-				<FontString inherits="GameFontNormal" justifyH="LEFT" parentKey="name">
-					<Size x="147" y="25"/>
+				<FontString parentKey="name" justifyH="LEFT" inherits="GameFontNormal">
 					<Anchors>
-						<Anchor point="TOPLEFT" relativeKey="$parent.background" x="5" y="-8"/>
+						<Anchor point="LEFT" relativeKey="$parent.background" x="5"/>
+						<Anchor point="RIGHT" relativeKey="$parent.background" x="-20"/>
 					</Anchors>
+				</FontString>
+				<FontString inherits="GameFontNormalSmall" justifyH="LEFT" maxLines="1" parentKey="subName">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.name" relativePoint="BOTTOMLEFT"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent.name" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<Color r="1" g="1" b="1" a="1"/>
 				</FontString>
 			</Layer>
 			<Layer level="OVERLAY">
@@ -2783,13 +2915,18 @@
 				if button == "LeftButton" then
 					frame:selectButtonClick(self.id)
 				elseif button == "RightButton" then
-					frame:showCompanionOptionsMenu(self)
+					frame:showCompanionOptionsMenu(self, self, 37)
 				end
 			</OnClick>
 			<OnEnter>
 				if self.displayID and self.speciesID then
 					GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 					GameTooltip:SetText(self.name:GetText(), 1, 1, 1)
+					GameTooltip:AddLine(self.sourceText, 1, 1, 1, true)
+					if self.description and self.description ~= "" then
+						GameTooltip:AddLine(" ")
+						GameTooltip:AddLine(self.description, nil, nil, nil, true)
+					end
 					GameTooltip:Show()
 
 					local cardModelSceneID, loadoutModelSceneID = C_PetJournal.GetPetModelSceneInfoBySpeciesID(self.speciesID)
@@ -2813,10 +2950,120 @@
 		</Scripts>
 	</Button>
 
+	<Button name="MJPetListModelButton" inherits="BackdropTemplate" virtual="true">
+		<Size x="108" y="108"/>
+		<Frames>
+			<ModelScene parentKey="modelScene" useParentLevel="true" inherits="NonInteractableModelSceneMixinTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="4" y="-4"/>
+					<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+				</Anchors>
+			</ModelScene>
+		</Frames>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture parentKey="petTypeIcon" alpha=".2">
+					<Size x="112" y="112"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="-1" y="-1"/>
+					</Anchors>
+					<TexCoords left="0" right=".875" top="0" bottom=".4375"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="favorite" atlas="PetJournal-FavoritesIcon">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="1" y="-2"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="isDead" file="Interface/PetBattles/DeadPetIcon">
+					<Size x="38" y="38"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="name" justifyH="LEFT" justifyV="TOP" maxLines="1" inherits="GameFontNormal">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="21" y="-6"/>
+						<Anchor point="TOPRIGHT" x="-4" y="-6"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="subName" justifyH="LEFT" justifyV="TOP" maxLines="1" inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.name" relativePoint="BOTTOMLEFT"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent.name" relativePoint="BOTTOMRIGHT"/>
+					</Anchors>
+					<Color r="1" g="1" b="1" a="1"/>
+				</FontString>
+				<Texture parentKey="levelBG" atlas="PetJournal-LevelBubble" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="5" y="5"/>
+					</Anchors>
+				</Texture>
+				<FontString inherits="GameFontNormalSmall" parentKey="level" justifyH="CENTER">
+					<Size x="0" y="0"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.levelBG" x="1" y="-1"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+				self:SetBackdrop(MountsJournalUtil.modelScenebackdrop)
+				self:SetBackdropColor(.1, .1, .1, .9)
+			</OnLoad>
+			<OnClick>
+				local frame = self:GetParent()
+				while not frame.selectButtonClick do
+					frame = frame:GetParent()
+				end
+				if button == "LeftButton" then
+					frame:selectButtonClick(self.id)
+				elseif button == "RightButton" then
+					frame:showCompanionOptionsMenu(self, "cursor", 0)
+				end
+			</OnClick>
+			<OnEnter>
+				self:SetBackdropBorderColor(.6, .6, .6)
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+				GameTooltip:SetText(self.subName:IsShown() and self.subName:GetText() or self.name:GetText(), 1, 1, 1)
+				GameTooltip:AddLine(self.sourceText, 1, 1, 1, true)
+				if self.description and self.description ~= "" then
+					GameTooltip:AddLine(" ")
+					GameTooltip:AddLine(self.description, nil, nil, nil, true)
+				end
+				GameTooltip:Show()
+
+				MJTooltipModel.model:SetFromModelSceneID(self.sceneID)
+				local battlePetActor = MJTooltipModel.model:GetActorByTag("pet")
+				if battlePetActor then
+					battlePetActor:SetModelByCreatureDisplayID(self.displayID)
+					battlePetActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
+
+					MJTooltipModel:ClearAllPoints()
+					MJTooltipModel:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 0, 2)
+					MJTooltipModel:Show()
+				end
+			</OnEnter>
+			<OnLeave>
+				if self.selected then
+					self:SetBackdropBorderColor(.8, .6, 0)
+				else
+					self:SetBackdropBorderColor(.3, .3, .3)
+				end
+				GameTooltip:Hide()
+				MJTooltipModel:Hide()
+			</OnLeave>
+		</Scripts>
+	</Button>
+
 	<Frame name="MJCompanionsPanel" inherits="MJDarkPanelTemplate" mixin="MJCompanionsPanelMixin" enableMouse="true" hidden="true" virtual="true">
 		<Frames>
 			<Frame parentKey="controlPanel" useParentLevel="false" inherits="InsetFrameTemplate">
-				<Size y="26"/>
+				<Size y="27"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" x="2" y="-5"/>
 					<Anchor point="TOPRIGHT" x="-2" y="-5"/>
@@ -2833,11 +3080,16 @@
 					</OnClick>
 				</Scripts>
 			</Button>
+			<Button parentKey="viewToggle" inherits="MJViewToggleTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.controlPanel" x="2" y="-2"/>
+				</Anchors>
+			</Button>
 			<EditBox inherits="SearchBoxTemplate" parentKey="searchBox" letters="40">
 				<Size y="20"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.controlPanel" x="9" y="-3"/>
-					<Anchor point="TOPRIGHT" relativeKey="$parent.closeButton" relativePoint="TOPLEFT" x="4"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.viewToggle" relativePoint="TOPRIGHT" x="5" y="-2"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.closeButton" relativePoint="TOPLEFT" x="-1"/>
 				</Anchors>
 			</EditBox>
 			<Frame parentKey="controlButtons" useParentLevel="false" inherits="InsetFrameTemplate">
@@ -2848,27 +3100,27 @@
 				</Anchors>
 			</Frame>
 			<Button parentKey="randomFavoritePet" inherits="MJPetListButton">
-				<Size x="233" y="41"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.controlButtons" x="3" y="-3"/>
+					<Anchor point="RIGHT" relativeKey="$parent.controlButtons" x="-3"/>
 				</Anchors>
 				<KeyValues>
 					<KeyValue key="id" value="1" type="number"/>
 				</KeyValues>
 			</Button>
 			<Button parentKey="randomPet" inherits="MJPetListButton">
-				<Size x="233" y="41"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.randomFavoritePet" relativePoint="BOTTOMLEFT"/>
+					<Anchor point="RIGHT" relativeKey="$parent.controlButtons" x="-3"/>
 				</Anchors>
 				<KeyValues>
 					<KeyValue key="id" value="2" type="number"/>
 				</KeyValues>
 			</Button>
 			<Button parentKey="noPet" inherits="MJPetListButton">
-				<Size x="233" y="41"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.randomPet" relativePoint="BOTTOMLEFT"/>
+					<Anchor point="RIGHT" relativeKey="$parent.controlButtons" x="-3"/>
 				</Anchors>
 			</Button>
 			<Frame parentKey="petListFrame" useParentLevel="false" inherits="InsetFrameTemplate">

@@ -1,5 +1,4 @@
 local addon, ns = ...
-local mounts = ns.mounts
 
 
 local function compareVersion(v1, v2)
@@ -142,13 +141,49 @@ local function updateGlobal(self)
 		if self.defFilters.family then wipe(self.defFilters.family) end
 	end
 
-	-- IF < 11.0.25 GLOBAL
+	-- IF < 4.4.22 GLOBAL
 	if compareVersion("4.4.22", self.globalDB.lastAddonVersion) then
 		if self.globalDB.ruleConfig then
 			for i, rules in ipairs(self.globalDB.ruleConfig) do
 				self.globalDB.ruleSets[1][i] = rules
 			end
 			self.globalDB.ruleConfig = nil
+		end
+	end
+
+	-- IF < 5.5.0 GLOBAL
+	if compareVersion("5.5.0", self.globalDB.lastAddonVersion) then
+		local spells = {}
+		for i, mountID in ipairs(C_MountJournal.GetMountIDs()) do
+			local _, spellID = C_MountJournal.GetMountInfoByID(mountID)
+			spells[spellID] = true
+		end
+
+		local function checkSpells(tbl)
+			for spellID in next, tbl do
+				if not (spells[spellID] or ns.additionalMounts[spellID]) then
+					tbl[spellID] = nil
+				end
+			end
+		end
+
+		local function profileUpdate(profile)
+			checkSpells(profile.fly)
+			checkSpells(profile.ground)
+			checkSpells(profile.swimming)
+			checkSpells(profile.mountsWeight)
+			checkSpells(profile.petForMount)
+
+			for map, v in pairs(profile.zoneMounts) do
+				checkSpells(v.fly)
+				checkSpells(v.ground)
+				checkSpells(v.swimming)
+			end
+		end
+
+		profileUpdate(self.defProfile)
+		for name, profile in next, self.profiles do
+			profileUpdate(profile)
 		end
 	end
 end
@@ -215,16 +250,16 @@ local function updateChar(self)
 end
 
 
-function mounts:setOldChanges()
+function ns.mounts:setOldChanges()
 	self.setOldChanges = nil
 
 	local currentVersion = C_AddOns.GetAddOnMetadata(addon, "Version")
 	--@do-not-package@
-	if currentVersion == "@project-version@" then currentVersion = "v4.4.22" end
+	if currentVersion == "@project-version@" then currentVersion = "v5.5.0" end
 	--@end-do-not-package@
 
-	if not self.charDB.lastAddonVersion then self.charDB.lastAddonVersion = "v4.4.15" end
-	if not self.globalDB.lastAddonVersion then self.globalDB.lastAddonVersion = "v4.4.15" end
+	if not self.charDB.lastAddonVersion then self.charDB.lastAddonVersion = currentVersion end
+	if not self.globalDB.lastAddonVersion then self.globalDB.lastAddonVersion = currentVersion end
 
 	if compareVersion(currentVersion, self.charDB.lastAddonVersion) then
 		updateChar(self)
@@ -233,5 +268,10 @@ function mounts:setOldChanges()
 	if compareVersion(currentVersion, self.globalDB.lastAddonVersion) then
 		updateGlobal(self)
 		self.globalDB.lastAddonVersion = currentVersion
+	end
+
+	-- need to remove
+	if type(self.config.gridToggle) == "boolean" then
+		self.config.gridToggle = self.config.gridToggle and 2 or 1
 	end
 end

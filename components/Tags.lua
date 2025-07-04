@@ -119,9 +119,9 @@ end
 
 do
 	local lastMountClick = 0
-	function tags:listItemClick(btn, mouseBtn)
+	function tags:listItemClick(btn, anchorTo, mouseBtn)
 		if mouseBtn ~= "LeftButton" then
-			self:showMountDropdown(btn, btn, 0, 0)
+			self:showMountDropdown(btn, anchorTo, 0, 0)
 		elseif IsModifiedClick("CHATLINK") then
 			local spellID = btn.spellID
 			if MacroFrame and MacroFrame:IsShown() then
@@ -422,17 +422,16 @@ function tags:mountOptionsMenu_Init(btn, level, value)
 				return b[1] == "Others" or a[1] ~= "Others" and strcmputf8i(a[2], b[2]) < 0
 			end)
 
-			local func = function(button, _,_, checked)
+			info.func = function(button, _,_, checked)
 				setFamilyID(button.value, checked)
 				btn:ddRefresh(level - 1)
 			end
+			info.checked = check
 
 			for i, name in ipairs(sortedNames) do
 				info.text = name[2]
 				info.icon = ns.familyDBIcons[value][name[1]]
 				info.value = familyDB[value][name[1]]
-				info.func = func
-				info.checked = check
 				btn:ddAddButton(info, level)
 			end
 		end

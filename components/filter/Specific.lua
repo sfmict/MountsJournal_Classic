@@ -60,6 +60,11 @@ function journal.filters.specific(dd, level)
 	info.value = "transform"
 	dd:ddAddButton(info, level)
 
+	info.text = L["Multiple Models"]
+	info.icon = 237185
+	info.value = "multipleModels"
+	dd:ddAddButton(info, level)
+
 	info.text = L["additional"]
 	info.icon = ns.familyDBIcons.additional[0]
 	info.value = "additional"
