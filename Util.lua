@@ -118,6 +118,7 @@ util.mountTypes = setmetatable({
 	[242] = 1,
 	[247] = 1,
 	[248] = 1,
+	[263] = 1,
 	[225] = 2,
 	[230] = 2,
 	[241] = 2,
@@ -148,6 +149,17 @@ util.optionsPanelBackdrop = {
 	tileSize = 14,
 	edgeSize = 14,
 	insets = {left = 4, right = 4, top = 4, bottom = 4}
+}
+
+
+util.modelScenebackdrop = {
+	bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+	edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+	tile = true,
+	tileEdge = true,
+	tileSize = 14,
+	edgeSize = 14,
+	insets = {left = 3, right = 3, top = 3, bottom = 3}
 }
 
 

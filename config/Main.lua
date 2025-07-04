@@ -573,7 +573,7 @@ config:SetScript("OnShow", function(self)
 		mounts:setModifier(self.modifierCombobox:ddGetSelectedValue())
 		mounts:UPDATE_INVENTORY_DURABILITY()
 		ns.pets:setSummonEvery()
-		journal:setScrollGridMounts(mounts.config.gridToggle, true)
+		journal:setScrollGridMounts(true)
 		journal:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
 
 		local ldbi = LibStub("LibDBIcon-1.0")

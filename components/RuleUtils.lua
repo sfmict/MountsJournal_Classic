@@ -1,6 +1,6 @@
 local _, ns = ...
 local macroFrame, util = ns.macroFrame, ns.util
-local next, ipairs, C_Spell, C_Item, GetRealZoneText, GetSubZoneText, GetZoneText, GetMinimapZoneText, C_Transmog, C_TransmogCollection, C_Minimap, C_EquipmentSet, GetPlayerInfoByGUID = next, ipairs, C_Spell, C_Item, GetRealZoneText, GetSubZoneText, GetZoneText, GetMinimapZoneText, C_Transmog, C_TransmogCollection, C_Minimap, C_EquipmentSet, GetPlayerInfoByGUID
+local next, ipairs, C_Spell, C_Item, GetRealZoneText, GetSubZoneText, GetZoneText, GetMinimapZoneText, C_Transmog, C_TransmogCollection, C_Minimap, C_EquipmentSet, GetPlayerInfoByGUID, GetNumGroupMembers, GetNumSubgroupMembers, UnitGUID, UnitIsConnected, C_BattleNet = next, ipairs, C_Spell, C_Item, GetRealZoneText, GetSubZoneText, GetZoneText, GetMinimapZoneText, C_Transmog, C_TransmogCollection, C_Minimap, C_EquipmentSet, GetPlayerInfoByGUID, GetNumGroupMembers, GetNumSubgroupMembers, UnitGUID, UnitIsConnected, C_BattleNet
 
 
 function macroFrame:isSpellReady(spellID)
@@ -30,6 +30,7 @@ function macroFrame:checkMap(mapID)
 	for i = 1, #mapList do
 		if mapList[i] == mapID then return true end
 	end
+	return false
 end
 
 
@@ -75,6 +76,7 @@ function macroFrame:checkTracking(key, value)
 			return trackingInfo.active
 		end
 	end
+	return false
 end
 
 
@@ -144,6 +146,7 @@ function macroFrame:isMapFlagActive(flag, profileName)
 			if list and list.flags.enableFlags then return list.flags[flag] end
 		end
 	end
+	return false
 end
 
 
@@ -152,5 +155,54 @@ function macroFrame:isItemEquipped(item)
 	or C_Item.IsEquippedItemType(item)
 	then
 		return true
+	end
+	return false
+end
+
+
+function macroFrame:isUnitInGroup(guid, isRaid)
+	local unit
+	if isRaid then
+		for i = 1, GetNumGroupMembers() do
+			unit = "raid"..i
+			if guid == UnitGUID(unit) then return UnitIsConnected(unit) end
+		end
+	else
+		for i = 1, GetNumSubgroupMembers() do
+			unit = "party"..i
+			if guid == UnitGUID(unit) then return UnitIsConnected(unit) end
+		end
+	end
+	return false
+end
+
+
+do
+	local function checkApps(self, i, isRaid)
+		for j = 1, C_BattleNet.GetFriendNumGameAccounts(i) do
+			local gameAccountInfo = C_BattleNet.GetFriendGameAccountInfo(i, j)
+			if gameAccountInfo.clientProgram == "WoW" and self:isUnitInGroup(gameAccountInfo.playerGuid, isRaid) then
+				return true
+			end
+		end
+		return false
+	end
+
+	function macroFrame:isFriendInGroup(btag, isRaid)
+		if not IsInGroup() then return end
+		local _, numOline, fNum, fNumOline = BNGetNumFriends()
+		for i = 1, fNumOline do
+			local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+			if accountInfo.battleTag == btag then
+				return checkApps(self, i, isRaid)
+			end
+		end
+		for i = fNum + 1, fNum + numOline - fNumOline do
+			local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+			if accountInfo.battleTag == btag then
+				return checkApps(self, i, isRaid)
+			end
+		end
+		return false
 	end
 end

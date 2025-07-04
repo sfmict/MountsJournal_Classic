@@ -179,9 +179,17 @@ function conds.class:getValueList(value, func)
 	local list = {}
 
 	for i = 1, GetNumClasses() do
-		local _,_, id = GetClassInfo(i)
+		local _, className, id = GetClassInfo(i)
+		local t = CLASS_ICON_TCOORDS[className]
 		list[i] = {
 			text = self:getValueText(id),
+			icon = "Interface/Glues/CharacterCreate/UI-CharacterCreate-Classes",
+			iconInfo = {
+				tCoordLeft = t[1],
+				tCoordRight = t[2],
+				tCoordTop = t[3],
+				tCoordBottom = t[4],
+			},
 			value = id,
 			func = func,
 			checked = id == value,
@@ -203,26 +211,56 @@ conds.spec = {}
 conds.spec.text = SPECIALIZATION
 
 function conds.spec:getValueText(value)
-	return value == 1 and TALENT_SPEC_PRIMARY or TALENT_SPEC_SECONDARY
+	local _, name, _,_,_, className, class = GetSpecializationInfoByID(value)
+	if name then
+		local classColor = GetClassColorObj(className)
+		return ("%s - %s"):format(classColor:WrapTextInColorCode(class), name)
+	end
 end
 
 function conds.spec:getValueList(value, func)
 	local list = {}
+	local specs = {71,72,73,65,66,70,253,254,255,259,260,261,256,257,258,250,251,252,262,263,264,62,63,64,265,266,267,268,270,269,102,103,104,105}
 
-	for i = 1, 2 do
-		list[i] = {
-			text = self:getValueText(i),
-			value = i,
+	for i, spec in ipairs(specs) do
+		local id, _,_, specIcon = GetSpecializationInfoByID(spec)
+			list[#list + 1] = {
+			text = self:getValueText(id),
+			icon = specIcon,
+			value = id,
 			func = func,
-			checked = i == value,
+			checked = id == value,
 		}
 	end
+
+	--for i = 1, GetNumClasses() do
+	--	for j = 1, C_SpecializationInfo.GetNumSpecializationsForClassID(i) do
+	--		local id, _,_, specIcon = GetSpecializationInfoForClassID(i, j)
+	--		list[#list + 1] = {
+	--			text = self:getValueText(id),
+	--			icon = specIcon,
+	--			value = id,
+	--			func = func,
+	--			checked = id == value,
+	--		}
+	--	end
+	--end
 
 	return list
 end
 
 function conds.spec:getFuncText(value)
-	return "GetActiveTalentGroup(false, false) == "..value, "GetActiveTalentGroup"
+	local index
+	for i = 1, GetNumSpecializations() do
+		if value == C_SpecializationInfo.GetSpecializationInfo(i) then
+			index = i
+			break
+		end
+	end
+	if index then
+		return "C_SpecializationInfo.GetSpecialization() == "..index, "C_SpecializationInfo"
+	end
+	return "false"
 end
 
 
@@ -558,17 +596,43 @@ local RACE_KEYS = {
 	10, -- BloodElf
 	11, -- Draenei
 	22, -- Worgen
+	24, -- Pandaren
 }
 local RACE_LABELS = {}
-
+local RACE_ICON_TOKEN = { -- ChrRacesCreateScreenIcon
+	[1] = "human",
+	[2] = "orc",
+	[3] = "dwarf",
+	[4] = "nightelf",
+	[5] = "undead",
+	[6] = "tauren",
+	[7] = "gnome",
+	[8] = "troll",
+	[9] = "goblin",
+	[10] = "bloodelf",
+	[11] = "draenei",
+	[22] = "worgen",
+	[24] = "pandaren",
+	[27] = "nightborne",
+	[28] = "highmountain",
+	[29] = "voidelf",
+	[30] = "lightforged",
+	[31] = "zandalari",
+	[32] = "kultiran",
+	[34] = "darkirondwarf",
+	[35] = "vulpera",
+	[36] = "magharorc",
+	[37] = "mechagnome",
+	[52] = "dracthyr",
+	[84] = "earthen",
+}
 for i = 1, #RACE_KEYS do
-	local info = C_CreatureInfo.GetRaceInfo(RACE_KEYS[i])
-	if not info then
-		fprint(i, RACE_KEYS[i])
-	else
-		RACE_KEYS[i] = info.clientFileString
-		RACE_LABELS[info.clientFileString] = info.raceName
-	end
+	local id = RACE_KEYS[i]
+	local info = C_CreatureInfo.GetRaceInfo(id)
+	RACE_KEYS[i] = info.clientFileString
+	RACE_LABELS[info.clientFileString] = info.raceName
+	RACE_ICON_TOKEN[info.clientFileString] = RACE_ICON_TOKEN[id]
+	RACE_ICON_TOKEN[id] = nil
 end
 sort(RACE_KEYS, function(a,b) return strcmputf8i(RACE_LABELS[a], RACE_LABELS[b]) < 0 end)
 
@@ -577,11 +641,13 @@ function conds.race:getValueText(value)
 end
 
 function conds.race:getValueList(value, func)
+	local sex = UnitSex("Player") == 2 and "-male" or "-female"
 	local list = {}
 	for i = 1, #RACE_KEYS do
 		local v = RACE_KEYS[i]
 		list[#list + 1] = {
 			text = self:getValueText(v),
+			icon = ("raceicon-%s%s"):format(RACE_ICON_TOKEN[v] or "", sex),
 			value = v,
 			func = func,
 			checked = v == value,
@@ -880,6 +946,7 @@ end
 
 function conds.mtrack:getValueList(value, func)
 	local list = {}
+	local isHunterClass = select(2, UnitClass("player")) == "HUNTER"
 
 	local hunterList = {}
 	local regularList = {}
@@ -890,6 +957,7 @@ function conds.mtrack:getValueList(value, func)
 
 		local info = {
 			text = trackingInfo.name,
+				icon = TRACKING_SPELL_OVERRIDE_ATLAS[trackingInfo.spellID] or trackingInfo.texture,
 			rightText = ("|cff808080%s|r"):format(v),
 			rightFont = ns.util.codeFont,
 			value = v,
@@ -1154,6 +1222,218 @@ function conds.group:getFuncText(value)
 		return ("self.getGroupType() == '%s'"):format(value:gsub("['\\]", "\\%1"))
 	else
 		return "self.getGroupType()"
+	end
+end
+
+
+---------------------------------------------------
+-- fgroup FRIEND IN PARTY
+conds.fgroup = {}
+conds.fgroup.text = L["Friend in Party"]
+
+local function getFriendList(value, func)
+	local friends = {}
+	local favIcon = CreateAtlasMarkup("PetJournal-FavoritesIcon", 20, 20)
+	local noteIcon = CreateSimpleTextureMarkup("Interface/FriendsFrame/UI-FriendsFrame-Note", 12, 12)
+	local numBNetTotal, numBNetOnline, numBNetFavorite = BNGetNumFriends()
+	local numWoWTotal, numWoWOnline = 0, 0
+
+	if C_GameRules.GetActiveGameMode() == Enum.GameMode.Standard then
+		numWoWTotal = C_FriendList.GetNumFriends()
+		numWoWOnline = C_FriendList.GetNumOnlineFriends()
+	end
+
+	local function onEnter(btn, note)
+		if note and note ~= "" then
+			GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
+			GameTooltip:SetText(noteIcon..note)
+			GameTooltip:Show()
+		end
+	end
+
+	local function addBNet(i)
+		local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+		local v = "btag:"..accountInfo.battleTag
+		local nameText, nameColor, statusTexture = FriendsFrame_GetBNetAccountNameAndStatus(accountInfo)
+
+		friends[#friends + 1] = {
+			text = accountInfo.isFavorite and nameText..favIcon or nameText,
+			icon = statusTexture,
+			value = v,
+			arg1 = accountInfo.note,
+			OnEnter = onEnter,
+			OnLeave = GameTooltip_Hide,
+			func = func,
+			checked = v == value,
+		}
+	end
+
+	local function addWoW(i)
+		local info = C_FriendList.GetFriendInfoByIndex(i)
+		local v, icon = "guid:"..info.guid
+
+		if not info.connected then
+			icon = FRIENDS_TEXTURE_OFFLINE
+		elseif info.afk then
+			icon = FRIENDS_TEXTURE_AFK
+		elseif info.dnd then
+			icon = FRIENDS_TEXTURE_DND
+		else
+			icon = FRIENDS_TEXTURE_ONLINE
+		end
+
+		friends[#friends + 1] = {
+			text = info.connected and info.name..", "..FRIENDS_LEVEL_TEMPLATE:format(info.level, info.className) or info.name,
+			icon = icon,
+			value = v,
+			arg1 = info.notes,
+			OnEnter = onEnter,
+			OnLeave = GameTooltip_Hide,
+			func = func,
+			checked = v == value,
+		}
+	end
+
+	for i = 1, numBNetFavorite + numBNetOnline do addBNet(i) end
+	for i = 1, numWoWOnline do addWoW(i) end
+	for i = numBNetFavorite + numBNetOnline + 1, numBNetTotal do addBNet(i) end
+	for i = numWoWOnline + 1, numWoWTotal do addWoW(i) end
+
+	if #friends == 0 then
+		friends[1] = {
+			notCheckable = true,
+			disabled = true,
+			text = EMPTY,
+		}
+	end
+
+	return friends
+end
+
+function conds.fgroup:getValueText(value)
+	local t, v = (":"):split(value, 2)
+
+	if t == "btag" then
+		for i = 1, BNGetNumFriends() do
+			local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+			if accountInfo.battleTag == v then
+				return accountInfo.accountName
+			end
+		end
+	elseif t == "guid" then
+		return ns.macroFrame:getNameByGUID(v)
+	end
+
+	return RED_FONT_COLOR:WrapTextInColorCode(L["Not Found"])
+end
+
+function conds.fgroup:getValueList(value, func)
+	local group = {}
+
+	for i = 1, GetNumSubgroupMembers() do
+		local unit = "party"..i
+		if UnitIsPlayer(unit) then
+			local v = "guid:"..UnitGUID(unit)
+			group[#group + 1] = {
+				text = GetUnitName(unit, true),
+				value = v,
+				func = func,
+				checked = v == value,
+			}
+		end
+	end
+
+	if #group == 0 then
+		group[1] = {
+			notCheckable = true,
+			disabled = true,
+			text = EMPTY,
+		}
+	end
+
+	return {
+		{
+			keepShownOnClick = true,
+			notCheckable = true,
+			text = FRIENDS,
+			hasArrow = true,
+			value = getFriendList(value, func),
+		},
+		{
+			keepShownOnClick = true,
+			notCheckable = true,
+			text = PARTY,
+			hasArrow = true,
+			value = group,
+		}
+	}
+end
+
+function conds.fgroup:getFuncText(value)
+	local t, v = (":"):split(value, 2)
+	if t == "btag" then
+		return ("self:isFriendInGroup('%s')"):format(v)
+	else
+		return ("self:isUnitInGroup('%s')"):format(v)
+	end
+end
+
+
+---------------------------------------------------
+-- fgroup FRIEND IN RAID
+conds.fraid = {}
+conds.fraid.text = L["Friend in Raid"]
+
+conds.fraid.getValueText = conds.fgroup.getValueText
+
+function conds.fraid:getValueList(value, func)
+	local group = {}
+
+	for i = 1, GetNumGroupMembers() do
+		local unit = "raid"..i
+		if UnitIsPlayer(unit) and not UnitIsUnit(unit, "player") then
+			local v = "guid:"..UnitGUID(unit)
+			group[#group + 1] = {
+				text = GetUnitName(unit, true),
+				value = v,
+				func = func,
+				checked = v == value,
+			}
+		end
+	end
+
+	if #group == 0 then
+		group[1] = {
+			notCheckable = true,
+			disabled = true,
+			text = EMPTY,
+		}
+	end
+
+	return {
+		{
+			keepShownOnClick = true,
+			notCheckable = true,
+			text = FRIENDS,
+			hasArrow = true,
+			value = getFriendList(value, func),
+		},
+		{
+			keepShownOnClick = true,
+			notCheckable = true,
+			text = RAID,
+			hasArrow = true,
+			value = group,
+		}
+	}
+end
+
+function conds.fraid:getFuncText(value)
+	local t, v = (":"):split(value, 2)
+	if t == "btag" then
+		return ("self:isFriendInGroup('%s', true)"):format(v)
+	else
+		return ("self:isUnitInGroup('%s', true)"):format(v)
 	end
 end
 
