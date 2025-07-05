@@ -949,6 +949,7 @@ function conds.mtrack:getValueList(value, func)
 	local isHunterClass = select(2, UnitClass("player")) == "HUNTER"
 
 	local hunterList = {}
+	local townfolkList = {}
 	local regularList = {}
 
 	for i = 1, C_Minimap.GetNumTrackingTypes() do
@@ -957,7 +958,7 @@ function conds.mtrack:getValueList(value, func)
 
 		local info = {
 			text = trackingInfo.name,
-				icon = TRACKING_SPELL_OVERRIDE_ATLAS[trackingInfo.spellID] or trackingInfo.texture,
+			icon = trackingInfo.texture,
 			rightText = ("|cff808080%s|r"):format(v),
 			rightFont = ns.util.codeFont,
 			value = v,
@@ -965,8 +966,10 @@ function conds.mtrack:getValueList(value, func)
 			checked = v == value,
 		}
 
-		if trackingInfo.subType == HUNTER_TRACKING then
+		if isHunterClass and trackingInfo.subType == HUNTER_TRACKING then
 			hunterList[#hunterList + 1] = info
+		elseif trackingInfo.subType == TOWNSFOLK_TRACKING then
+			townfolkList[#townfolkList + 1] = info
 		else
 			regularList[#regularList + 1] = info
 		end
@@ -981,6 +984,16 @@ function conds.mtrack:getValueList(value, func)
 			text = HUNTER_TRACKING_TEXT,
 			hasArrow = true,
 			value = hunterList,
+		}
+	end
+
+	if #townfolkList > 0 then
+		list[#list + 1] = {
+			keepShownOnClick = true,
+			notCheckable = true,
+			text = TOWNSFOLK_TRACKING_TEXT,
+			hasArrow = true,
+			value = townfolkList,
 		}
 	end
 
@@ -1253,12 +1266,26 @@ local function getFriendList(value, func)
 
 	local function addBNet(i)
 		local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
-		local v = "btag:"..accountInfo.battleTag
-		local nameText, nameColor, statusTexture = FriendsFrame_GetBNetAccountNameAndStatus(accountInfo)
+		local v, icon = "btag:"..accountInfo.battleTag
+		--local nameText, nameColor, statusTexture = FriendsFrame_GetBNetAccountNameAndStatus(accountInfo)
+		local nameText = accountInfo.accountName
+		if nameText == "" then
+			nameText = accountInfo.battleTag:match("(.*)#") or ""
+		end
+
+		if not accountInfo.gameAccountInfo.isOnline then
+			icon = FRIENDS_TEXTURE_OFFLINE
+		elseif accountInfo.isGameAFK then
+			icon = FRIENDS_TEXTURE_AFK
+		elseif accountInfo.isGameBusy then
+			icon = FRIENDS_TEXTURE_DND
+		else
+			icon = FRIENDS_TEXTURE_ONLINE
+		end
 
 		friends[#friends + 1] = {
 			text = accountInfo.isFavorite and nameText..favIcon or nameText,
-			icon = statusTexture,
+			icon = icon,
 			value = v,
 			arg1 = accountInfo.note,
 			OnEnter = onEnter,
