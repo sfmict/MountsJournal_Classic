@@ -186,6 +186,28 @@ local function updateGlobal(self)
 			profileUpdate(profile)
 		end
 	end
+
+	-- IF < 5.5.1 GLOBAL
+	if compareVersion("5.5.1", self.globalDB.lastAddonVersion) then
+		local family = {}
+		for k, v in next, ns.familyDB do
+			if type(v) == "table" then
+				for k, v in next, v do
+					family[v] = true
+				end
+			else
+				family[v] = true
+			end
+		end
+
+		local function checkFamily(filter)
+			for k in next, filter do
+				if not family[k] then filter[k] = nil end
+			end
+		end
+		checkFamily(self.filters.family)
+		checkFamily(self.defFilters.family)
+	end
 end
 
 
@@ -255,7 +277,7 @@ function ns.mounts:setOldChanges()
 
 	local currentVersion = C_AddOns.GetAddOnMetadata(addon, "Version")
 	--@do-not-package@
-	if currentVersion == "@project-version@" then currentVersion = "v5.5.0" end
+	if currentVersion == "@project-version@" then currentVersion = "v5.5.1" end
 	--@end-do-not-package@
 
 	if not self.charDB.lastAddonVersion then self.charDB.lastAddonVersion = currentVersion end

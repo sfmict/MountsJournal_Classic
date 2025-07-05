@@ -1485,6 +1485,9 @@ function journal:setMountTooltip(mountID, spellID, showDescription)
 		typeStr = L["MOUNT_TYPE_"..mType]
 	end
 	util.addTooltipDLine(L["types"], typeStr)
+	--@do-not-package@
+	util.addTooltipDLine("Type", mountType)
+	--@end-do-not-package@
 
 	-- family
 	local function getPath(FID)
@@ -2531,7 +2534,7 @@ function journal:updateMountDisplay(forceSceneChange, creatureID)
 			info.link:SetShown(mounts.config.showWowheadLink)
 			info.linkLang:SetShown(mounts.config.showWowheadLink)
 			local lang = mounts.config.wowheadLinkLang
-			info.link:SetText("cata.wowhead.com"..(lang == "en" and "" or "/"..lang).."/spell="..spellID)
+			info.link:SetText("mists.wowhead.com"..(lang == "en" and "" or "/"..lang).."/spell="..spellID)
 			info.name:SetText(creatureName)
 			self.multipleMountBtn:SetShown(self.mountsWithMultipleModels[self.selectedMountID])
 
