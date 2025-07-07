@@ -252,10 +252,9 @@ ns.journal:on("MODULES_INIT", function(journal)
 	end
 
 	-- GRID MODEL ANIMATION
-	journal.gridModelAnimation = lsfdd:CreateModernButtonOriginal(journal.gridModelSettings, 150)
-	journal.gridModelAnimation:SetPoint("LEFT", journal.gridModelSettings, "RIGHT", -152, 0)
-	journal.gridModelAnimation:SetHeight(20)
-	journal.gridModelAnimation.Arrow:SetPoint("RIGHT", 3, -3)
+	journal.gridModelAnimation = lsfdd:CreateButtonOriginal(journal.gridModelSettings, 170)
+	journal.gridModelAnimation:SetPoint("LEFT", journal.gridModelSettings, "RIGHT", -172, -1 / .92)
+	journal.gridModelAnimation:SetScale(.92)
 	journal.gridModelAnimation:ddSetDisplayMode(addon)
 	journal.gridModelAnimation:ddSetSelectedValue(dd.animationList[1])
 	journal.gridModelAnimation:ddSetSelectedText(dd.animationList[1].name)

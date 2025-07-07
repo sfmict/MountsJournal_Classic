@@ -188,14 +188,44 @@ function MJCompanionsPanelMixin:onLoad()
 	self:SetPoint("TOPLEFT", ns.journal.bgFrame, "TOPRIGHT")
 	self:SetPoint("BOTTOMLEFT", ns.journal.bgFrame, "BOTTOMRIGHT")
 
+	self.filtersPanel.buttons = {}
+	self.typeFilter = {}
+
+	local typeFilterClick = function()
+		self:updateTypeFilter()
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+	end
+
+	for i = 1, C_PetJournal.GetNumPetTypes() do
+		local btn = CreateFrame("CheckButton", nil, self.filtersPanel, "MJFilterButtonSquareTemplate")
+		btn:SetSize(22, 22)
+		btn.icon:SetTexture("Interface/Icons/Icon_PetFamily_"..PET_TYPE_SUFFIX[i])
+		btn.icon:SetSize(20, 20)
+		if i == 1 then
+			btn:SetPoint("LEFT", 3, 0)
+		else
+			btn:SetPoint("LEFT", self.filtersPanel.buttons[i - 1], "RIGHT")
+		end
+		btn:SetScript("OnClick", typeFilterClick)
+		self.filtersPanel.buttons[i] = btn
+		self.typeFilter[i] = true
+	end
+	self.clearFilters:SetScript("OnClick", function()
+		self:ClearTypeFilter()
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+	end)
+
 	self.randomFavoritePet.infoFrame.favorite:Show()
 	self.randomFavoritePet.infoFrame.icon:SetTexture(petRandomIcon)
+	self.randomFavoritePet.infoFrame.qualityBorder:Hide()
 	self.randomFavoritePet.name:SetWidth(180)
 	self.randomFavoritePet.name:SetText(PET_JOURNAL_SUMMON_RANDOM_FAVORITE_PET)
 	self.randomPet.infoFrame.icon:SetTexture(petRandomIcon)
+	self.randomPet.infoFrame.qualityBorder:Hide()
 	self.randomPet.name:SetWidth(180)
 	self.randomPet.name:SetText(L["Summon Random Battle Pet"])
 	self.noPet.infoFrame.icon:SetTexture("Interface/PaperDoll/UI-Backpack-EmptySlot")
+	self.noPet.infoFrame.qualityBorder:Hide()
 	self.noPet.name:SetWidth(180)
 	self.noPet.name:SetText(L["No Battle Pet"])
 
@@ -507,15 +537,54 @@ function MJCompanionsPanelMixin:updateFilters()
 
 	for i = 1, #self.petList do
 		local petID = self.petList[i]
-		local _,_,_,_,_,_,_, name = GetPetInfoByPetID(petID)
-
-		if #text == 0
+		local _, customName, _,_,_,_,_, name, _, petType, _, sourceText = GetPetInfoByPetID(petID)
+		if self.typeFilter[petType]
+		and (#text == 0
 		or name:lower():find(text, 1, true)
-		then
+		or sourceText:lower():find(text, 1, true)
+		or customName and customName:lower():find(text, 1, true)) then
 			numPets = numPets + 1
 			self.dataProvider:Insert({index = numPets, petID = petID})
 		end
 	end
 
 	self:updateScrollPetList()
+end
+
+
+function MJCompanionsPanelMixin:ClearTypeFilter()
+	for _, btn in ipairs(self.filtersPanel.buttons) do
+		btn:SetChecked(false)
+	end
+	self:updateTypeFilter()
+end
+
+
+function MJCompanionsPanelMixin:updateTypeFilter()
+	local buttons = self.filtersPanel.buttons
+	local check, uncheck, btnCount = 0, 0, #buttons
+
+	for i, btn in ipairs(buttons) do
+		local checked = btn:GetChecked()
+		self.typeFilter[i] = checked
+		btn.icon:SetDesaturated(not checked)
+		if checked then
+			check = check + 1
+		else
+			uncheck = uncheck + 1
+		end
+	end
+
+	if check == btnCount or uncheck == btnCount then
+		for i, btn in ipairs(buttons) do
+			btn:SetChecked(false)
+			self.typeFilter[i] = true
+			btn.icon:SetDesaturated()
+		end
+		self.clearFilters:Hide()
+	else
+		self.clearFilters:Show()
+	end
+
+	self:updateFilters()
 end

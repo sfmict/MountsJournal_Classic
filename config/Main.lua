@@ -272,7 +272,7 @@ config:SetScript("OnShow", function(self)
 	-- self.freeSlots.Text:SetPoint("RIGHT", self.repairGroup, -37, 0) -- width isn't redered correctly
 	self.freeSlots.Text:SetWidth(264)
 	self.freeSlots.Text:SetText(L["If the number of free slots in bags is less"])
-	self.freeSlots:HookScript("OnClick",  enableBtns)
+	self.freeSlots:HookScript("OnClick", enableBtns)
 
 	-- editbox
 	self.freeSlotsNum = CreateFrame("Editbox", nil, self.repairGroup, "MJNumberTextBox")
@@ -351,7 +351,7 @@ config:SetScript("OnShow", function(self)
 	self.summonPetEvery = CreateFrame("CheckButton", nil, self.petGroup, "MJCheckButtonTemplate")
 	self.summonPetEvery:SetPoint("TOPLEFT", self.petGroup, 3, -3)
 	self.summonPetEvery.Text:SetText(L["Summon a pet every"])
-	self.summonPetEvery:HookScript("OnClick",  enableBtns)
+	self.summonPetEvery:HookScript("OnClick", enableBtns)
 
 	-- count
 	self.summonPetEveryN = CreateFrame("Editbox", nil, self.petGroup, "MJNumberTextBox")

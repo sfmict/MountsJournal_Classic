@@ -17,7 +17,7 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
 
 		if mountID then
 			-- HideUIPanel(DressUpFrame)
-			if not  C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
+			if not C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
 				C_AddOns.LoadAddOn("Blizzard_Collections")
 			end
 			ShowUIPanel(CollectionsJournal)

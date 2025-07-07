@@ -38,7 +38,7 @@ do
 	local noTransmogID = Constants.Transmog.NoTransmogID
 	local model = CreateFrame("DressUpModel")
 	model:Hide()
-	model:SetUnit("player",  false, true, false, true)
+	model:SetUnit("player", false, true, false, true)
 
 	function macroFrame:isTtransmogOutfitActive(name)
 		local outfitID

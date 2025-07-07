@@ -40,7 +40,7 @@ ns.familyDB = {
 		-- ["Ruinstriders"] = 503,
 		["Talbuks"] = 504,
 		-- ["Tauralus"] = 505,
-		 ["Yaks"] = 506,
+		["Yaks"] = 506,
 	},
 	["Carnivorans"] = {
 		["Bears"] = 600,
@@ -79,7 +79,7 @@ ns.familyDB = {
 	-- },
 	["Dinosaurs"] = {
 		-- ["Brutosaurs"] = 1100,
-		 ["Direhorns"] = 1101,
+		["Direhorns"] = 1101,
 		-- ["Falcosaurs"] = 1102,
 		["Pterrordaxes"] = 1103,
 		["Raptors"] = 1104,
@@ -147,7 +147,7 @@ ns.familyDB = {
 		-- ["Others"] = 2007,
 		["Silithids"] = 2008,
 		-- ["Wasp"] = 2009,
-		 ["Water Striders"] = 2010,
+		["Water Striders"] = 2010,
 	},
 	-- ["Jellyfish"] = 2100,
 	-- ["Mollusc"] = {

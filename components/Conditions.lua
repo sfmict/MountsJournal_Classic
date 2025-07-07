@@ -31,7 +31,7 @@ function conds.mod:getValueList(value, func)
 		"lshift",
 		"rshift",
 	}
-	local list =  {}
+	local list = {}
 	for i = 1, #mods do
 		local v = mods[i]
 		list[i] = {
@@ -757,7 +757,7 @@ function conds.mapf:getValueList(value, func)
 		list[i + 1] = {
 			keepShownOnClick = true,
 			notCheckable = true,
-			hasArrow =  true,
+			hasArrow = true,
 			text = profileName,
 			value = flagList,
 		}

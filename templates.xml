@@ -3092,6 +3092,18 @@
 					<Anchor point="TOPRIGHT" relativeKey="$parent.closeButton" relativePoint="TOPLEFT" x="-1"/>
 				</Anchors>
 			</EditBox>
+			<Frame parentKey="filtersPanel" useParentLevel="false" inherits="InsetFrameTemplate">
+				<Size y="27"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.controlPanel" relativePoint="BOTTOMLEFT"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.controlPanel" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+			</Frame>
+			<Button parentKey="clearFilters" inherits="MJClearButtonTemplate" hidden="true">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.filtersPanel" x="-4"/>
+				</Anchors>
+			</Button>
 			<Frame parentKey="controlButtons" useParentLevel="false" inherits="InsetFrameTemplate">
 				<Size y="129"/>
 				<Anchors>
@@ -3125,7 +3137,7 @@
 			</Button>
 			<Frame parentKey="petListFrame" useParentLevel="false" inherits="InsetFrameTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.controlPanel" relativePoint="BOTTOMLEFT"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.filtersPanel" relativePoint="BOTTOMLEFT"/>
 					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.controlButtons" relativePoint="TOPRIGHT"/>
 				</Anchors>
 				<Frames>

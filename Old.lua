@@ -250,7 +250,7 @@ local function updateChar(self)
 
 		if self.charDB.profileBySpecializationPVP then
 			if self.charDB.profileBySpecializationPVP.enable then
-				for i = 1,  GetNumTalentGroups(false, false) do
+				for i = 1, GetNumTalentGroups(false, false) do
 					local profileName = self.charDB.profileBySpecializationPVP[i] or 1
 					local rule1 = {
 						{false, "spec", i},
