@@ -164,7 +164,7 @@ ns.familyDB = {
 	["Reptiles"] = {
 		-- ["Armoredon"] = 2500,
 		-- ["Basilisks"] = 2501,
-		-- ["Crocolisks"] = 2502,
+		["Crocolisks"] = 2502,
 		["Kodos"] = 2503,
 		["Mushan"] = 2504,
 		-- ["N'Zoth Serpents"] = 2505,
@@ -333,6 +333,7 @@ ns.familyDBIcons = {
 	},
 	["Reptiles"] = {
 		[0] = 133936,
+		["Crocolisks"] = 6694822,
 		["Kodos"] = 134175,
 		["Lizards"] = 3940790,
 		["Mushan"] = 646378,

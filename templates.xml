@@ -1762,7 +1762,7 @@
 				<FontString parentKey="name" inherits="GameFontNormal" justifyH="LEFT" justifyV="MIDDLE" maxLines="2">
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="TOPLEFT" x="44" y="-17"/>
-						<Anchor point="RIGHT" x="-36"/>
+						<Anchor point="RIGHT" x="-38"/>
 					</Anchors>
 				</FontString>
 			</Layer>
