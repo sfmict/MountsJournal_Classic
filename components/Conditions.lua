@@ -641,13 +641,13 @@ function conds.race:getValueText(value)
 end
 
 function conds.race:getValueList(value, func)
-	local sex = UnitSex("Player") == 2 and "-male" or "-female"
+	local atlasName = "raceicon-%s-"..(UnitSex("Player") == 2 and "male" or "female")
 	local list = {}
 	for i = 1, #RACE_KEYS do
 		local v = RACE_KEYS[i]
 		list[#list + 1] = {
 			text = self:getValueText(v),
-			icon = ("raceicon-%s%s"):format(RACE_ICON_TOKEN[v] or "", sex),
+			icon = atlasName:format(RACE_ICON_TOKEN[v] or ""),
 			value = v,
 			func = func,
 			checked = v == value,
