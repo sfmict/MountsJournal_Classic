@@ -4,7 +4,11 @@ local type, pairs, rawget, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C
 local macroFrame = CreateFrame("FRAME")
 ns.macroFrame = macroFrame
 util.setEventsMixin(macroFrame)
-macroFrame.getGroupType = util.getGroupType -- for conditions
+
+
+-- for conditions
+macroFrame.getGroupType = util.getGroupType
+macroFrame.isPlayerSpell = util.isPlayerSpell
 
 
 macroFrame:SetScript("OnEvent", function(self, event, ...)

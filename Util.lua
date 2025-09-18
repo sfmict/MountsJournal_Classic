@@ -1,7 +1,7 @@
 local addon, ns = ...
 local L = ns.L
 local type, tremove, next, tostring, math = type, tremove, next, tostring, math
-local C_MountJournal, C_UnitAuras, UnitExists, IsInRaid, IsInGroup = C_MountJournal, C_UnitAuras, UnitExists, IsInRaid, IsInGroup
+local C_MountJournal, C_UnitAuras, UnitExists, IsInRaid, IsInGroup, IsSpellKnown, IsSpellInSpellBook = C_MountJournal, C_UnitAuras, UnitExists, IsInRaid, IsInGroup, C_SpellBook.IsSpellKnown, C_SpellBook.IsSpellInSpellBook
 local events, eventsMixin, dot = {}, {}, "."
 
 
@@ -470,14 +470,25 @@ function util.addTooltipDLine(s1, s2)
 end
 
 
-function util.getTimeBreakDown(time)
-	local d,h,m,s = ChatFrame_TimeBreakDown(time)
-	if d > 0 then
-		return ("%d:%.2d:%.2d:%.2d"):format(d,h,m,s)
-	elseif h > 0 then
-		return ("%.2d:%.2d:%.2d"):format(h,m,s)
-	else
-		return ("%.2d:%.2d"):format(m,s)
+do
+	local day = DAY_ONELETTER_ABBR:gsub(" ", "")
+	local hour = HOUR_ONELETTER_ABBR:gsub(" ", "")
+	local minute = MINUTE_ONELETTER_ABBR:gsub(" ", "")
+	local second = SECOND_ONELETTER_ABBR:gsub(" ", "")
+	local mstr = minute.." "..second
+	local hstr = hour.." "..mstr
+	local dstr = day.." "..hstr
+	function util.getTimeBreakDown(time)
+		local d,h,m,s = ChatFrame_TimeBreakDown(time)
+		if d > 0 then
+			return dstr:format(d,h,m,s)
+		elseif h > 0 then
+			return hstr:format(h,m,s)
+		elseif m > 0 then
+			return mstr:format(m,s)
+		else
+			return second:format(s)
+		end
 	end
 end
 
@@ -687,5 +698,19 @@ function util.openJournalTab(tab1, tab2)
 	ns.journal._s:Execute(ns.journal._s:GetAttribute("tabUpdate"))
 	if tab1 == 1 and tab2 then
 		ns.journal.bgFrame.settingsBackground.Tabs[tab2]:Click()
+	end
+end
+
+
+do
+	local bankPlayer = Enum.SpellBookSpellBank.Player
+	local bankPet = Enum.SpellBookSpellBank.Pet
+
+	function util.isPlayerSpell(spellID)
+		return IsSpellKnown(spellID, bankPlayer)
+	end
+
+	function util.isSpellKnown(spellID, isPet)
+		return IsSpellInSpellBook(spellID, isPet and bankPet or bankPlayer, false)
 	end
 end

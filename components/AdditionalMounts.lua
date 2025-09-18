@@ -1,6 +1,6 @@
 local _, ns = ...
-local mounts = ns.mounts
-local C_UnitAuras, IsUsableSpell, IsSpellKnown, GetSpellCooldown = C_UnitAuras, IsUsableSpell, IsSpellKnown, GetSpellCooldown
+local mounts, util = ns.mounts, ns.util
+local C_UnitAuras, C_Spell, C_ZoneAbility, FindSpellOverrideByID = C_UnitAuras, C_Spell, C_ZoneAbility, FindSpellOverrideByID
 local C_Item, C_Container = C_Item, C_Container
 local ltl = LibStub("LibThingsLoad-1.0")
 local _,_, raceID = UnitRace("player")
@@ -28,12 +28,11 @@ local function getIsFavorite(self)
 end
 
 
-
 ----------------------------------------------------------------------
 -- SPELL AS A MOUNT
 local createMountFromSpell do
 	local function isUsable(self)
-		return IsSpellKnown(self.spellID)
+		return util.isSpellKnown(self.spellID)
 		   and C_Spell.IsSpellUsable(self.spellID)
 	end
 

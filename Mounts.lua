@@ -1,6 +1,6 @@
 local addon, ns = ...
 local L, util = ns.L, ns.util
-local C_MountJournal, C_Map, MapUtil, next, wipe, random, IsPlayerSpell, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container = C_MountJournal, C_Map, MapUtil, next, wipe, random, IsPlayerSpell, IsSpellKnown, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container
+local C_MountJournal, C_Map, C_Timer, MapUtil, next, rawget, wipe, random, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, C_Scenario, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container = C_MountJournal, C_Map, C_Timer, MapUtil, next, rawget, wipe, random, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, C_Scenario, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container
 local mounts = CreateFrame("Frame", "MountsJournal")
 ns.mounts = mounts
 util.setEventsMixin(mounts)
@@ -535,6 +535,7 @@ do
 		[23161] = true, -- Dreadsteed
 		[23214] = true, -- Summon Charger
 		[34767] = true, -- Thalassian Charger
+		[66906] = true, -- Argent Charger
 		[69826] = true, -- Summon Great Sunwalker Kodo
 		[73630] = true, -- Summon Great Exarch's Elekk
 	}
@@ -789,15 +790,15 @@ end
 
 
 function mounts:getSpellKnown()
-	if IsPlayerSpell(90265) -- Мастер верховой езды
-	or IsPlayerSpell(34091) -- Верховая езда (искусник)
-	or IsPlayerSpell(34090) -- Верховая езда (умелец)
+	if util.isPlayerSpell(90265) -- Мастер верховой езды
+	or util.isPlayerSpell(34091) -- Верховая езда (искусник)
+	or util.isPlayerSpell(34090) -- Верховая езда (умелец)
 	then
 		return true, true
 	end
 
-	if IsPlayerSpell(33391) -- Верховая езда (подмастерье)
-	or IsPlayerSpell(33388) -- Верховая езда (ученик)
+	if util.isPlayerSpell(33391) -- Верховая езда (подмастерье)
+	or util.isPlayerSpell(33388) -- Верховая езда (ученик)
 	then
 		return true, false
 	end
@@ -815,9 +816,12 @@ do
 
 	function mounts:isFlyLocation()
 		if self.instanceID == 571 then -- Northrend
-			return IsSpellKnown(54197)
+			return util.isSpellKnown(54197)
 		elseif cataInstances[self.instanceID] then
-			return IsSpellKnown(90267)
+			return util.isSpellKnown(90267)
+		elseif C_Scenario.IsInScenario() then
+			local _,_,_,_,_,_,_,_,_, scenarioType = C_Scenario.GetInfo()
+			if scenarioType == LE_SCENARIO_TYPE_WARFRONT then return false end
 		end
 		return true
 	end

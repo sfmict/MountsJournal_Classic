@@ -218,10 +218,11 @@ local function updateChar(self)
 
 		if self.charDB.profileBySpecialization then
 			if self.charDB.profileBySpecialization.enable then
-				for i = 1, GetNumTalentGroups(false, false) do
+				for i = 1, GetNumSpecializations() do
 					local profileName = self.charDB.profileBySpecialization[i] or 1
+					local specID = C_SpecializationInfo.GetSpecializationInfo(i)
 					local rule = {
-						{false, "spec", i},
+						{false, "spec", specID},
 						action = {"rmount", profileName},
 					}
 					tinsert(rules, 1, rule)
@@ -250,15 +251,16 @@ local function updateChar(self)
 
 		if self.charDB.profileBySpecializationPVP then
 			if self.charDB.profileBySpecializationPVP.enable then
-				for i = 1, GetNumTalentGroups(false, false) do
+				for i = 1, GetNumSpecializations() do
 					local profileName = self.charDB.profileBySpecializationPVP[i] or 1
+					local specID = C_SpecializationInfo.GetSpecializationInfo(i)
 					local rule1 = {
-						{false, "spec", i},
+						{false, "spec", specID},
 						{false, "zt", "arena"},
 						action = {"rmount", profileName},
 					}
 					local rule2 = {
-						{false, "spec", i},
+						{false, "spec", specID},
 						{false, "zt", "pvp"},
 						action = {"rmount", profileName},
 					}

@@ -499,7 +499,7 @@ end
 conds.kspell.getValueText = conds.hitem.getValueText
 
 function conds.kspell:getFuncText(value)
-	return ("IsPlayerSpell(%d)"):format(value), "IsPlayerSpell"
+	return ("self.isPlayerSpell(%d)"):format(value)
 end
 
 
