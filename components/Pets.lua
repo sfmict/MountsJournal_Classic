@@ -1,6 +1,7 @@
 local _, ns = ...
 local mounts, util = ns.mounts, ns.util
 local random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown, UnitIsAFK, DoEmote = random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown, UnitIsAFK, DoEmote
+local curRegion = GetCurrentRegion()
 local pets = CreateFrame("FRAME")
 ns.pets = pets
 util.setEventsMixin(pets)
@@ -35,6 +36,40 @@ pets:RegisterEvent("PET_JOURNAL_LIST_UPDATE")
 pets:RegisterEvent("UI_ERROR_MESSAGE")
 
 
+function pets:getPetForProfileList(profilePetForMount)
+	return profilePetForMount[curRegion]
+end
+
+
+function pets:setPetForProfile(profilePetForMount, spellID, pet)
+	local petForMount = profilePetForMount[curRegion]
+	if pet then
+		if not petForMount then
+			petForMount = {}
+			profilePetForMount[curRegion] = petForMount
+		end
+		petForMount[spellID] = pet
+	elseif petForMount then
+		petForMount[spellID] = nil
+		if not next(petForMount) then
+			profilePetForMount[curRegion] = nil
+		end
+	end
+end
+
+
+function pets:getPetForProfile(profilePetForMount, spellID)
+	local petForMount = profilePetForMount[curRegion]
+	return petForMount and petForMount[spellID]
+end
+
+
+function pets:dismiss()
+	local petID = C_PetJournal.GetSummonedPetGUID()
+	if petID then C_PetJournal.DismissSummonedPet(petID) end
+end
+
+
 function pets:summon(petID)
 	if InCombatLockdown() then return end
 	if C_PetJournal.PetIsSummonable(petID) and not C_PetJournal.IsCurrentlySummoned(petID) then
@@ -59,17 +94,6 @@ function pets:summonRandomPet(isFavorite)
 		end
 
 		self:summon(petID)
-	end
-end
-
-
-function pets:dismissPet()
-	for i = 1, #self.list do
-		local petID = self.list[i]
-		if C_PetJournal.IsCurrentlySummoned(petID) then
-			C_PetJournal.DismissSummonedPet(petID)
-			break
-		end
 	end
 end
 
@@ -261,4 +285,4 @@ SlashCmdList["MOUNTSJOURNALRANDOMFAVORITEPET"] = function() pets:summonRandomPet
 
 
 SLASH_MOUNTSJOURNALDISMISSPET1 = "/dismisspet"
-SlashCmdList["MOUNTSJOURNALDISMISSPET"] = function() pets:dismissPet() end
+SlashCmdList["MOUNTSJOURNALDISMISSPET"] = function() pets:dismiss() end

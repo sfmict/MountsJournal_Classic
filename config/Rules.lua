@@ -1,5 +1,5 @@
 local addon, ns = ...
-local L, util, mounts, macroFrame, conds, actions, calendar, dataDialog = ns.L, ns.util, ns.mounts, ns.macroFrame, ns.conditions, ns.actions, ns.calendar, ns.dataDialog
+local L, util, mounts, macroFrame, conds, actions, dataDialog = ns.L, ns.util, ns.mounts, ns.macroFrame, ns.conditions, ns.actions, ns.dataDialog
 local strcmputf8i = strcmputf8i
 local rules = CreateFrame("FRAME", "MountsJournalConfigRules")
 ns.ruleConfig = rules
@@ -543,7 +543,6 @@ function rules:saveRule(order, data)
 	tinsert(self.rules, order or 1, data)
 	self:updateFilters()
 	macroFrame:setRuleFuncs()
-	calendar:checkHolidayNames()
 end
 
 
@@ -552,7 +551,6 @@ function rules:removeRule(order)
 		tremove(self.rules, order)
 		self:updateFilters()
 		macroFrame:setRuleFuncs()
-		calendar:checkHolidayNames()
 	end)
 end
 
