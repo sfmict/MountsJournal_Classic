@@ -551,6 +551,23 @@ end
 
 
 ---------------------------------------------------
+-- qc QUEST COMPLETED
+conds.qc = {}
+conds.qc.text = QUEST_COMPLETE
+conds.qc.isNumeric = true
+
+function conds.qc:getValueDescription()
+	return "questID"
+end
+
+conds.qc.getValueText = conds.hitem.getValueText
+
+function conds.qc:getFuncText(value)
+	return ("C_QuestLog.IsQuestFlaggedCompleted(%d)"):format(value), "C_QuestLog"
+end
+
+
+---------------------------------------------------
 -- faction
 conds.faction = {}
 conds.faction.text = FACTION
