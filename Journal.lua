@@ -813,6 +813,7 @@ function journal:init()
 	hooksecurefunc(self.modelScene, "AcquireAndInitializeActor", function(self, actorInfo)
 		if actorInfo.scriptTag == "unwrapped" then
 			self:GetActorByTag("unwrapped"):SetOnSizeChangedCallback(function()
+				journal.mountDisplay.loading:Hide()
 				journal:event("MOUNT_MODEL_LOADED")
 			end)
 		end
@@ -1957,6 +1958,7 @@ function journal:gridModelSceneInit(btn, data, force)
 	btn.mountType = mountType
 	btn.isSelfMount = isSelfMount
 
+	btn.loading:Show()
 	btn.modelScene:TransitionToModelSceneID(modelSceneID, CAMERA_TRANSITION_TYPE_IMMEDIATE, CAMERA_MODIFICATION_TYPE_DISCARD, true)
 	btn.modelScene:PrepareForFanfare(needsFanfare)
 	self:setMountToModelScene(btn.modelScene, creatureID, isSelfMount, animID, disablePlayerMountPreview, spellVisualKitID)
@@ -2547,6 +2549,7 @@ function journal:updateMountDisplay(forceSceneChange, creatureID)
 
 			self:event("MOUNT_MODEL_UPDATE", mountType, isSelfMount)
 
+			self.mountDisplay.loading:Show()
 			self.modelScene:TransitionToModelSceneID(modelSceneID, CAMERA_TRANSITION_TYPE_IMMEDIATE, CAMERA_MODIFICATION_TYPE_MAINTAIN, forceSceneChange)
 			self.modelScene:PrepareForFanfare(needsFanfare)
 			self:setMountToModelScene(self.modelScene, creatureID, isSelfMount, animID, disablePlayerMountPreview, spellVisualKitID)
