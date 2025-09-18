@@ -235,7 +235,7 @@ macroFrame:on("ADDON_INIT", function(self)
 	self:RegisterEvent("LEARNED_SPELL_IN_TAB")
 
 	self:refresh()
-	self:getClassMacro(self.class, function() self:refresh() end)
+	self:getClassMacro(self.class, false, function() self:refresh() end)
 end)
 
 
@@ -344,7 +344,7 @@ end
 function macroFrame:setMacro()
 	self.macro = nil
 	if self.classConfig.macroEnable then
-		self.macro = self.classConfig.macro or self:getClassMacro()
+		self.macro = self.classConfig.macro or self:getClassMacro(self.class, false)
 	end
 end
 
@@ -352,7 +352,7 @@ end
 function macroFrame:setCombatMacro()
 	self.combatMacro = nil
 	if self.classConfig.combatMacroEnable then
-		self.combatMacro = self.classConfig.combatMacro or self:getClassMacro()
+		self.combatMacro = self.classConfig.combatMacro or self:getClassMacro(self.class, true)
 	end
 end
 
@@ -396,15 +396,23 @@ do
 end
 
 
-function macroFrame:getDismountMacro()
-	return self:addLine("/leavevehicle [vehicleui]", "/dismount [mounted]")
+function macroFrame:getDismountMacro(isCombat)
+	if isCombat then
+		if self.class == "DRUID" and self.classConfig.useMacroAlways then
+			return "/dmount"
+		else
+			return "/mountNoError"
+		end
+	else
+		return "/dmount"
+	end
 end
 
 
 do
 	local function getClassDefFunc(spellID)
-		return function(self, ...)
-			local spellName = self:getSpellName(spellID, ...)
+		return function(self, cb)
+			local spellName = self:getSpellName(spellID, cb)
 			if spellName then
 				return "/cast "..spellName
 			end
@@ -417,26 +425,25 @@ do
 		ROGUE = getClassDefFunc(2983), -- Sprint
 		SHAMAN = getClassDefFunc(2645), -- Ghost Wolf
 		MAGE = getClassDefFunc(1953), -- Blink
-		DRUID = function(self, ...)
-			local aquaticForm = self:getSpellName(1066, ...)
-			local catForm = self:getSpellName(768, ...)
-			local travelForm = self:getSpellName(783, ...)
-			local flightFrom = IsSpellKnown(40120) and self:getSpellName(40120, ...)
-			                or IsSpellKnown(33943) and self:getSpellName(33943, ...)
-
+		DRUID = function(self, cb)
+			local aquaticForm = self:getSpellName(1066, cb)
+			local catForm = self:getSpellName(768, cb)
+			local travelForm = self:getSpellName(783, cb)
+			local flightForm = IsSpellKnown(40120) and self:getSpellName(40120, cb)
+			                or IsSpellKnown(33943) and self:getSpellName(33943, cb)
 			if aquaticForm and catForm and travelForm then
-				return ("/cast [swimming]%s;[indoors]%s;[flyable,nocombat]%s;%s"):format(aquaticForm, catForm, flightFrom or travelForm, travelForm)
+				return ("/cast [swimming]%s;[indoors]%s;[flyable,nocombat]%s;%s"):format(aquaticForm, catForm, flightForm or travelForm, travelForm)
 			end
 		end,
 	}
 
 
-	function macroFrame:getClassMacro(class, ...)
-		local macro = self:getDismountMacro()
+	function macroFrame:getClassMacro(class, isCombat, cb)
+		local macro = self:getDismountMacro(isCombat)
 
 		local classFunc = classFunc[class or self.class]
 		if type(classFunc) == "function" then
-			local text = classFunc(self, ...)
+			local text = classFunc(self, cb)
 			if type(text) == "string" and #text > 0 then
 				macro = self:addLine(macro, text)
 			end
