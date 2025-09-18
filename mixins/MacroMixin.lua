@@ -58,6 +58,12 @@ macroFrame:on("ADDON_INIT", function(self)
 				return spellID
 			end
 		end
+		self.GetSpecialization = C_SpecializationInfo.GetSpecialization
+		self.specializationSpellIDs = {
+			24858, -- moonkin
+			768, -- cat
+			5487, -- bear
+		}
 
 		classOptionMacro = classOptionMacro..[[
 			local GetTime = GetTime
@@ -160,7 +166,9 @@ macroFrame:on("ADDON_INIT", function(self)
 			-- 24858 - moonkin form
 			local spellID = self.getFormSpellID()
 			if self.classConfig.useLastDruidForm then
-				if not self.charMacrosConfig.lastDruidFormSpellID then
+				if self.classConfig.useDruidFormSpecialization then
+					self.charMacrosConfig.lastDruidFormSpellID = self.specializationSpellIDs[self.GetSpecialization()]
+				elseif not self.charMacrosConfig.lastDruidFormSpellID then
 					self.charMacrosConfig.lastDruidFormSpellID = spellID
 				end
 

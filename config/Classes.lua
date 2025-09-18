@@ -263,6 +263,11 @@ do
 		DRUID = {
 			{
 				key = "useLastDruidForm",
+				childs = {
+					{
+						key = "useDruidFormSpecialization",
+					},
+				}
 			},
 			{
 				key = "useTravelIfCantFly",
