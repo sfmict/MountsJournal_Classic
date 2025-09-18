@@ -19,4 +19,5 @@
 	<Script file="Transmission.lua"/>
 	<Script file="ForAllIndentsAndPurposes.lua"/>
 	<Include file="filter\filter.xml"/>
+	<Script file="OPie.lua"/>
 </Ui>

@@ -178,20 +178,19 @@ function actions.mount:getFuncText(value)
 		%s
 		-- EXIT VEHICLE
 		if self.sFlags.inVehicle then
-			VehicleExit()
-			return ""
+			return "/leavevehicle"
 		-- DISMOUNT
 		elseif self.sFlags.isMounted then
 			if not self.lastUseTime or GetTime() - self.lastUseTime > .5 then
-				Dismount()
-				return ""
+				return "/dismount"
 			end
+			return ""
 		-- MOUNT
 		elseif not (noMacro and self.additionalMounts[%s]) then
 			self.useMount = %s
 		end
 	]]):format(macroFrame.classDismount or "", value, value),
-	{"GetTime", "VehicleExit", "Dismount"}
+	{"GetTime"}
 end
 
 
@@ -211,6 +210,7 @@ function actions.dmount:getFuncText()
 			if not self.lastUseTime or GetTime() - self.lastUseTime > .5 then
 				return "/dismount"
 			end
+			return ""
 		end
 	]]):format(macroFrame.classDismount or ""),
 	{"GetTime"}

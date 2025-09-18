@@ -312,7 +312,7 @@ return function(self, button, profileLoad, noMacro)
 				vars[#vars + 1] = k
 			end
 			local varsText = table.concat(vars, ", ")
-			func = ("local %s = %s\n%s"):format(varsText, varsText, func)
+			func = ("local %s = %1$s\n%s"):format(varsText, func)
 		end
 
 		func = func..[[
@@ -475,13 +475,11 @@ function macroFrame:getMacro(noMacro)
 
 	-- EXIT VEHICLE
 	if self.sFlags.inVehicle then
-		VehicleExit()
-		--macro = "/leavevehicle"
+		return "/leavevehicle"
 	-- DISMOUNT
 	elseif self.sFlags.isMounted then
 		if not self.lastUseTime or GetTime() - self.lastUseTime > .5 then
-			Dismount()
-			--macro = "/dismount"
+			return "/dismount"
 		end
 	-- CLASSMACRO
 	elseif self.macro and (
@@ -513,7 +511,7 @@ function macroFrame:getMacro(noMacro)
 			end
 
 			local additionMount
-			if self.sFlags.targetMount then
+			if self.sFlags.targetMountAdditional then
 				additionMount = self.additionalMounts[self.sFlags.targetMount]
 			else
 				additionMount = self.additionalMounts[self.mounts.summonedSpellID]
@@ -521,7 +519,7 @@ function macroFrame:getMacro(noMacro)
 
 			if additionMount then
 				macro = self:addLine(macro, additionMount.macro)
-			elseif not (self.useMount or self.sFlags.targetMount) then
+			elseif not self.useMount then
 				self.useMount = true
 			end
 		end
