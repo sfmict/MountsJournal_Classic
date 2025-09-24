@@ -31,6 +31,7 @@ macroFrame:on("ADDON_INIT", function(self)
 	self.state = {}
 	self.checkRules = {}
 	self.class = select(2, UnitClass("player"))
+	self.isDruid = self.class == "DRUID"
 	self.broomID = 37011
 
 	local classOptionMacro = ""
@@ -49,7 +50,7 @@ macroFrame:on("ADDON_INIT", function(self)
 		classOptionMacro = classOptionMacro..[[
 			local IsFalling, GetTime, C_UnitAuras = IsFalling, GetTime, C_UnitAuras
 		]]
-	elseif self.class == "DRUID" then
+	elseif self.isDruid then
 		local GetShapeshiftForm, GetShapeshiftFormInfo = GetShapeshiftForm, GetShapeshiftFormInfo
 		self.getFormSpellID = function()
 			local shapeshiftIndex = GetShapeshiftForm()
@@ -155,7 +156,7 @@ macroFrame:on("ADDON_INIT", function(self)
 				end
 			end
 		]]
-	elseif self.class == "DRUID" then
+	elseif self.isDruid then
 		self.classDismount = [[
 			-- DRUID LAST FORM
 			-- 768 - cat form
@@ -184,7 +185,7 @@ macroFrame:on("ADDON_INIT", function(self)
 				then
 					local spellName = self:getSpellName(self.charMacrosConfig.lastDruidFormSpellID)
 					if spellName then
-						return self:addLine(self:getDismountMacro(), "/cast "..spellName)
+						return self:addLine(self:getDismountMacro(true), "/cast "..spellName)
 					end
 				end
 
@@ -214,9 +215,9 @@ macroFrame:on("ADDON_INIT", function(self)
 			                                 or IsFalling()))
 			then
 				if spellID == 783 then
-					return self:addLine(self:getDismountMacro(), "/cancelform")
+					return self:addLine(self:getDismountMacro(true), "/cancelform")
 				elseif spellID ~= 33943 and spellID ~= 40120 then
-					return self:addLine(self:getDismountMacro(), "/cancelform\n/cast "..self:getSpellName(783))
+					return self:addLine(self:getDismountMacro(true), "/cancelform\n/cast "..self:getSpellName(783))
 				end
 			end
 		]]
@@ -404,9 +405,9 @@ do
 end
 
 
-function macroFrame:getDismountMacro(isCombat)
+function macroFrame:getDismountMacro(isDruid, isCombat, config)
 	if isCombat then
-		if self.class == "DRUID" and self.classConfig.useMacroAlways then
+		if isDruid and (config or self.classConfig).useMacroAlways then
 			return "/dmount"
 		else
 			return "/mountNoError"
@@ -446,8 +447,8 @@ do
 	}
 
 
-	function macroFrame:getClassMacro(class, isCombat, cb)
-		local macro = self:getDismountMacro(isCombat)
+	function macroFrame:getClassMacro(class, isCombat, cb, config)
+		local macro = self:getDismountMacro(class == "DRUID", isCombat, config)
 
 		local classFunc = classFunc[class or self.class]
 		if type(classFunc) == "function" then
@@ -491,7 +492,7 @@ function macroFrame:getMacro(noMacro)
 		end
 	-- CLASSMACRO
 	elseif self.macro and (
-		self.class == "DRUID" and self.classConfig.useMacroAlways and (
+		self.isDruid and self.classConfig.useMacroAlways and (
 			not self.classConfig.useMacroOnlyCanFly or self.sFlags.fly
 		)
 		or not self.magicBroom and (
@@ -542,7 +543,7 @@ function macroFrame:getCombatMacro()
 
 	if self.combatMacro then
 		macro = self:addLine(macro, self.combatMacro)
-	elseif self.macro and self.class == "DRUID" and self.classConfig.useMacroAlways then
+	elseif self.macro and self.isDruid and self.classConfig.useMacroAlways then
 		macro = self:addLine(macro, self.macro)
 	else
 		macro = self:addLine(macro, "/mount notNilModifier")
