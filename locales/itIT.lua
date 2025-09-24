@@ -215,6 +215,7 @@ local L = ns.L
 -- L["Random Mount of Selected Type"] = ""
 -- L["Selected profile"] = ""
 -- L["Mount"] = ""
+-- L["TMOUNT_DESCRIPTION"] = ""
 -- L["Use Item"] = ""
 -- L["Use Inventory Item"] = ""
 -- L["Cast Spell"] = ""
