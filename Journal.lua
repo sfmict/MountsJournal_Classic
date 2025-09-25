@@ -1379,8 +1379,9 @@ function journal:setMJFiltersBackup()
 		end
 	end
 	for i = 1, Enum.MountTypeMeta.NumValues do
-		if not C_MountJournal.IsValidTypeFilter(i) then break end
-		backup.types[i] = C_MountJournal.IsTypeChecked(i)
+		if C_MountJournal.IsValidTypeFilter(i) then
+			backup.types[i] = C_MountJournal.IsTypeChecked(i)
+		end
 	end
 	backup.isBackuped = true
 	self:RegisterEvent("MOUNT_JOURNAL_SEARCH_UPDATED")
