@@ -322,7 +322,7 @@ do
 			if groupType == "raid" and mounts.config.noPetInRaid
 			or groupType == "group" and mounts.config.noPetInGroup
 			then
-				ns.pets:dismissPet()
+				ns.pets:dismiss()
 			end
 		end
 	end
