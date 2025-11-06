@@ -808,6 +808,7 @@ function journal:init()
 	-- SHOWN PANEL
 	self.shownPanel.text:SetText(L["Shown:"])
 	self.shownPanel.clear:SetScript("OnClick", function() self:resetToDefaultFilters() end)
+	self.shownPanel.framePool = CreateFramePool("BUTTON", self.shownPanel.resetBar, "MJFilterResetButtonTempalte")
 	self.shownPanel.list = {}
 
 	local resetFilter = self.shownPanel.resetFilter
@@ -832,7 +833,7 @@ function journal:init()
 				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 				self:resetFilterByInfo(btn.value)
 				dd:ddCloseMenus()
-				if #list > 0 then dd:Click() end
+				if self.shownPanel.startIndex ~= 0 then dd:Click() end
 			end,
 			iconInfo = {
 				tSizeX = 12,
@@ -840,9 +841,9 @@ function journal:init()
 			}
 		}}
 
-		for i, text in ipairs(list) do
-			info.text = text
-			info.value = list[text]
+		for i = self.shownPanel.startIndex, #list do
+			info.text = list[i]
+			info.value = list[info.text]
 			dd:ddAddButton(info)
 		end
 	end)
@@ -1027,10 +1028,14 @@ function journal:init()
 	self.multipleMountBtn:ddSetNoGlobalMouseEvent(true)
 
 	self.multipleMountBtn:ddSetInitFunc(function(btn, level)
-		local info = {}
+		local info = {keepShownOnClick = true}
 		local creatureIDs = self:getMountAllCreatureDisplayInfo(self.selectedMountID)
 		local func = function(_, creatureID)
 			self:updateMountDisplay(true, creatureID)
+			btn:ddRefresh(level)
+		end
+		local checked = function(_, creatureID)
+			return self.mountDisplay.lastCreatureID == creatureID
 		end
 
 		for i = 1, #creatureIDs do
@@ -1038,7 +1043,7 @@ function journal:init()
 			info.text = MODEL.." "..i
 			info.arg1 = creatureID
 			info.func = func
-			info.checked = self.mountDisplay.lastCreatureID == creatureID
+			info.checked = checked
 			btn:ddAddButton(info, level)
 		end
 	end)
@@ -1280,6 +1285,13 @@ function journal:init()
 	self:on("UPDATE_FAVORITES", self.sortMounts)
 	hooksecurefunc(C_MountJournal, "SetIsFavorite", function(...)
 		self:sortMounts()
+	end)
+
+	-- ON ALERT CLICK
+	hooksecurefunc("MountJournal_SelectByMountID", function(mountID)
+		if mounts.config.useDefaultJournal then return end
+		util.openJournalTab(3)
+		self:setSelectedMount(mountID)
 	end)
 
 	-- MODULES INIT
@@ -1638,7 +1650,11 @@ function journal:getMountAllCreatureDisplayInfo(mount)
 		local creatureIDs = C_MountJournal.GetMountAllCreatureDisplayInfoByID(self.selectedMountID)
 		local list = {}
 		for i = 1, #creatureIDs do
-			list[i] = creatureIDs[i].creatureDisplayID
+			local creatureID = creatureIDs[i].creatureDisplayID
+			if list[creatureID] == nil then
+				list[creatureID] = 1
+				list[#list + 1] = creatureID
+			end
 		end
 		return list
 	else
@@ -1700,7 +1716,7 @@ function journal:setScrollGridMounts(force)
 
 	if self.curGrid == grid and not force then return end
 	self.curGrid = grid
-	local template, top, bottom, left, right, hSpacing, vSpacing, extent, panScalar
+	local template, top, bottom, left, right, hSpacing, vSpacing, extent, panScalar, sizeCalculator
 
 	if grid == 1 then
 		top = 1
@@ -1741,6 +1757,7 @@ function journal:setScrollGridMounts(force)
 		local scrollWidth = self.scrollBox:GetWidth() - left - right
 		self.gridN = mounts.config.gridModelStride
 		extent = math.floor((scrollWidth - (self.gridN - 1) * hSpacing) / self.gridN)
+		sizeCalculator = function(dataIndex, elementData) return extent, extent end
 		self.gmsWidth = extent
 		self.initMountButton = self.gridModelSceneInit
 	end
@@ -1748,6 +1765,7 @@ function journal:setScrollGridMounts(force)
 	self.scrollBox.wheelPanScalar = panScalar or 2
 	self.view:SetPadding(top,bottom,left,right,hSpacing,vSpacing)
 	self.view:SetElementExtent(extent)
+	self.view:SetElementSizeCalculator(sizeCalculator)
 	self.view:SetPanExtent(extent)
 	self.view:SetStride(self.gridN)
 	self.view:SetElementInitializer(template, function(...)
@@ -1755,6 +1773,7 @@ function journal:setScrollGridMounts(force)
 	end)
 
 	if self.dataProvider then
+		self:updateFilterNavBar()
 		self:updateScrollMountList()
 		self.view:Layout()
 		self.scrollBox:ScrollToElementDataIndex(index, ScrollBoxConstants.AlignBegin)
@@ -2823,6 +2842,46 @@ end
 
 
 do
+	local function onClick(btn)
+		journal:resetFilterByInfo(btn.info)
+	end
+
+
+	function journal:updateFilterNavBar()
+		local list = self.shownPanel.list
+		local framePool = self.shownPanel.framePool
+		local maxWidth = self.shownPanel.resetFilter:GetLeft() - self.shownPanel.count:GetRight() - 4
+		local width = 0
+		local index = 0
+
+		framePool:ReleaseAll()
+		for i = 1, #list do
+			local f = framePool:Acquire()
+			local text = list[i]
+			f.info = list[text]
+			f:SetScript("OnClick", onClick)
+			f:SetPoint("LEFT", width, 0)
+			f.text:SetText(list[i])
+			f:Show()
+			local textWidth = f.text:GetWidth()
+			f:SetWidth(textWidth + 18)
+			width = width + textWidth + 20
+			if width > maxWidth then
+				width = width - textWidth - 20
+				index = i
+				framePool:Release(f)
+				break
+			end
+		end
+
+		self.shownPanel.startIndex = index
+		self.shownPanel.resetFilter:SetShown(index ~= 0)
+		self.shownPanel.resetBar:SetWidth(width)
+	end
+end
+
+
+do
 	local function add(list, text, defFilters, filters, k)
 		local info = list[text]
 		if info then
@@ -2884,7 +2943,6 @@ do
 			end
 		end
 
-		self.shownPanel.filters:SetText("("..concat(list, ", ")..")")
 		return #list ~= 0
 	end
 end
@@ -3183,6 +3241,7 @@ function journal:setShownCountMounts(numMounts)
 		self.shownNumMouns = numMounts
 	end
 	self.shownPanel:SetShown(self:checkFiltersDefault())
+	self:updateFilterNavBar()
 	-- self.leftInset:GetHeight()
 end
 

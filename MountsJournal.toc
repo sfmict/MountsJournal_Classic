@@ -1,4 +1,4 @@
-## Interface: 50501
+## Interface: 50503, 50502
 ## Title: MountsJournal
 ## Author: sfmict
 ## Version: @project-version@
