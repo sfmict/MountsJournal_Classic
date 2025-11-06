@@ -16,26 +16,11 @@ ns.journal:on("MODULES_INIT", function(journal)
 		tCoordTop = .2,
 		tCoordBottom = .8,
 	}
-	local list = {
-		{
-			name = DUNGEONS,
-			icon = 1488824,
-			iconInfo = drIconInfo,
-			list = {},
-		},
-		{
-			name = RAIDS,
-			icon = 1488825,
-			iconInfo = drIconInfo,
-			list = {},
-		}
-	}
 	local expIconInfo = {
 		tSizeX = 40,
 		tSizeY = 20,
 	}
-
-	list = {
+	local list = {
 		{
 			iconInfo = drIconInfo,
 			icon = 1488824,

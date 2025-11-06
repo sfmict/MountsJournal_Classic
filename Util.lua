@@ -113,10 +113,7 @@ util.NIGHT_FAE_BLUE_COLOR = CreateColor(.502, .7098, .9922)
 
 -- 1 FLY, 2 GROUND, 3 SWIMMING
 util.mountTypes = setmetatable({
-	[229] = 1,
-	[238] = 1,
 	[242] = 1,
-	[247] = 1,
 	[248] = 1,
 	[263] = 1,
 	[225] = 2,
