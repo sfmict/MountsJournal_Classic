@@ -345,6 +345,7 @@ function util.openJournalTab(tab1, tab2)
 		end
 		ns.journal.useMountsJournalButton:Click()
 	end
+	if not tab1 then return end
 	ns.journal.bgFrame.setTab(tab1)
 	ns.journal._s:SetAttribute("tab", tab1)
 	ns.journal._s:Execute(ns.journal._s:GetAttribute("tabUpdate"))
@@ -352,6 +353,19 @@ function util.openJournalTab(tab1, tab2)
 		ns.journal.bgFrame.settingsBackground.Tabs[tab2]:Click()
 	end
 end
+
+
+function util.journalToggle()
+	if InCombatLockdown() then return end
+	if MountsJournalFrame and MountsJournalFrame:IsShown() and CollectionsJournal:IsShown() then
+		HideUIPanel(CollectionsJournal)
+	else
+		util.openJournalTab()
+	end
+end
+SLASH_MOUNTSJOURNALFRAME1 = "/mountsjournal"
+SLASH_MOUNTSJOURNALFRAME2 = "/mj"
+SlashCmdList["MOUNTSJOURNALFRAME"] = util.journalToggle
 
 
 do

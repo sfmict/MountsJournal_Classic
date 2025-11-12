@@ -147,7 +147,7 @@ function mounts:ADDON_LOADED(addonName)
 			type = "launcher",
 			text = addon,
 			icon = 303868,
-			OnClick = function() MountsJournalFrame:showToggle() end,
+			OnClick = function() util.journalToggle() end,
 			OnTooltipShow = function(tooltip)
 				tooltip:SetText(("%s (|cffff7f3f%s|r)"):format(addon, C_AddOns.GetAddOnMetadata(addon, "Version")))
 				tooltip:AddLine("\n")

@@ -3299,21 +3299,3 @@ function journal:updateMountsList()
 	self:updateScrollMountList()
 	self:setShownCountMounts(numMounts)
 end
-
-
-function journal:showToggle()
-	if InCombatLockdown() then return end
-	if not IsAddOnLoaded("Blizzard_Collections") then
-		LoadAddOn("Blizzard_Collections")
-	end
-	if CollectionsJournal:IsShown() then
-		HideUIPanel(CollectionsJournal)
-	else
-		ShowUIPanel(CollectionsJournal)
-	end
-end
-
-
-SLASH_MOUNTSJOURNALFRAME1 = "/mountsjournal"
-SLASH_MOUNTSJOURNALFRAME2 = "/mj"
-SlashCmdList["MOUNTSJOURNALFRAME"] = function() journal:showToggle() end
