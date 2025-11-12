@@ -22,7 +22,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 	dd.Button:SetPropagateMouseMotion(true)
 
 	StaticPopupDialogs[util.addonName.."DELETE_MOUNT_ANIMATION"] = {
-		text = addon..": "..L["Are you sure you want to delete animation %s?"],
+		text = ns.addon..": "..L["Are you sure you want to delete animation %s?"],
 		button1 = DELETE,
 		button2 = CANCEL,
 		hideOnEscape = 1,

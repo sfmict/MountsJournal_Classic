@@ -23,7 +23,7 @@ codeEdit:SetScript("OnShow", function(self)
 	end)
 
 	StaticPopupDialogs[util.addonName.."SAVE_CODE"] = {
-		text = addon..": "..L["Do you want to save changes?"],
+		text = ns.addon..": "..L["Do you want to save changes?"],
 		button1 = YES,
 		button2 = NO,
 		button3 = CANCEL,

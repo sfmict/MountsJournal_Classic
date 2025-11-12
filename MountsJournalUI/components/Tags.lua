@@ -11,7 +11,7 @@ function tags:init()
 	self.init = nil
 
 	StaticPopupDialogs[util.addonName.."ADD_TAG"] = {
-		text = addon..": "..L["Add tag"],
+		text = ns.addon..": "..L["Add tag"],
 		button1 = ACCEPT,
 		button2 = CANCEL,
 		hasEditBox = 1,
@@ -36,12 +36,12 @@ function tags:init()
 		end,
 	}
 	StaticPopupDialogs[util.addonName.."TAG_EXISTS"] = {
-		text = addon..": "..L["Tag already exists."],
+		text = ns.addon..": "..L["Tag already exists."],
 		button1 = OKAY,
 		whileDead = 1,
 	}
 	StaticPopupDialogs[util.addonName.."DELETE_TAG"] = {
-		text = addon..": "..L["Are you sure you want to delete tag %s?"],
+		text = ns.addon..": "..L["Are you sure you want to delete tag %s?"],
 		button1 = DELETE,
 		button2 = CANCEL,
 		hideOnEscape = 1,

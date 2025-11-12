@@ -397,7 +397,7 @@ function journal:init()
 	end)
 	summon1:SetScript("OnEnter", function(btn)
 		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
-		GameTooltip_SetTitle(GameTooltip, ("%s \"%s %d\""):format(addon, SUMMONS, btn.id))
+		GameTooltip_SetTitle(GameTooltip, ("%s \"%s %d\""):format(ns.addon, SUMMONS, btn.id))
 		if ns.macroFrame.currentRuleSet[btn.id].altMode then
 			GameTooltip_AddNormalLine(GameTooltip, L["SecondMountTooltipDescription"]:gsub("\n\n", "\n"))
 		else
@@ -1321,74 +1321,68 @@ end
 
 
 journal:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
-journal:RegisterEvent("ADDON_LOADED")
+journal.mjFiltersBackup = {sources = {}, types = {}}
+journal.frameState = {}
+journal.CollectionsJournal = CollectionsJournal
+journal.MountJournal = MountJournal
 
+journal.useMountsJournalButton = CreateFrame("CheckButton", nil, journal.MountJournal, "MJUseMountsJournalButtonTemplate")
+journal.useMountsJournalButton:SetPoint("BOTTOMLEFT", journal.CollectionsJournal, "BOTTOMLEFT", 281, 2)
+journal.useMountsJournalButton.Text:SetFontObject("GameFontNormal")
+journal.useMountsJournalButton.Text:SetText(ns.addon)
+journal.useMountsJournalButton:SetChecked(not mounts.config.useDefaultJournal)
 
-function journal:ADDON_LOADED(addonName)
-	if addonName == "Blizzard_Collections" and select(2, C_AddOns.IsAddOnLoaded(addon))
-	or addonName == addon and select(2, C_AddOns.IsAddOnLoaded("Blizzard_Collections")) then
-		self:UnregisterEvent("ADDON_LOADED")
-		self.ADDON_LOADED = nil
-
-		self.mjFiltersBackup = {sources = {}, types = {}}
-		self.frameState = {}
-		self.CollectionsJournal = CollectionsJournal
-		self.MountJournal = MountJournal
-
-		self.useMountsJournalButton = CreateFrame("CheckButton", nil, self.MountJournal, "MJUseMountsJournalButtonTemplate")
-		self.useMountsJournalButton:SetPoint("BOTTOMLEFT", self.CollectionsJournal, "BOTTOMLEFT", 281, 2)
-		self.useMountsJournalButton.Text:SetFontObject("GameFontNormal")
-		self.useMountsJournalButton.Text:SetText(addon)
-		self.useMountsJournalButton:SetChecked(not mounts.config.useDefaultJournal)
-
-		self.useMountsJournalButton:SetScript("OnEnter", function(btn)
-			if not btn:IsEnabled() then
-				GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
-				GameTooltip_SetTitle(GameTooltip, addon)
-				GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
-				GameTooltip:Show()
-			end
-		end)
-
-		self.useMountsJournalButton:SetScript("OnEnable", function(btn)
-			btn.Text:SetVertexColor(NORMAL_FONT_COLOR:GetRGB())
-		end)
-
-		self.useMountsJournalButton:HookScript("OnClick", function(btn)
-			local checked = btn:GetChecked()
-			mounts.config.useDefaultJournal = not checked
-			if checked then
-				if self.init then
-					self:init()
-				else
-					self:setMJFiltersBackup()
-					self:hideFrames()
-				end
-			else
-				self:restoreMJFilters()
-				self:restoreFrames()
-			end
-		end)
-
-		self.useMountsJournalButton:SetScript("OnShow", function(btn)
-			if InCombatLockdown() then
-				btn:Disable()
-			else
-				btn:Enable()
-				if not mounts.config.useDefaultJournal then
-					self:init()
-				end
-			end
-			self:RegisterEvent("PLAYER_REGEN_DISABLED")
-			self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		end)
-
-		self.useMountsJournalButton:SetScript("OnHide", function()
-			self:UnregisterEvent("PLAYER_REGEN_DISABLED")
-			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-		end)
+journal.useMountsJournalButton:SetScript("OnEnter", function(btn)
+	if not btn:IsEnabled() then
+		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
+		GameTooltip_SetTitle(GameTooltip, ns.addon)
+		GameTooltip_AddErrorLine(GameTooltip, SPELL_FAILED_AFFECTING_COMBAT)
+		GameTooltip:Show()
 	end
-end
+end)
+
+journal.useMountsJournalButton:SetScript("OnEnable", function(btn)
+	btn.Text:SetVertexColor(NORMAL_FONT_COLOR:GetRGB())
+end)
+
+journal.useMountsJournalButton:HookScript("OnClick", function(btn)
+	local checked = btn:GetChecked()
+	mounts.config.useDefaultJournal = not checked
+	if checked then
+		if journal.init then
+			btn:Disable()
+			journal:init()
+			C_Timer.After(0, function() btn:Enable() end)
+		else
+			journal:setMJFiltersBackup()
+			journal:hideFrames()
+		end
+	else
+		journal:restoreMJFilters()
+		journal:restoreFrames()
+	end
+end)
+
+journal.useMountsJournalButton:SetScript("OnShow", function(btn)
+	if InCombatLockdown() then
+		btn:Disable()
+	else
+		if mounts.config.useDefaultJournal then
+			btn:Enable()
+		else
+			btn:Disable()
+			journal:init()
+			C_Timer.After(0, function() btn:Enable() end)
+		end
+	end
+	journal:RegisterEvent("PLAYER_REGEN_DISABLED")
+	journal:RegisterEvent("PLAYER_REGEN_ENABLED")
+end)
+
+journal.useMountsJournalButton:SetScript("OnHide", function()
+	journal:UnregisterEvent("PLAYER_REGEN_DISABLED")
+	journal:UnregisterEvent("PLAYER_REGEN_ENABLED")
+end)
 
 
 function journal:setMJFiltersBackup()

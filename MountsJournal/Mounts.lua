@@ -13,11 +13,20 @@ mounts:RegisterEvent("PLAYER_LOGOUT")
 mounts:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
 
 
+local function loadUI()
+	mounts:UnregisterEvent("ADDON_LOADED")
+	mounts.ADDON_LOADED = nil
+	local name = addon.."UI"
+	local loaded, reason = C_AddOns.LoadAddOn(name)
+	if not loaded and reason == "DISABLED" then
+		C_AddOns.EnableAddOn(name)
+		C_AddOns.LoadAddOn(name)
+	end
+end
+
+
 function mounts:ADDON_LOADED(addonName)
 	if addonName == addon then
-		self:UnregisterEvent("ADDON_LOADED")
-		self.ADDON_LOADED = nil
-
 		local mapInfo = MapUtil.GetMapParentInfo(C_Map.GetFallbackWorldMapID(), Enum.UIMapType.Cosmic, true)
 		self.defMountsListID = mapInfo and mapInfo.mapID or 946 -- WORLD
 
@@ -158,6 +167,12 @@ function mounts:ADDON_LOADED(addonName)
 			end,
 		})
 		LibStub("LibDBIcon-1.0"):Register(addon, ldb_icon, mounts.config.omb)
+		
+		if C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
+			loadUI()
+		end
+	elseif addonName == "Blizzard_Collections" then
+		loadUI()
 	end
 end
 

@@ -12,7 +12,7 @@ rules:SetScript("OnShow", function(self)
 	local lsfdd = LibStub("LibSFDropDown-1.5")
 
 	StaticPopupDialogs[util.addonName.."NEW_RULE_SET"] = {
-		text = addon..": "..L["New rule set"],
+		text = ns.addon..": "..L["New rule set"],
 		button1 = ACCEPT,
 		button2 = CANCEL,
 		hasEditBox = 1,
@@ -39,7 +39,7 @@ rules:SetScript("OnShow", function(self)
 		if self.isCreate then self:createRuleSet(data) end
 	end
 	StaticPopupDialogs[util.addonName.."RULE_SET_EXISTS"] = {
-		text = addon..": "..L["A rule set with the same name exists."],
+		text = ns.addon..": "..L["A rule set with the same name exists."],
 		button1 = OKAY,
 		hideOnEscape = 1,
 		whileDead = 1,
@@ -47,7 +47,7 @@ rules:SetScript("OnShow", function(self)
 		OnCancel = ruleSetExistsAccept,
 	}
 	StaticPopupDialogs[util.addonName.."DELETE_RULE_SET"] = {
-		text = addon..": "..L["Are you sure you want to delete rule set %s?"],
+		text = ns.addon..": "..L["Are you sure you want to delete rule set %s?"],
 		button1 = DELETE,
 		button2 = CANCEL,
 		hideOnEscape = 1,

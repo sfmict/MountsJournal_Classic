@@ -22,7 +22,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 
 	-- POPUP
 	StaticPopupDialogs[util.addonName.."NEW_PROFILE"] = {
-		text = addon..": "..L["New profile"],
+		text = ns.addon..": "..L["New profile"],
 		button1 = ACCEPT,
 		button2 = CANCEL,
 		hasEditBox = 1,
@@ -70,7 +70,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 		end
 	end
 	StaticPopupDialogs[util.addonName.."PROFILE_EXISTS"] = {
-		text = addon..": "..L["A profile with the same name exists."],
+		text = ns.addon..": "..L["A profile with the same name exists."],
 		button1 = OKAY,
 		hideOnEscape = 1,
 		whileDead = 1,
@@ -78,7 +78,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 		OnCancel = profileExistsAccept,
 	}
 	StaticPopupDialogs[util.addonName.."DELETE_PROFILE"] = {
-		text = addon..": "..L["Are you sure you want to delete profile %s?"],
+		text = ns.addon..": "..L["Are you sure you want to delete profile %s?"],
 		button1 = DELETE,
 		button2 = CANCEL,
 		hideOnEscape = 1,
@@ -86,7 +86,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 		OnAccept = function(_, cb) cb() end,
 	}
 	StaticPopupDialogs[util.addonName.."YOU_WANT"] = {
-		text = addon..": "..L["Are you sure you want %s?"],
+		text = ns.addon..": "..L["Are you sure you want %s?"],
 		button1 = OKAY,
 		button2 = CANCEL,
 		hideOnEscape = 1,

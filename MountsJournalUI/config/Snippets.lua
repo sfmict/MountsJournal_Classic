@@ -30,7 +30,7 @@ snippets:SetScript("OnShow", function(self)
 		codeEdit:nameFocus()
 	end
 	StaticPopupDialogs[util.addonName.."SNIPPET_EXISTS"] = {
-		text = addon..": "..L["A snippet with the same name exists."],
+		text = ns.addon..": "..L["A snippet with the same name exists."],
 		button1 = OKAY,
 		hideOnEscape = 1,
 		whileDead = 1,
@@ -38,7 +38,7 @@ snippets:SetScript("OnShow", function(self)
 		OnCancel = ruleSetExistsAccept,
 	}
 	StaticPopupDialogs[util.addonName.."DELETE_SNIPPET"] = {
-		text = addon..": "..L["Are you sure you want to delete snippet %s?"],
+		text = ns.addon..": "..L["Are you sure you want to delete snippet %s?"],
 		button1 = DELETE,
 		button2 = CANCEL,
 		hideOnEscape = 1,
