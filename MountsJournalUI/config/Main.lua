@@ -4,24 +4,8 @@ local specificDB = ns.specificDB
 local config = CreateFrame("FRAME", "MountsJournalConfig")
 ns.config = config
 config:Hide()
-config.macroName = "MJMacro"
-config.secondMacroName = "MJSecondMacro"
-
-
--- BIND MOUNT
-mounts:on("ADDON_INIT", function(self)
-	local button1, button2, secure = binding:createBindingButtons(util.secureButtonNameMount, config, ("%s %s %d"):format(addon, SUMMONS, 1), "MJSecureActionButtonTemplate")
-	config.bindSummon1Key1 = button1
-	config.bindSummon1Key2 = button2
-	secure.id = 1
-
-	button1, button2, secure = binding:createBindingButtons(util.secureButtonNameSecondMount, config, ("%s %s %d"):format(addon, SUMMONS, 2), "MJSecureActionButtonTemplate")
-	config.bindSummon2Key1 = button1
-	config.bindSummon2Key2 = button2
-	secure.id = 2
-
-	self:event("CREATE_BUTTONS"):off("CREATE_BUTTONS")
-end)
+--config.macroName = "MJMacro"
+--config.secondMacroName = "MJSecondMacro"
 
 
 -- SHOW CONFIG
@@ -102,6 +86,7 @@ config:SetScript("OnShow", function(self)
 	summon1:SetText(SUMMON.." 1")
 
 	-- BIND MOUNT 1
+	self.bindSummon1Key1, self.bindSummon1Key2 = binding:createBindingButtons(util.secureButtonNameMount, self.leftPanel, ("%s %s %d"):format(ns.addon, SUMMONS, 1))
 	self.bindSummon1Key1:SetParent(self.leftPanel)
 	self.bindSummon1Key1:SetWidth(258)
 	self.bindSummon1Key1:SetPoint("TOPLEFT", self.summon1Icon, "BOTTOMLEFT", -3, -8)
@@ -137,6 +122,7 @@ config:SetScript("OnShow", function(self)
 	end)
 
 	-- SUMMON 2 ICON
+	self.bindSummon2Key1, self.bindSummon2Key2 = binding:createBindingButtons(util.secureButtonNameSecondMount, self.leftPanel, ("%s %s %d"):format(ns.addon, SUMMONS, 2))
 	self.summon2Icon = CreateFrame("BUTTON", nil, self.leftPanel, "MJIconButtonTemplate")
 	self.summon2Icon:SetPoint("TOPLEFT", modifierText, "BOTTOMLEFT", 3, -12)
 	self.summon2Icon:SetScript("OnClick", function(btn)

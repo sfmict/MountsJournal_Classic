@@ -506,7 +506,7 @@ ns.mountsDB = setmetatable({
 	[2844] = {5, 2512, 0}, -- 1266345 Cerulean Phase-Hunter
 }, {
 	__index = function(self, key)
-		self[key] = {GetClientDisplayExpansionLevel() + 1, 0, 0}
+		self[key] = {ns.util.expansion, 0, 0}
 		return self[key]
 	end
 })

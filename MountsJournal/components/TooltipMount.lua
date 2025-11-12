@@ -1,5 +1,5 @@
 local addon, ns = ...
-local util, journal, mounts = ns.util, ns.journal, ns.mounts
+local util, mounts = ns.util, ns.mounts
 
 
 GameTooltip:HookScript("OnTooltipSetUnit", function(tooltip)
@@ -8,7 +8,7 @@ GameTooltip:HookScript("OnTooltipSetUnit", function(tooltip)
 		if unit then
 			local spellID, mountID = util.getUnitMount(unit)
 			if spellID then
-				local name, _, icon = journal:getMountInfo(mountID or ns.additionalMounts[spellID])
+				local name, _, icon = util.getMountInfo(mountID or ns.additionalMounts[spellID])
 				tooltip:AddLine(("\n|T%s:18:18|t %s"):format(icon, name))
 			end
 		end

@@ -160,7 +160,7 @@ function tags:mountOptionsMenu_Init(btn, level, value)
 	local info = {}
 
 	if level == 1 then
-		local _, spellID, _, active, isUsable ,_, isFavorite, _,_,_, isCollected = journal:getMountInfo(self.menuMountID)
+		local _, spellID, _, active, isUsable ,_, isFavorite, _,_,_, isCollected = util.getMountInfo(self.menuMountID)
 		local isMount = type(self.menuMountID) == "number"
 		local needsFanfare = isMount and C_MountJournal.NeedsFanfare(self.menuMountID)
 		info.notCheckable = true

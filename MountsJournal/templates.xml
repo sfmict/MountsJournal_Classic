@@ -1,0 +1,51 @@
+<Ui>
+	<Script file="mixins/MacroMixin.lua"/>
+
+	<Frame name="MJSecureActionButtonTemplate" inherits="SecureActionButtonTemplate" mixin="MJMacroMixin" virtual="true">
+		<Scripts>
+			<OnEvent method="onEvent"/>
+			<OnLoad method="onLoad"/>
+			<PreClick method="preClick"/>
+			<PostClick method="postClick"/>
+		</Scripts>
+	</Frame>
+
+	<Button name="MJSecureActionButtonUpTemplate" inherits="SecureActionButtonTemplate" virtual="true">
+		<Scripts>
+			<PreClick>
+				self.ActionButtonUseKeyDown = GetCVar("ActionButtonUseKeyDown")
+				SetCVar("ActionButtonUseKeyDown", 0)
+			</PreClick>
+			<PostClick>
+				SetCVar("ActionButtonUseKeyDown", self.ActionButtonUseKeyDown)
+			</PostClick>
+		</Scripts>
+	</Button>
+
+	<Button name="MJSecureBarButtonTemplate" inherits="MJSecureActionButtonUpTemplate" virtual="true">
+		<Size x="36" y="36"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="icon"/>
+			</Layer>
+		</Layers>
+		<NormalTexture name="$parentNormalTexture" parentKey="NormalTexture" file="Interface\Buttons\UI-Quickslot2">
+			<Size x="66" y="66"/>
+			<Anchors>
+				<Anchor point="CENTER" x="0" y="-1"/>
+			</Anchors>
+		</NormalTexture>
+		<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
+		<HighlightTexture alphaMode="ADD" file="Interface\Buttons\ButtonHilight-Square"/>
+		<Scripts>
+			<OnLoad>
+				self:SetAttribute("type", "click")
+				self:RegisterForClicks("AnyUp")
+				self:RegisterForDrag("LeftButton")
+			</OnLoad>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+	</Button>
+</Ui>

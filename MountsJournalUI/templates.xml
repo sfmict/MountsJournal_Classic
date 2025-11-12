@@ -1,5 +1,4 @@
 <Ui>
-	<Script file="mixins/MacroMixin.lua"/>
 	<Script file="mixins/NavBarMixin.lua"/>
 	<Script file="mixins/WorldMapMixin.lua"/>
 	<Script file="mixins/ExistingListsMixin.lua"/>
@@ -2476,15 +2475,6 @@
 		</HighlightTexture>
 	</Button>
 
-	<Frame name="MJSecureActionButtonTemplate" inherits="SecureActionButtonTemplate" mixin="MJMacroMixin" virtual="true">
-		<Scripts>
-			<OnEvent method="onEvent"/>
-			<OnLoad method="onLoad"/>
-			<PreClick method="preClick"/>
-			<PostClick method="postClick"/>
-		</Scripts>
-	</Frame>
-
 	<Button name="MJMacroButtonTemplate" virtual="true">
 		<Size x="33" y="33"/>
 		<Layers>
@@ -2505,18 +2495,6 @@
 				self.highlight:Hide()
 				GameTooltip:Hide()
 			</OnLeave>
-		</Scripts>
-	</Button>
-
-	<Button name="MJSecureActionButtonUpTemplate" inherits="SecureActionButtonTemplate" virtual="true">
-		<Scripts>
-			<PreClick>
-				self.ActionButtonUseKeyDown = GetCVar("ActionButtonUseKeyDown")
-				SetCVar("ActionButtonUseKeyDown", 0)
-			</PreClick>
-			<PostClick>
-				SetCVar("ActionButtonUseKeyDown", self.ActionButtonUseKeyDown)
-			</PostClick>
 		</Scripts>
 	</Button>
 
@@ -2553,33 +2531,6 @@
 	</Button>
 
 	<Button name="MJSecureMacroButtonTemplate" inherits="MJIconButtonTemplate,MJSecureActionButtonUpTemplate" virtual="true">
-		<Scripts>
-			<OnLoad>
-				self:SetAttribute("type", "click")
-				self:RegisterForClicks("AnyUp")
-				self:RegisterForDrag("LeftButton")
-			</OnLoad>
-			<OnLeave>
-				GameTooltip:Hide()
-			</OnLeave>
-		</Scripts>
-	</Button>
-
-	<Button name="MJSecureBarButtonTemplate" inherits="MJSecureActionButtonUpTemplate" virtual="true">
-		<Size x="36" y="36"/>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture parentKey="icon"/>
-			</Layer>
-		</Layers>
-		<NormalTexture name="$parentNormalTexture" parentKey="NormalTexture" file="Interface\Buttons\UI-Quickslot2">
-			<Size x="66" y="66"/>
-			<Anchors>
-				<Anchor point="CENTER" x="0" y="-1"/>
-			</Anchors>
-		</NormalTexture>
-		<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
-		<HighlightTexture alphaMode="ADD" file="Interface\Buttons\ButtonHilight-Square"/>
 		<Scripts>
 			<OnLoad>
 				self:SetAttribute("type", "click")

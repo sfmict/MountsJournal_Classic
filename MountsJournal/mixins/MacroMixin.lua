@@ -34,6 +34,9 @@ macroFrame:on("ADDON_INIT", function(self)
 	self.isDruid = self.class == "DRUID"
 	self.broomID = 37011
 
+	CreateFrame("Button", util.secureButtonNameMount, nil, "MJSecureActionButtonTemplate").id = 1
+	CreateFrame("Button", util.secureButtonNameSecondMount, nil, "MJSecureActionButtonTemplate").id = 2
+
 	local classOptionMacro = ""
 	local defMacro = ""
 

@@ -16,23 +16,15 @@
 ## Category-ruRU: Коллекции отряда
 ## Category-zhCN: 战团藏品
 ## Category-zhTW: 戰隊收藏
-## SavedVariables: MountsJournalDB
-## SavedVariablesPerCharacter: MountsJournalChar
-## OptionalDeps: LibStub, LibSFDropDown, LibThingsLoad, LibDeflate, OPie
+## OptionalDeps: LibStub, LibSFDropDown
+## Dependencies: MountsJournal, Blizzard_Collections
+## LoadOnDemand: 1
+## LoadWith: Blizzard_Collections
 embeds.xml
-locales.xml
-Util.lua
-widgets\Binding.lua
-templates.xml
-Mounts.lua
-Old.lua
-database\SpecificDB.lua
 database\ClassDB.lua
 database\FamilyDB.lua
-database\MountsDB.lua
+Util.lua
+templates.xml
 Journal.lua
 components\components.xml
 config\config.xml
-#@do-not-package@
-_test.lua
-#@end-do-not-package@

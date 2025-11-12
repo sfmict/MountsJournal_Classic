@@ -295,7 +295,7 @@ function journal:init()
 		self.mapSettings:SetShown(tab == 2)
 		self.bgFrame.profilesMenu:SetShown(tab ~= 1)
 		self.mountSpecial:SetShown(tab ~= 1)
-		self.bgFrame.summonPanelSettings:SetShown(tab ~= 1 and self.summonPanel:IsShown())
+		self.bgFrame.summonPanelSettings:SetShown(tab ~= 1 and mounts.summonPanel:IsShown())
 		self:event("TAB_CHANGED")
 	end
 
@@ -385,7 +385,7 @@ function journal:init()
 	summon1.icon:SetTexture(mounts.config.summon1Icon)
 	summon1:SetAttribute("clickbutton", _G[util.secureButtonNameMount])
 	summon1:SetScript("OnDragStart", function()
-		self.summonPanel:startDrag()
+		mounts.summonPanel:startDrag()
 		-- if InCombatLockdown() then return end
 		-- if not GetMacroInfo(ns.config.macroName) then
 		-- 	ns.config:createMacro(ns.config.macroName, util.secureButtonNameMount, 303868)
@@ -393,7 +393,7 @@ function journal:init()
 		-- PickupMacro(ns.config.macroName)
 	end)
 	summon1:SetScript("OnDragStop", function()
-		self.summonPanel:stopDrag()
+		mounts.summonPanel:stopDrag()
 	end)
 	summon1:SetScript("OnEnter", function(btn)
 		GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
@@ -416,7 +416,7 @@ function journal:init()
 	summon2.icon:SetTexture(mounts.config.summon2Icon)
 	summon2:SetAttribute("clickbutton", _G[util.secureButtonNameSecondMount])
 	summon2:SetScript("OnDragStart", function()
-		self.summonPanel:startDrag()
+		mounts.summonPanel:startDrag()
 		-- if InCombatLockdown() then return end
 		-- if not GetMacroInfo(ns.config.secondMacroName) then
 		-- 	ns.config:createMacro(ns.config.secondMacroName, util.secureButtonNameSecondMount, 237534)
@@ -424,7 +424,7 @@ function journal:init()
 		-- PickupMacro(ns.config.secondMacroName)
 	end)
 	summon2:SetScript("OnDragStop", function()
-		self.summonPanel:stopDrag()
+		mounts.summonPanel:stopDrag()
 	end)
 	summon2:SetScript("OnEnter", summon1:GetScript("OnEnter"))
 
@@ -1537,7 +1537,7 @@ end
 
 
 function journal:setMountTooltip(mountID, spellID, showDescription)
-	local name, _,_,_,_,_,_,_, faction = self:getMountInfo(mountID)
+	local name, _,_,_,_,_,_,_, faction = util.getMountInfo(mountID)
 	local expansion, familyID, _, descriptionText, sourceText, _, mountType = self:getMountInfoExtra(mountID)
 	GameTooltip:SetText(name, nil, nil, nil, nil, true)
 
@@ -1614,17 +1614,6 @@ function journal:setMountTooltip(mountID, spellID, showDescription)
 	--	GameTooltip:AddLine(sourceText, 1,1,1, true)
 	--	GameTooltip:AddLine(descriptionText, 1,1,1, true)
 	--end
-end
-
-
-function journal:getMountInfo(mount)
-	-- name, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected
-	if type(mount) == "number" then
-		local name, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected = C_MountJournal.GetMountInfoByID(mount)
-		return name, spellID, icon, active, isUsable, mountsDB[mount][3], isFavorite, isFactionSpecific, faction, shouldHideOnChar, isCollected
-	else
-		return mount.name, mount.spellID, mount.icon, mount:isActive(), mount:isUsable(), 0, mount:getIsFavorite(), false, nil, not mount.isShown, mount:isCollected()
-	end
 end
 
 
@@ -1855,7 +1844,7 @@ end
 
 
 function journal:defaultInitMountButton(btn, data)
-	local creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, isFiltered, isCollected = self:getMountInfo(data.mountID)
+	local creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, isFiltered, isCollected = util.getMountInfo(data.mountID)
 	local needsFanfare = type(data.mountID) == "number" and C_MountJournal.NeedsFanfare(data.mountID)
 
 	btn.spellID = spellID
@@ -1921,7 +1910,7 @@ end
 
 function journal:gridInitMountButton(btn, data)
 	local mountID = data.mountID
-	local creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, isFiltered, isCollected = self:getMountInfo(mountID)
+	local creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, isFiltered, isCollected = util.getMountInfo(mountID)
 	local needsFanfare = type(data.mountID) == "number" and C_MountJournal.NeedsFanfare(mountID)
 
 	btn.spellID = spellID
@@ -1963,7 +1952,7 @@ function journal:gridModelSceneInit(btn, data, force)
 	btn:SetSize(self.gmsWidth, self.gmsWidth)
 	local mountID = data.mountID
 	local oldMountID = btn.mountID
-	local creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, isFiltered, isCollected = self:getMountInfo(mountID)
+	local creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, isFiltered, isCollected = util.getMountInfo(mountID)
 	local needsFanfare = type(mountID) == "number" and C_MountJournal.NeedsFanfare(mountID)
 	btn.spellID = spellID
 	btn.mountID = mountID
@@ -2593,7 +2582,7 @@ end
 function journal:updateMountDisplay(forceSceneChange, creatureID)
 	local info = self.mountDisplay.info
 	if self.selectedMountID then
-		local creatureName, spellID, icon, active, isUsable = self:getMountInfo(self.selectedMountID)
+		local creatureName, spellID, icon, active, isUsable = util.getMountInfo(self.selectedMountID)
 		local isMount = type(self.selectedMountID) == "number"
 		local needsFanfare = isMount and C_MountJournal.NeedsFanfare(self.selectedMountID)
 		if isUsable then isUsable = mounts:isUsable(spellID) end
@@ -2713,7 +2702,7 @@ function journal:setSelectedMount(mountID, spellID, index)
 	local scrollTo = not spellID
 	if not spellID then
 		local _
-		_, spellID = self:getMountInfo(mountID)
+		_, spellID = util.getMountInfo(mountID)
 	end
 	local oldSelectedID = self.selectedMountID
 	self.selectedMountID = mountID
@@ -3254,7 +3243,7 @@ end
 
 
 function journal:updateMountsList()
-	local filters, list, mountTypes, tags, pets = mounts.filters, self.list, self.mountTypes, self.tags, ns.pets
+	local filters, list, mountTypes, tags, pets, getMountInfo = mounts.filters, self.list, self.mountTypes, self.tags, ns.pets, util.getMountInfo
 	local sources, factions, pet, expansions = filters.sources, filters.factions, filters.pet, filters.expansions
 	local text = util.cleanText(self.searchBox:GetText())
 	local numMounts = 0
@@ -3262,7 +3251,7 @@ function journal:updateMountsList()
 
 	for i = 1, #self.mountIDs do
 		local mountID = self.mountIDs[i]
-		local name, spellID, _,_, isUsable, sourceType, _,_, mountFaction, shouldHideOnChar, isCollected = self:getMountInfo(mountID)
+		local name, spellID, _,_, isUsable, sourceType, _,_, mountFaction, shouldHideOnChar, isCollected = getMountInfo(mountID)
 		local expansion, familyID, _,_, sourceText, isSelfMount, mountType = self:getMountInfoExtra(mountID)
 		local petID = pets:getPetForProfile(self.petForMount, spellID)
 		local isMountHidden = self:isMountHidden(mountID)

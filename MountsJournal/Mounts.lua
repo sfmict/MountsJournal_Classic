@@ -135,6 +135,13 @@ function mounts:ADDON_LOADED(addonName)
 		self.usableRepairMounts = {}
 		self.usableIDs = {}
 
+		--ui ns
+		function self.setMetaNS(ui)
+			self.setMetaNS = nil
+			ui.addon = addon
+			setmetatable(ui, {__index = ns, __metatable = false})
+		end
+
 		-- MINIMAP BUTTON
 		local ldb_icon = LibStub("LibDataBroker-1.1"):NewDataObject(addon, {
 			type = "launcher",

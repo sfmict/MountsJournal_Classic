@@ -124,7 +124,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 			end
 
 			for i, data in ipairs(journal.dataProvider:GetCollection()) do
-				local _, spellID, _,_,_,_,_,_,_,_, isCollected = journal:getMountInfo(data.mountID)
+				local _, spellID, _,_,_,_,_,_,_,_, isCollected = util.getMountInfo(data.mountID)
 				if enabled then
 					if isCollected then
 						ns.mounts:addMountToList(journal.list, spellID)
@@ -148,7 +148,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 			end
 
 			for _, mountID in ipairs(journal.mountIDs) do
-				local _, spellID, _,_,_,_, isFavorite, _,_,_, isCollected = journal:getMountInfo(mountID)
+				local _, spellID, _,_,_,_, isFavorite, _,_,_, isCollected = util.getMountInfo(mountID)
 				if isCollected and (not onlyFavorites or isFavorite) then
 					ns.mounts:addMountToList(journal.list, spellID)
 				end
