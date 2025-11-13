@@ -17,7 +17,7 @@ externals:
 	MountsJournal/libs/LibDataBroker-1.1:
 		site: https://www.curseforge.com/wow/addons/libdatabroker-1-1
 		url: https://github.com/tekkub/libdatabroker-1-1
-	libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
+	MountsJournal/libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
 	MountsJournalUI/libs/LibSFDropDown:
 		site: https://www.curseforge.com/wow/addons/libsfdropdown
 		url: https://github.com/sfmict/LibSFDropDown
@@ -31,7 +31,6 @@ ignore:
 	- libs/.*\.toc$
 	- libs/LibStub/tests
 	- libs/LibDataBroker-1\.1/README\.textile
-	- libs/LibDBIcon-1\.0/lib\.xml
 	- libs/LibSerialize/archive
 	- libs/LibSerialize/buildreadme.lua
 	- libs/LibSerialize/tests.lua
