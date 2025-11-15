@@ -14,6 +14,11 @@ mounts:RegisterEvent("UPDATE_INVENTORY_DURABILITY")
 
 
 local function loadUI()
+	function mounts.setMetaNS(ui)
+		ui.addon = addon
+		setmetatable(ns, {__index = ui, __metatable = false})
+		setmetatable(ui, {__index = ns, __metatable = false})
+	end
 	mounts:UnregisterEvent("ADDON_LOADED")
 	mounts.ADDON_LOADED = nil
 	local name = addon.."UI"
@@ -22,6 +27,7 @@ local function loadUI()
 		C_AddOns.EnableAddOn(name)
 		C_AddOns.LoadAddOn(name)
 	end
+	mounts.setMetaNS = nil
 end
 
 
@@ -143,13 +149,6 @@ function mounts:ADDON_LOADED(addonName)
 
 		self.usableRepairMounts = {}
 		self.usableIDs = {}
-
-		--ui ns
-		function self.setMetaNS(ui)
-			self.setMetaNS = nil
-			ui.addon = addon
-			setmetatable(ui, {__index = ns, __metatable = false})
-		end
 
 		-- MINIMAP BUTTON
 		local ldb_icon = LibStub("LibDataBroker-1.1"):NewDataObject(addon, {
