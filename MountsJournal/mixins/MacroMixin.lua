@@ -226,7 +226,9 @@ macroFrame:on("ADDON_INIT", function(self)
 		]]
 		classOptionMacro = classOptionMacro..self.classDismount
 		defMacro = defMacro..[[
-			if GetShapeshiftFormID() then
+			local curFormID = GetShapeshiftFormID()
+			-- 1:CAT, 3:STAG, 5:BEAR, 36:TREANT
+			if curFormID == 1 or curFormID == 3 or curFormID == 5 or curFormID == 36 then
 				macro = self:addLine(macro, "/cancelform")
 			end
 		]]

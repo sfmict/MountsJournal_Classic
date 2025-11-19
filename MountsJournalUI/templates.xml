@@ -2957,7 +2957,7 @@
 						battlePetActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
 
 						MJTooltipModel:ClearAllPoints()
-						MJTooltipModel:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 0, 2)
+						MJTooltipModel:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 2)
 						MJTooltipModel:Show()
 					end
 				end
@@ -3047,7 +3047,10 @@
 			</OnClick>
 			<OnEnter>
 				self:SetBackdropBorderColor(.6, .6, .6)
-				GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+				local parent = self:GetParent()
+				GameTooltip:SetOwner(self, "ANCHOR_NONE")
+				GameTooltip:SetPoint("BOTTOM", self, "TOP")
+				GameTooltip:SetPoint("LEFT", parent, "RIGHT")
 				GameTooltip:SetText(self.subName:IsShown() and self.subName:GetText() or self.name:GetText(), 1, 1, 1)
 				GameTooltip:AddLine(self.sourceText, 1, 1, 1, true)
 				if self.description and self.description ~= "" then
@@ -3063,7 +3066,8 @@
 					battlePetActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
 
 					MJTooltipModel:ClearAllPoints()
-					MJTooltipModel:SetPoint("TOPLEFT", GameTooltip, "BOTTOMLEFT", 0, 2)
+					MJTooltipModel:SetPoint("TOP", self, 0, 2)
+					MJTooltipModel:SetPoint("LEFT", parent, "RIGHT")
 					MJTooltipModel:Show()
 				end
 			</OnEnter>
