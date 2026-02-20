@@ -358,7 +358,7 @@ end
 function mounts:PLAYER_REGEN_DISABLED()
 	self:UnregisterEvent("UNIT_SPELLCAST_START")
 	self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-	if not self.isTracking then self:UnregisterEvent("UNIT_AURA") end
+	if not self.auraInstanceID then self:UnregisterEvent("UNIT_AURA") end
 end
 
 
@@ -438,7 +438,7 @@ do
 
 
 	function mounts:startTracking(spellID, auraInstanceID)
-		self.isTracking = auraInstanceID
+		self.auraInstanceID = auraInstanceID
 		if self.config.statCollection then
 			mountStat = self.stat[spellID]
 			self:SetScript("OnUpdate", tracking)
@@ -450,7 +450,7 @@ end
 
 function mounts:stopTracking()
 	self:SetScript("OnUpdate", nil)
-	self.isTracking = nil
+	self.auraInstanceID = nil
 	if InCombatLockdown() then
 		self:UnregisterEvent("UNIT_AURA")
 	end
@@ -464,15 +464,15 @@ function mounts:UNIT_AURA(_, data)
 		local spellID, mountID, auraInstanceID = util.getUnitMount("player")
 		if spellID then self:startTracking(spellID, auraInstanceID) end
 	end
-	if data.removedAuraInstanceIDs and self.isTracking then
+	if data.removedAuraInstanceIDs and self.auraInstanceID then
 		for i = 1, #data.removedAuraInstanceIDs do
-			if data.removedAuraInstanceIDs[i] == self.isTracking then
+			if data.removedAuraInstanceIDs[i] == self.auraInstanceID then
 				self:stopTracking()
 				break
 			end
 		end
 	end
-	if data.addedAuras and not self.isTracking then
+	if data.addedAuras and not self.auraInstanceID then
 		for i = 1, #data.addedAuras do
 			local aura = data.addedAuras[i]
 			local spellID
