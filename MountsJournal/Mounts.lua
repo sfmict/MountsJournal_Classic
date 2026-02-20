@@ -1,6 +1,9 @@
 local addon, ns = ...
 local L, util = ns.L, ns.util
-local C_MountJournal, C_Map, C_Timer, MapUtil, next, rawget, wipe, random, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, C_Scenario, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container = C_MountJournal, C_Map, C_Timer, MapUtil, next, rawget, wipe, random, GetTime, IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, GetSpellCooldown, IsUsableSpell, SecureCmdOptionParse, UnitLevel, C_Scenario, BACKPACK_CONTAINER, NUM_BAG_SLOTS, C_Container
+local C_MountJournal, C_Map, C_Spell, C_Timer, C_Scenario, C_Container, MapUtil = C_MountJournal, C_Map, C_Spell, C_Timer, C_Scenario, C_Container, MapUtil
+local IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, SecureCmdOptionParse, GetSpellCooldown, IsUsableSpell, UnitLevel = IsFlyableArea, IsSubmerged, GetInstanceInfo, IsIndoors, UnitInVehicle, IsMounted, InCombatLockdown, SecureCmdOptionParse, GetSpellCooldown, IsUsableSpell, UnitLevel
+local BACKPACK_CONTAINER, NUM_BAG_SLOTS = BACKPACK_CONTAINER, NUM_BAG_SLOTS
+local next, rawget, wipe, GetTime, random, floor = next, rawget, wipe, GetTime, math.random, math.floor
 local mounts = CreateFrame("Frame", "MountsJournal")
 ns.mounts = mounts
 util.setEventsMixin(mounts)
@@ -124,6 +127,10 @@ function mounts:ADDON_LOADED(addonName)
 			t[k] = {0, 0, 0}
 			return t[k]
 		end})
+		self.maxCounter = 1 -- to avoid div by 0
+		for k, v in next, self.stat do
+			if self.maxCounter < v[1] then self.maxCounter = v[1] end
+		end
 
 		MountsJournalChar = MountsJournalChar or {}
 		self.charDB = MountsJournalChar
@@ -150,6 +157,17 @@ function mounts:ADDON_LOADED(addonName)
 		self.usableRepairMounts = {}
 		self.usableIDs = {}
 
+		-- mount weight
+		self.rarityWeight = setmetatable({}, {__index = function(t, spellID)
+			local mountID = C_MountJournal.GetMountFromSpell(spellID)
+			local rarity = mountID and ns.mountsDB[mountID][3] or 100
+			t[spellID] = 1 - rarity * .01
+			return t[spellID]
+		end})
+		self.counterWeight = setmetatable({}, {__index = function(t, spellID)
+			return (1 - self:getMountSummons(spellID) / self.maxCounter)^3
+		end})
+
 		-- MINIMAP BUTTON
 		local ldb_icon = LibStub("LibDataBroker-1.1"):NewDataObject(addon, {
 			type = "launcher",
@@ -166,7 +184,7 @@ function mounts:ADDON_LOADED(addonName)
 			end,
 		})
 		LibStub("LibDBIcon-1.0"):Register(addon, ldb_icon, mounts.config.omb)
-		
+
 		if C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
 			loadUI()
 		end
@@ -420,6 +438,9 @@ function mounts:UNIT_SPELLCAST_SUCCEEDED(_,_, spellID)
 	if ns.additionalMounts[spellID] or C_MountJournal.GetMountFromSpell(spellID) then
 		local mountStat = self.stat[spellID]
 		mountStat[1] = mountStat[1] + 1
+		if self.maxCounter < mountStat[1] then
+			self.maxCounter = mountStat[1]
+		end
 		self:event("MOUNT_SUMMONED")
 	end
 end
@@ -692,14 +713,17 @@ function mounts:setMountsList(profile)
 					if not self.list.fly and next(list.fly) then
 						self.list.fly = list.fly
 						self.list.flyWeight = profile.mountsWeight
+						self.list.flyPWeight = profile.mountsWeight
 					end
 					if not self.list.ground and next(list.ground) then
 						self.list.ground = list.ground
 						self.list.groundWeight = profile.mountsWeight
+						self.list.groundPWeight = profile.mountsWeight
 					end
 					if not self.list.swimming and next(list.swimming) then
 						self.list.swimming = list.swimming
 						self.list.swimmingWeight = profile.mountsWeight
+						self.list.swimmingPWeight = profile.mountsWeight
 					end
 				end
 			end
@@ -772,25 +796,45 @@ function mounts:summon(spellID)
 end
 
 
-function mounts:setUsableID(ids, mountsWeight)
+function mounts:setUsableID(ids, mWeight, mPWeight)
 	local weight = 0
 	wipe(self.usableIDs)
 
-	for spellID in next, ids do
-		local usable
-		if ns.additionalMounts[spellID] then
-			usable = self.withAdditional and ns.additionalMounts[spellID]:canUse()
-		else
-			local mountID = C_MountJournal.GetMountFromSpell(spellID)
-			if mountID then
-				local _,_,_,_, isUsable, _,_,_,_,_,_,_, isForDragonriding = C_MountJournal.GetMountInfoByID(mountID)
-				usable = isUsable and self:isUsable(spellID)
+	if mPWeight == nil or mWeight == mPWeight then
+		for spellID in next, ids do
+			local usable
+			if ns.additionalMounts[spellID] then
+				usable = self.withAdditional and ns.additionalMounts[spellID]:canUse()
+			else
+				local mountID = C_MountJournal.GetMountFromSpell(spellID)
+				if mountID then
+					local _,_,_,_, isUsable, _,_,_,_,_,_,_, isForDragonriding = C_MountJournal.GetMountInfoByID(mountID)
+					usable = isUsable and self:isUsable(spellID)
+				end
+			end
+
+			if usable then
+				weight = weight + (mWeight[spellID] or 100)
+				self.usableIDs[weight] = spellID
 			end
 		end
+	else
+		for spellID in next, ids do
+			local usable
+			if ns.additionalMounts[spellID] then
+				usable = self.withAdditional and ns.additionalMounts[spellID]:canUse()
+			else
+				local mountID = C_MountJournal.GetMountFromSpell(spellID)
+				if mountID then
+					local _,_,_,_, isUsable = C_MountJournal.GetMountInfoByID(mountID)
+					usable = isUsable and C_Spell.IsSpellUsable(spellID)
+				end
+			end
 
-		if usable then
-			weight = weight + (mountsWeight[spellID] or 100)
-			self.usableIDs[weight] = spellID
+			if usable then
+				weight = weight + floor((mPWeight[spellID] or 100) * mWeight[spellID] * .99 + 1.5)
+				self.usableIDs[weight] = spellID
+			end
 		end
 	end
 
@@ -902,13 +946,13 @@ function mounts:setSummonMount(withAdditional)
 	-- swimming
 	and not (flags.swimming and (
 		flags.isVashjir and self:setUsableID(self.swimmingVashjir, self.sp.mountsWeight)
-		or self:setUsableID(self.list.swimming, self.list.swimmingWeight)
+		or self:setUsableID(self.list.swimming, self.list.swimmingWeight, self.list.swimmingPWeight)
 	))
 	-- fly
-	and not (flags.fly and self:setUsableID(self.list.fly, self.list.flyWeight))
+	and not (flags.fly and self:setUsableID(self.list.fly, self.list.flyWeight, self.list.flyPWeight))
 	-- ground
-	and not self:setUsableID(self.list.ground, self.list.groundWeight)
-	and not self:setUsableID(self.list.fly, self.list.flyWeight)
+	and not self:setUsableID(self.list.ground, self.list.groundWeight, self.list.groundPWeight)
+	and not self:setUsableID(self.list.fly, self.list.flyWeight, self.list.flyPWeight)
 	then
 		self.fromPriority = nil
 		if not self.noError then self:errorSummon() end
@@ -930,7 +974,7 @@ function mounts:setSummonMountByType(mType, withAdditional)
 	-- herbMount
 	and not (flags.herb and mType ~= "swimming" and self:setUsableID(self.herbalismMounts, self.sp.mountsWeight))
 	-- by type
-	and not self:setUsableID(self.list[mType], self.list[mType.."Weight"])
+	and not self:setUsableID(self.list[mType], self.list[mType.."Weight"], self.list[mType.."PWeight"])
 	and not self:setUsableID(self.lowLevel, self.sp.mountsWeight) then
 		self.fromPriority = nil
 		if not self.noError then self:errorSummon() end

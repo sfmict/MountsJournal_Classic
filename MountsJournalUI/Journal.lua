@@ -1,7 +1,9 @@
 local addon, ns = ...
 local L, util, mounts = ns.L, ns.util, ns.mounts
 local mountsDB, specificDB, classDB = ns.mountsDB, ns.specificDB, ns.classDB
-local C_MountJournal, C_PetJournal, wipe, tinsert, next, pairs, ipairs, select, type, sort, math, concat = C_MountJournal, C_PetJournal, wipe, tinsert, next, pairs, ipairs, select, type, sort, math, table.concat
+local C_MountJournal, C_PetJournal, InCombatLockdown = C_MountJournal, C_PetJournal, InCombatLockdown
+local next, pairs, ipairs, type, select, math = next, pairs, ipairs, type, select, math
+local wipe, tinsert, sort, concat = wipe, table.insert, table.sort, table.concat
 local journal = CreateFrame("FRAME", "MountsJournalFrame")
 ns.journal = journal
 journal.mountTypes = util.mountTypes
