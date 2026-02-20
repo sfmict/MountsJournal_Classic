@@ -519,7 +519,7 @@ actions.sstate.description = L["Set a state that can be read in conditions using
 actions.sstate.doesntInterrupt = true
 
 function actions.sstate:getIcon()
-	return 2147148
+	return 841380
 end
 
 actions.sstate.getValueText = actions.macro.getValueText
@@ -535,7 +535,7 @@ actions.snip = {}
 actions.snip.text = L["Code Snippet"]
 
 function actions.snip:getIcon()
-	return 1660431
+	return 442739
 end
 
 actions.snip.getValueText = conds.snip.getValueText

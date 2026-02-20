@@ -569,7 +569,7 @@ end
 function conds.kspell:setValueLink(fontString, value)
 	if value then
 		local link = ltl:GetSpellLink(value)
-		local icon = link and ltl:GetSpellInfo(value).iconID
+		local icon = link and link ~= "" and ltl:GetSpellInfo(value).iconID
 		fontString:SetText(util.getIconLink(link, icon))
 	else
 		fontString:SetText()
@@ -1656,16 +1656,16 @@ function conds:getMenuList(value, func)
 end
 
 
-function conds:getFuncText(conds, keys, isGroup)
+function conds:getFuncText(rule, keys, isGroup)
 	local text = {}
 
 	if isGroup == nil then
-		local condText = conds.action and ns.actions[conds.action[1]].condText
+		local condText = rule.action and ns.actions[rule.action[1]].condText
 		text[1] = condText and condText or "not (profileLoad or self.useMount)"
 	end
 
 	local i = 1
-	local cond = conds[i]
+	local cond = rule[i]
 	while cond ~= nil do
 		local condt = self[cond[2]]
 		if condt ~= nil then
@@ -1678,9 +1678,9 @@ function conds:getFuncText(conds, keys, isGroup)
 			i = i + 1
 			text[#text + 1] = condText
 		else
-			tremove(conds, i)
+			tremove(rule, i)
 		end
-		cond = conds[i]
+		cond = rule[i]
 	end
 	return concat(text, "\nand ")
 end

@@ -45,22 +45,11 @@ local function onLeave(self)
 	MJTooltipModel:Hide()
 end
 
-local backdrop = {
-	bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-	edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-	tile = true,
-	tileEdge = true,
-	tileSize = 14,
-	edgeSize = 14,
-	insets = {left = 3, right = 3, top = 3, bottom = 3}
-}
-
 local model_OnEnter, model_OnLeave do
-	local inspect = CreateFrame("BUTTON")
+	local inspect = CreateFrame("BUTTON", nil, nil, "MJMotionPropagateTemplate")
 	inspect:Hide()
 	inspect:SetSize(20, 20)
 	inspect:SetAlpha(.5)
-	inspect:SetPropagateMouseMotion(true)
 	inspect.icon = inspect:CreateTexture(nil, "BACKGROUND")
 	inspect.icon:SetTexture("interface/cursor/inspect.blp")
 	--ULx, ULy, LLx, LLy, URx, URy, LRx, LRy
@@ -80,11 +69,10 @@ local model_OnEnter, model_OnLeave do
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 	end)
 
-	local hint = CreateFrame("Frame", nil, nil, "MJHelpPlate")
+	local hint = CreateFrame("Frame", nil, nil, "MJHelpPlate,MJMotionPropagateTemplate")
 	hint:Hide()
 	hint:SetScale(.7)
 	hint:SetAlpha(.5)
-	hint:SetPropagateMouseMotion(true)
 	hint:SetPoint("BOTTOM", inspect, "TOP", 1 / .7, -10 / .7)
 	hint:SetScript("OnEnter", function(hint)
 		hint.highlight:Show()
