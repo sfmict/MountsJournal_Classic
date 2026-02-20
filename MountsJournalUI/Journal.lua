@@ -720,7 +720,7 @@ function journal:init()
 	self.percentSlider.edit:HookScript("OnEnterPressed", mountListUpdate)
 	self.percentSlider.edit:HookScript("OnMouseWheel", mountListUpdate)
 
-	-- FILTERS BUTTONS
+	-- FILTER BUTTONS
 	local function filterClick(btn)
 		self:setBtnFilters(btn:GetParent():GetParent().id)
 	end
@@ -735,12 +735,13 @@ function journal:init()
 		GameTooltip:Hide()
 	end
 
-	local function CreateButtonFilter(id, parent, width, height, texture, tooltip)
+	local function CreateButtonFilter(id, parent, width, height, texture, tWidth, tHeight, tooltip, l,r,t,b)
 		local btn = CreateFrame("CheckButton", nil, parent, width == height and "MJFilterButtonSquareTemplate" or "MJFilterButtonRectangleTemplate")
 		btn.id = id
 		btn.tooltip = tooltip
 		btn:SetSize(width, height)
-		if id == 1 then
+
+		if not parent.childs then
 			btn:SetPoint("LEFT", 5, 0)
 			parent.childs = {}
 		else
@@ -748,50 +749,33 @@ function journal:init()
 		end
 		parent.childs[#parent.childs + 1] = btn
 
-		btn.icon:SetTexture(texture.path)
-		btn.icon:SetSize(texture.width, texture.height)
-		if texture.texCoord then btn.icon:SetTexCoord(unpack(texture.texCoord)) end
+		btn.icon:SetTexture(texture)
+		btn.icon:SetSize(tWidth, tHeight)
+		if l then btn.icon:SetTexCoord(l,r,t,b) end
 
 		btn:SetScript("OnClick", filterClick)
 		btn:SetScript("OnEnter", filterEnter)
 		btn:SetScript("OnLeave", filterLeave)
 	end
 
-	-- FILTERS TYPES BUTTONS
-	local typesTextures = {
-		{path = self.tFly, width = 32, height = 16},
-		{path = self.tGround, width = 32, height = 16},
-		{path = self.tSwimming, width = 32, height = 16},
-	}
+	-- FILTER TYPES BUTTONS
+	CreateButtonFilter(1, self.filtersBar.types, 83.3333, 25, self.tFly, 32, 16, L["MOUNT_TYPE_1"])
+	CreateButtonFilter(2, self.filtersBar.types, 83.3333, 25, self.tGround, 32, 16, L["MOUNT_TYPE_2"])
+	CreateButtonFilter(3, self.filtersBar.types, 83.3333, 25, self.tSwimming, 32, 16, L["MOUNT_TYPE_3"])
 
-	for i = 1, #typesTextures do
-		CreateButtonFilter(i, self.filtersBar.types, 83.3333, 25, typesTextures[i], L["MOUNT_TYPE_"..i])
-	end
+	-- FILTER SELECTED BUTTONS
+	CreateButtonFilter(1, self.filtersBar.selected, 62.5, 25, self.tFly, 32, 16, L["MOUNT_TYPE_1"])
+	CreateButtonFilter(2, self.filtersBar.selected, 62.5, 25, self.tGround, 32, 16, L["MOUNT_TYPE_2"])
+	CreateButtonFilter(3, self.filtersBar.selected, 62.5, 25, self.tSwimming, 32, 16, L["MOUNT_TYPE_3"])
+	CreateButtonFilter(4, self.filtersBar.selected, 62.5, 25, "Interface/BUTTONS/UI-GROUPLOOT-PASS-DOWN", 16, 16, L["MOUNT_TYPE_4"])
 
-	-- FILTERS SELECTED BUTTONS
-	typesTextures[4] = {path = "Interface/BUTTONS/UI-GROUPLOOT-PASS-DOWN", width = 16, height = 16}
-	for i = 1, #typesTextures do
-		CreateButtonFilter(i, self.filtersBar.selected, 62.5, 25, typesTextures[i], L["MOUNT_TYPE_"..i])
-	end
-
-	-- FILTERS SOURCES BUTTONS
-	local sourcesTextures = {
-		{path = texPath.."sources", texCoord = {0, .25, 0, .25}, width = 20, height = 20},
-		{path = texPath.."sources", texCoord = {.25, .5, 0, .25}, width = 20, height = 20},
-		{path = texPath.."sources", texCoord = {.5, .75, 0, .25}, width = 20, height = 20},
-		{path = texPath.."sources", texCoord = {.75, 1, 0, .25}, width = 20, height = 20},
-		nil,
-		{path = texPath.."sources", texCoord = {.25, .5, .25, .5}, width = 20, height = 20},
-		{path = texPath.."sources", texCoord = {.5, .75, .25, .5}, width = 20, height = 20},
-		{path = texPath.."sources", texCoord = {.75, 1, .25, .5}, width = 20, height = 20},
-		{path = texPath.."sources", texCoord = {0, .25, .5, .75}, width = 20, height = 20},
-		{path = texPath.."sources", texCoord = {.25, .5, .5, .75}, width = 20, height = 20},
-		-- {path = texPath.."sources", texCoord = {.5, .75, .5, .75}, width = 20, height = 20},
-	}
-
-	for i = 1, #sourcesTextures do
-		if sourcesTextures[i] then
-			CreateButtonFilter(i, self.filtersBar.sources, 27.7778, 25, sourcesTextures[i], _G["BATTLE_PET_SOURCE_"..i])
+	-- FILTER SOURCES BUTTONS
+	local sourcesTex = texPath.."sources"
+	for i = 1, 10 do
+		if i ~= 5 then
+			local col = (i - 1) % 4 * .25
+			local row = math.floor((i - 1) / 4) * .25
+			CreateButtonFilter(i, self.filtersBar.sources, 27.7778, 25, sourcesTex, 20, 20, _G["BATTLE_PET_SOURCE_"..i], col, col + .25, row, row + .25)
 		end
 	end
 
