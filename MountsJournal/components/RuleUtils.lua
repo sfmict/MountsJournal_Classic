@@ -195,7 +195,7 @@ do
 	end
 
 	function macroFrame:isFriendInGroup(btag, isRaid)
-		if not IsInGroup() then return end
+		if not IsInGroup() or isRaid and not IsInRaid() then return end
 		local _, numOline, fNum, fNumOnline = BNGetNumFriends()
 		for i = 1, fNumOnline do
 			local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
