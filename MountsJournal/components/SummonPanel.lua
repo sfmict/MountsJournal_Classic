@@ -182,7 +182,7 @@ end
 
 
 -- BUTTONS
-mounts:on("ADDON_INIT", function()
+mounts:on("ADDON_INIT", function(mounts)
 	panel.config = mounts.globalDB.summonPanelConfig
 	panel.config.frameStrata = panel.config.frameStrata or 2
 	panel.config.kSize = panel.config.kSize or 1

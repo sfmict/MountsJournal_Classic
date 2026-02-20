@@ -1,7 +1,3 @@
-if GetLocale() ~= "ruRU" then
-	return
-end
-
 local _, ns = ...
 local L = ns.L
 
@@ -178,9 +174,11 @@ L["Rule"] = "Правило"
 L["Rules"] = "Правила"
 L["RULES_TITLE"] = "Правила призыва маунтов. Правила проверяются по порядку, и первое правило в котором все условия совпадут выполнит действие."
 L["Add Rule"] = "Добавить правило"
+L["Add Group"] = "Добавить группу"
+L["Duplicate"] = "Дублировать"
 L["Import Rule"] = "Импортировать правило"
 L["Reset Rules"] = "Сбросить правила"
-L["Remove Rule %d"] = "Удалить правило %d"
+L["Remove Rule %s"] = "Удалить правило %s"
 L["Alternative Mode"] = "Альтернативный режимм"
 L["NOT_CONDITION"] = "Не"
 L["Conditions"] = "Условия"
@@ -219,6 +217,7 @@ L["Get State"] = "Получить состояние"
 L["Get a state that can be set in actions using \"Set State\""] = "Получить состояние, которое можно установить в действиях с помощью \"Установить состояние\""
 L["Set State"] = "Установить состояние"
 L["Set a state that can be read in conditions using \"Get State\""] = "Установить состояние, которое можно считать в условиях с помощью \"Получить состояние\""
+L["Doesn't interrupt the rule queue"] = "Не прерывает выполнение очереди правил"
 L["Random Mount"] = "Случайный маунт"
 L["Random Mount of Selected Type"] = "Случайный маунт выбранного типа"
 L["Selected profile"] = "Выбранный профиль"

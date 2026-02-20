@@ -1,5 +1,5 @@
 local _, ns = ...
-local L, macroFrame, mounts = ns.L, ns.macroFrame, ns.mounts
+local L, util, macroFrame, mounts, conds = ns.L, ns.util, ns.macroFrame, ns.mounts, ns.conditions
 local strcmputf8i = strcmputf8i
 local actions = {}
 ns.actions = actions
@@ -74,6 +74,8 @@ function actions.rmount:getFuncText(value)
 	end
 end
 
+
+---------------------------------------------------
 -- rmountt RANDOM MOUNT OF SELECTED TYPE
 actions.rmountt = {}
 actions.rmountt.text = L["Random Mount of Selected Type"]
@@ -107,12 +109,14 @@ function actions.rmountt:getValueList(value, func)
 
 	local list = {}
 	list[1] = {
+		keepShownOnClick = true,
 		notCheckable = true,
 		hasArrow = true,
 		text = L["Selected profile"],
 		value = getTList(0)
 	}
 	list[2] = {
+		keepShownOnClick = true,
 		notCheckable = true,
 		hasArrow = true,
 		text = DEFAULT,
@@ -126,6 +130,7 @@ function actions.rmountt:getValueList(value, func)
 	for i = 1, #profiles do
 		local profile = profiles[i]
 		list[#list + 1] = {
+			keepShownOnClick = true,
 			notCheckable = true,
 			hasArrow = true,
 			text = profile,
@@ -167,9 +172,7 @@ actions.rmountc.text = L["Random Mount by Summon Counter"]
 actions.rmountc.description = L["The lower the counter, the higher the chance"]
 
 actions.rmountc.getValueText = actions.rmount.getValueText
-
 actions.rmountc.getValueList = actions.rmount.getValueList
-
 actions.rmountc.condText = actions.rmountc.condText
 
 function actions.rmountc:getFuncText(value)
@@ -200,9 +203,7 @@ actions.rmounttc.text = L["Random Mount of Selected Type by Summon Counter"]
 actions.rmounttc.description = L["The lower the counter, the higher the chance"]
 
 actions.rmounttc.getValueText = actions.rmountt.getValueText
-
 actions.rmounttc.getValueList = actions.rmountt.getValueList
-
 actions.rmounttc.condText = actions.rmountt.condText
 
 function actions.rmounttc:getFuncText(value)
@@ -233,13 +234,14 @@ actions.mount = {}
 actions.mount.text = L["Mount"]
 
 function actions.mount:getValueText(value)
-	if ns.additionalMounts[value] then
-		return ns.additionalMounts[value].name
+	local mount = ns.additionalMounts[value]
+	if mount then
+		return CreateSimpleTextureMarkup(mount.icon, ns.RULE_ICON_SIZE)..mount.name
 	else
 		local mountID = C_MountJournal.GetMountFromSpell(value)
 		if mountID then
-			local name = C_MountJournal.GetMountInfoByID(mountID)
-			return name
+			local name, _, icon = C_MountJournal.GetMountInfoByID(mountID)
+			return icon and CreateSimpleTextureMarkup(icon, ns.RULE_ICON_SIZE)..name or name
 		end
 	end
 end
@@ -323,17 +325,16 @@ end
 -- item
 actions.item = {}
 actions.item.text = L["Use Item"]
+actions.item.isNumeric = true
 
-function actions.item:getValueDescription()
-	return "ItemID"
-end
-
-function actions.item:getValueText(value)
-	return tostring(value or "")
-end
+actions.item.getValueDescription = conds.hitem.getValueDescription
+actions.item.setValueLink = conds.hitem.setValueLink
+actions.item.receiveDrag = conds.hitem.receiveDrag
+actions.item.getValueDisplay = conds.hitem.getValueDisplay
+actions.item.getValueText = conds.hitem.getValueText
 
 function actions.item:getFuncText(value)
-	return ("return '/use item:%d'"):format(value)
+	return ("return '/use item:%s'"):format(value)
 end
 
 
@@ -341,9 +342,10 @@ end
 -- iitem INVENTORY ITEM
 actions.iitem = {}
 actions.iitem.text = L["Use Inventory Item"]
+actions.iitem.isNumeric = true
 
-function actions.iitem:getValueDescription()
-	local list = {
+local function getInventoryList()
+	return {
 		INVTYPE_HEAD,
 		INVTYPE_NECK,
 		INVTYPE_SHOULDER,
@@ -364,6 +366,10 @@ function actions.iitem:getValueDescription()
 		INVTYPE_RANGED,
 		INVTYPE_TABARD,
 	}
+end
+
+function actions.iitem:getValueDescription()
+	local list = getInventoryList()
 	local description = ""
 	for i = 1, #list do
 		local slot = list[i]
@@ -372,10 +378,23 @@ function actions.iitem:getValueDescription()
 	return description
 end
 
+function actions.iitem:setValueLink(FontString, value)
+	if value then
+		local link = GetInventoryItemLink("player", value)
+		FontString:SetText(util.getIconLink(link, GetInventoryItemTexture("player", value)))
+	else
+		FontString:SetText()
+	end
+end
+
+function actions.iitem:getValueDisplay(value)
+	return getInventoryList()[value]
+end
+
 actions.iitem.getValueText = actions.item.getValueText
 
-function actions.iitem:getFuncText(slot)
-	return ("return '/use %d'"):format(slot)
+function actions.iitem:getFuncText(value)
+	return ("return '/use %s'"):format(value)
 end
 
 
@@ -383,16 +402,17 @@ end
 -- spell
 actions.spell = {}
 actions.spell.text = L["Cast Spell"]
+actions.spell.isNumeric = true
 
-function actions.spell:getValueDescription()
-	return "SpellID"
-end
-
-actions.spell.getValueText = actions.item.getValueText
+actions.spell.getValueDescription = conds.kspell.getValueDescription
+actions.spell.setValueLink = conds.kspell.setValueLink
+actions.spell.receiveDrag = conds.kspell.receiveDrag
+actions.spell.getValueDisplay = conds.kspell.getValueDisplay
+actions.spell.getValueText = conds.kspell.getValueText
 
 function actions.spell:getFuncText(value)
 	return ([[
-		local spellName = self:getSpellName(%d)
+		local spellName = self:getSpellName(%s)
 		if spellName then
 			return '/cast '..spellName
 		end
@@ -421,6 +441,7 @@ actions.pmacro = {}
 actions.pmacro.text = L["Use macro before mounting"]
 actions.pmacro.description = L["PMACRO_DESCRIPTION"]
 actions.pmacro.maxLetters = 200
+actions.pmacro.doesntInterrupt = true
 
 actions.pmacro.getValueText = actions.macro.getValueText
 
@@ -436,6 +457,7 @@ end
 actions.sstate = {}
 actions.sstate.text = L["Set State"]
 actions.sstate.description = L["Set a state that can be read in conditions using \"Get State\""]
+actions.sstate.doesntInterrupt = true
 
 actions.sstate.getValueText = actions.macro.getValueText
 
@@ -449,9 +471,8 @@ end
 actions.snip = {}
 actions.snip.text = L["Code Snippet"]
 
-actions.snip.getValueText = ns.conditions.snip.getValueText
-
-actions.snip.getValueList = ns.conditions.snip.getValueList
+actions.snip.getValueText = conds.snip.getValueText
+actions.snip.getValueList = conds.snip.getValueList
 
 function actions.snip:getFuncText(value)
 	return ([[
@@ -465,6 +486,8 @@ end
 ---------------------------------------------------
 -- METHODS
 function actions:getMenuList(value, func)
+	local dInterruptStar = " (|cff44ff44*|r)"
+	local dInterruptText = NIGHT_FAE_BLUE_COLOR:WrapTextInColorCode(dInterruptStar:sub(2).." "..L["Doesn't interrupt the rule queue"])
 	local list = {}
 	local types = {
 		"rmount",
@@ -482,26 +505,44 @@ function actions:getMenuList(value, func)
 		"sstate",
 		"snip",
 	}
+
+	local OnTooltipShow = function(btn, tooltip, v)
+		GameTooltip_SetTitle(tooltip, v.text)
+		if v.description then tooltip:AddLine(v.description, nil, nil, nil, true) end
+		if v.doesntInterrupt then
+			if v.description then tooltip:AddLine(" ") end
+			tooltip:AddLine(dInterruptText, nil, nil, nil, true)
+		end
+	end
+
 	for i = 1, #types do
 		local v = types[i]
 		local action = self[v]
 		list[i] = {
-			text = action.text,
+			text = action.doesntInterrupt and action.text..dInterruptStar or action.text,
 			value = v,
+			arg1 = action,
 			func = func,
 			checked = v == value,
 		}
-		if action.description then
-			list[i].OnTooltipShow = function(btn, tooltip)
-				GameTooltip_SetTitle(tooltip, action.text)
-				tooltip:AddLine(action.description, nil, nil, nil, true)
-			end
+		if action.description or action.doesntInterrupt then
+			list[i].OnTooltipShow = OnTooltipShow
 		end
 	end
 	return list
 end
 
 
-function actions:getFuncText(action)
-	return self[action[1]]:getFuncText(action[2])
+function actions:getFuncText(action, keys)
+	local text, vars = self[action[1]]:getFuncText(action[2])
+	if vars then
+		for i = 1, #vars do
+			local var = vars[i]
+			if keys[var] ~= 1 then
+				keys[var] = 1
+				keys[#keys + 1] = var
+			end
+		end
+	end
+	return text
 end

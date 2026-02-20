@@ -1,9 +1,5 @@
 local _, ns = ...
-local L = {}
-ns.L = L
-
-L.spells = SPELLS
-L.items = ITEMS
+local L = ns.L
 
 L["author"] = "Author"
 L["Main"] = "Main"
@@ -178,9 +174,11 @@ L["Rule"] = "Rule"
 L["Rules"] = "Rules"
 L["RULES_TITLE"] = "Rules for mounting. The rules are checked in order, and the first rule in which all conditions match executes the action."
 L["Add Rule"] = "Add Rule"
+L["Add Group"] = "Add Group"
+L["Duplicate"] = "Duplicate"
 L["Import Rule"] = "Import Rule"
 L["Reset Rules"] = "Reset Rules"
-L["Remove Rule %d"] = "Remove Rule %d"
+L["Remove Rule %s"] = "Remove Rule %s"
 L["Alternative Mode"] = "Alternative Mode"
 L["NOT_CONDITION"] = "Not"
 L["Conditions"] = "Conditions"
@@ -219,6 +217,7 @@ L["Get State"] = "Get State"
 L["Get a state that can be set in actions using \"Set State\""] = "Get a state that can be set in actions using \"Set State\""
 L["Set State"] = "Set State"
 L["Set a state that can be read in conditions using \"Get State\""] = "Set a state that can be read in conditions using \"Get State\""
+L["Doesn't interrupt the rule queue"] = "Doesn't interrupt the rule queue"
 L["Random Mount"] = "Random Mount"
 L["Random Mount of Selected Type"] = "Random Mount of Selected Type"
 L["Random Mount by Summon Counter"] = "Random Mount by Summon Counter"
@@ -485,8 +484,3 @@ L["Wolves"] = "Wolves"
 L["Wyverns"] = "Wyverns"
 L["Yaks"] = "Yaks"
 L["Yetis"] = "Yetis"
-
-setmetatable(L, {__index = function(self, key)
-	self[key] = key or ""
-	return key
-end})
