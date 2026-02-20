@@ -388,11 +388,6 @@ function journal:init()
 	summon1:SetAttribute("clickbutton", _G[util.secureButtonNameMount])
 	summon1:SetScript("OnDragStart", function()
 		mounts.summonPanel:startDrag()
-		-- if InCombatLockdown() then return end
-		-- if not GetMacroInfo(ns.config.macroName) then
-		-- 	ns.config:createMacro(ns.config.macroName, util.secureButtonNameMount, 303868)
-		-- end
-		-- PickupMacro(ns.config.macroName)
 	end)
 	summon1:SetScript("OnDragStop", function()
 		mounts.summonPanel:stopDrag()
@@ -417,18 +412,14 @@ function journal:init()
 	summon2.id = 2
 	summon2.icon:SetTexture(mounts.config.summon2Icon)
 	summon2:SetAttribute("clickbutton", _G[util.secureButtonNameSecondMount])
-	summon2:SetScript("OnDragStart", function()
-		mounts.summonPanel:startDrag()
-		-- if InCombatLockdown() then return end
-		-- if not GetMacroInfo(ns.config.secondMacroName) then
-		-- 	ns.config:createMacro(ns.config.secondMacroName, util.secureButtonNameSecondMount, 237534)
-		-- end
-		-- PickupMacro(ns.config.secondMacroName)
-	end)
-	summon2:SetScript("OnDragStop", function()
-		mounts.summonPanel:stopDrag()
-	end)
+	summon2:SetScript("OnDragStart", summon1:GetScript("OnDragStart"))
+	summon2:SetScript("OnDragStop", summon1:GetScript("OnDragStop"))
 	summon2:SetScript("OnEnter", summon1:GetScript("OnEnter"))
+
+	-- update btn icon
+	self:on("UPDATE_SUMMON_ICON", function(self, id, icon)
+		self.bgFrame["summon"..id].icon:SetTexture(icon)
+	end)
 
 	-- NAVBAR
 	self:on("MAP_CHANGE", function(self)
@@ -999,6 +990,7 @@ function journal:init()
 	local msMountHint = self.mountDisplay.info.mountHint
 	msMountHint:SetPropagateMouseMotion(true)
 	msMountHint:SetScript("OnEnter", function(btn)
+		btn.isHover = true
 		btn.highlight:Show()
 		btn:SetAlpha(1)
 		GameTooltip:SetOwner(btn, "ANCHOR_NONE")
@@ -1008,13 +1000,14 @@ function journal:init()
 	end)
 
 	msMountHint:SetScript("OnLeave", function(btn)
+		btn.isHover = nil
 		btn.highlight:Hide()
 		btn:SetAlpha(.5)
 		GameTooltip:Hide()
 	end)
 
 	local function updateMountHint()
-		if msMountHint:IsMouseOver() then
+		if msMountHint.isHover then
 			msMountHint:GetScript("OnEnter")(msMountHint)
 		end
 	end

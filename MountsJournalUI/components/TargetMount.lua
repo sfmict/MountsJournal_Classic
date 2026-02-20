@@ -22,7 +22,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 		self.icon:SetDesaturated()
 		self.icon:SetTexture(icon)
 
-		if self:IsMouseOver() then
+		if self.isHover then
 			self:GetScript("OnEnter")(self)
 		end
 
@@ -68,6 +68,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 	end
 
 	tm:SetScript("OnEnter", function(self)
+		self.isHover = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 
 		if type(self.mountID) == "number" then
@@ -81,7 +82,10 @@ ns.journal:on("MODULES_INIT", function(journal)
 		addLines()
 	end)
 
-	tm:SetScript("OnLeave", GameTooltip_Hide)
+	tm:SetScript("OnLeave", function(self)
+		self.isHover = nil
+		GameTooltip:Hide()
+	end)
 
 	tm:SetScript("OnClick", function(self, button)
 		if button == "RightButton" then

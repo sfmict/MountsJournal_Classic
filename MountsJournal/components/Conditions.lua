@@ -1,6 +1,7 @@
 local _, ns = ...
-local L = ns.L
+local L, util = ns.L, ns.util
 local strcmputf8i, concat = strcmputf8i, table.concat
+local playerGuid = UnitGUID("player")
 local conds = {}
 ns.conditions = conds
 
@@ -354,7 +355,7 @@ function conds.holiday:getValueList(value, cb, dd, notReset)
 			iconInfo = e.iconInfo,
 			text = e.isActive and ("%s (|cff00cc00%s|r)"):format(e.name, L["HOLIDAY_ACTIVE"]) or e.name,
 			rightText = ("|cff80b5fd%s - %s|r"):format(startDate, endDate),
-			rightFont = ns.util.codeFont,
+			rightFont = util.codeFont,
 			arg1 = e.name,
 			arg2 = e.description,
 			value = e.eventID,
@@ -453,6 +454,26 @@ end
 
 
 ---------------------------------------------------
+-- rest
+conds.rest = {}
+conds.rest.text = L["The player is resting"]
+
+function conds.rest:getFuncText()
+	return "IsResting()", "IsResting"
+end
+
+
+---------------------------------------------------
+-- combat
+conds.combat = {}
+conds.combat.text = L["The player is in combat"]
+
+function conds.combat:getFuncText()
+	return "InCombatLockdown()", "InCombatLockdown"
+end
+
+
+---------------------------------------------------
 -- hitem HAVE ITEM
 conds.hitem = {}
 conds.hitem.text = L["Have item"]
@@ -517,6 +538,22 @@ conds.rspell.getValueText = conds.hitem.getValueText
 
 function conds.rspell:getFuncText(value)
 	return ("self:isSpellReady(%d)"):format(value)
+end
+
+
+---------------------------------------------------
+-- uspell USABLE SPELL
+conds.uspell = {}
+conds.uspell.text = L["Spell is usable"]
+conds.uspell.combatLock = util.isMidnight
+conds.uspell.isNumeric = true
+
+conds.uspell.getValueDescription = conds.kspell.getValueDescription
+
+conds.uspell.getValueText = conds.hitem.getValueText
+
+function conds.uspell:getFuncText(value)
+	return ("C_Spell.IsSpellUsable(%d)"):format(value), "C_Spell"
 end
 
 
@@ -704,7 +741,7 @@ function conds.map:getValueText(value)
 	if value == ns.mounts.defMountsListID then
 		return WORLD
 	else
-		local mapInfo = ns.util.getMapFullNameInfo(value)
+		local mapInfo = util.getMapFullNameInfo(value)
 		if mapInfo then return mapInfo.name end
 	end
 end
@@ -977,7 +1014,7 @@ function conds.mtrack:getValueList(value, func)
 			text = trackingInfo.name,
 			icon = trackingInfo.texture,
 			rightText = ("|cff808080%s|r"):format(v),
-			rightFont = ns.util.codeFont,
+			rightFont = util.codeFont,
 			value = v,
 			func = func,
 			checked = v == value,
@@ -1066,7 +1103,7 @@ conds.equips.text = PAPERDOLL_EQUIPMENTMANAGER
 
 function conds.equips:getValueText(value)
 	local setID, guid = (":"):split(value, 2)
-	if guid == UnitGUID("player") then
+	if guid == playerGuid then
 		local name = C_EquipmentSet.GetEquipmentSetInfo(tonumber(setID))
 		if name then
 			return name
@@ -1079,15 +1116,14 @@ end
 
 function conds.equips:getValueList(value, func)
 	local list = {}
-	local guid = UnitGUID("player")
 
 	for i, setID in ipairs(C_EquipmentSet.GetEquipmentSetIDs()) do
 		local name, iconFileID = C_EquipmentSet.GetEquipmentSetInfo(setID)
-		local v = ("%d:%s"):format(setID, guid)
+		local v = ("%d:%s"):format(setID, playerGuid)
 		list[i] = {
 			text = name,
 			rightText = ("|cff808080ID:%d|r"):format(setID),
-			rightFont = ns.util.codeFont,
+			rightFont = util.codeFont,
 			icon = iconFileID,
 			value = v,
 			func = func,
@@ -1108,7 +1144,7 @@ end
 
 function conds.equips:getFuncText(value)
 	local setID, guid = (":"):split(value, 2)
-	if guid == UnitGUID("player") then
+	if guid == playerGuid then
 		return ("self:checkEquipmentSet(%s)"):format(setID)
 	end
 	return "false"
@@ -1500,7 +1536,7 @@ function conds.title:getValueList(value, func)
 			list[#list + 1] = {
 				text = IsTitleKnown(i) and ("%s (|cff00cc00%s|r)"):format(name, GARRISON_MISSION_ADDED_TOAST2) or name,
 				rightText = ("|cff808080%d|r"):format(i),
-				rightFont = ns.util.codeFont,
+				rightFont = util.codeFont,
 				value = i,
 				func = func,
 				checked = i == value,

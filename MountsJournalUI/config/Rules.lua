@@ -193,6 +193,11 @@ rules:SetScript("OnShow", function(self)
 		end
 	end)
 
+	mounts:on("UPDATE_SUMMON_ICON", function(_, id, icon)
+		if self.summonN ~= id then return end
+		self.summons:ddSetSelectedText(("%s %d"):format(SUMMONS, id), icon)
+	end)
+
 	-- ALTERNATIVE MODE
 	self.altMode = CreateFrame("CheckButton", nil, self, "MJCheckButtonTemplate")
 	self.altMode:SetPoint("TOPLEFT", self.summons, "BOTTOMLEFT", 0, -5)

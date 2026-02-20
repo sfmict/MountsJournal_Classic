@@ -245,6 +245,10 @@ mounts:on("ADDON_INIT", function()
 	summon2Handler:HookScript("OnMouseDown", function() summon2:GetPushedTexture():Show() end)
 	summon2Handler:HookScript("OnMouseUp", function() summon2:GetPushedTexture():Hide() end)
 
+	mounts:on("UPDATE_SUMMON_ICON", function(_, id, icon)
+		panel["summon"..id].icon:SetTexture(icon)
+	end)
+
 	panel:setStrata()
 	panel:setSize()
 	panel:setShown(panel.config.isShown)
