@@ -2,8 +2,7 @@ local _, ns = ...
 local util = ns.util
 local type, pairs, next, concat, rawget, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item, GetCVarBool = type, pairs, next, table.concat, rawget, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item, GetCVarBool
 local macroFrame = CreateFrame("FRAME")
-ns.macroFrame = macroFrame
-util.setEventsMixin(macroFrame)
+ns.macroFrame = util.setEventsMixin(macroFrame)
 
 
 -- for conditions

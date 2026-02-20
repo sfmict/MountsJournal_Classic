@@ -115,7 +115,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 			if mountType == 231 then
 				dd.currentMountType = 2
 			else
-				mountType = journal.mountTypes[mountType]
+				mountType = util.mountTypes[mountType]
 				dd.currentMountType = type(mountType) == "table" and mountType[1] or mountType
 			end
 
@@ -214,7 +214,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 		else
 			actor:PlayAnimationKit(0)
 			actor:StopAnimationKit()
-			actor:SetAnimation(animation, 0)
+			actor:SetAnimation(animation)
 		end
 	end
 
@@ -227,7 +227,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 		if mountType == 231 then
 			mountType = 2
 		else
-			mountType = journal.mountTypes[mountType]
+			mountType = util.mountTypes[mountType]
 			if type(mountType) == "table" then mountType = mountType[1] end
 		end
 		if anim.type and mountType > anim.type then anim = dd.animationList[1] end

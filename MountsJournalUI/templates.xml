@@ -71,42 +71,10 @@
 				</Anchors>
 			</Button>
 
-			<Button parentKey="summonPanelSettings" alpha=".8" hidden="true">
-				<Size x="15" y="16"/>
+			<Button parentKey="summonPanelSettings" inherits="MJSettingsButtonTemplate" hidden="true">
 				<Anchors>
 					<Anchor point="RIGHT" relativeKey="$parent.summon1" relativePoint="LEFT" x="-3"/>
 				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<Texture parentKey="icon" file="Interface\Worldmap\Gear_64" alphaMode="ADD">
-							<Size x="20" y="20"/>
-							<Anchors>
-								<Anchor point="CENTER"/>
-							</Anchors>
-							<TexCoords left="0" right=".5" top="0" bottom=".5"/>
-							<Color r=".7" g=".7" b=".7"/>
-						</Texture>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnLoad>
-						self.icon:SetDesaturated(true)
-					</OnLoad>
-					<OnMouseDown>
-						self.icon:AdjustPointsOffset(1, -1)
-					</OnMouseDown>
-					<OnMouseUp>
-						self.icon:AdjustPointsOffset(-1, 1)
-					</OnMouseUp>
-					<OnEnter>
-						self:SetAlpha(1)
-						self.icon:SetVertexColor(.9, .9, .9)
-					</OnEnter>
-					<OnLeave>
-						self:SetAlpha(.8)
-						self.icon:SetVertexColor(.7, .7, .7)
-					</OnLeave>
-				</Scripts>
 			</Button>
 
 			<Button parentKey="targetMount" inherits="MJIconButtonTemplate" hidden="true">
@@ -892,15 +860,7 @@
 				</Scripts>
 			</Button>
 
-			<Button parentKey="resize">
-				<Size x="16" y="16"/>
-				<Anchors>
-					<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
-				</Anchors>
-				<NormalTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up"/>
-				<HighlightTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Highlight"/>
-				<PushedTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down"/>
-			</Button>
+			<Button parentKey="resize" inherits="MJResizeButtonTemplate"/>
 
 			<Button parentKey="mountSpecial" motionScriptsWhileDisabled="true" inherits="UIPanelButtonNoTooltipTemplate">
 				<Size x="22" y="22"/>
@@ -1092,6 +1052,45 @@
 		</Frames>
 	</Frame>
 
+	<Button name="MJSettingsButtonTemplate" virtual="true">
+		<Size x="15" y="16"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Icon" atlas="questlog-icon-setting" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="HIGHLIGHT">
+				<Texture atlas="questlog-icon-setting" useAtlasSize="true" alphaMode="ADD" alpha="0.4">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Icon"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnMouseDown>self.Icon:AdjustPointsOffset(1, -1)</OnMouseDown>
+			<OnMouseUp>self.Icon:AdjustPointsOffset(-1, 1)</OnMouseUp>
+		</Scripts>
+	</Button>
+
+	<Button name="MJResizeButtonTemplate" virtual="true">
+		<Size x="16" y="16"/>
+		<Anchors>
+			<Anchor point="BOTTOMRIGHT"/>
+		</Anchors>
+		<NormalTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up"/>
+		<HighlightTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Highlight"/>
+		<PushedTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down"/>
+		<Scripts>
+			<OnLoad>self:RegisterForDrag("LeftButton")</OnLoad>
+			<OnEnter>if SetCursor then SetCursor("UI_RESIZE_CURSOR") end</OnEnter>
+			<OnLeave>if SetCursor then SetCursor(nil) end</OnLeave>
+		</Scripts>
+	</Button>
+
 	<ModelScene name="MJWrappedAndUnwrappedModelScene" inherits="WrappedAndUnwrappedModelScene" virtual="true">
 		<Scripts>
 			<OnHide inherit="prepend">
@@ -1114,7 +1113,7 @@
 			</Layer>
 			<Layer level="BORDER">
 				<Texture parentKey="border" file="Interface/Buttons/UI-Quickslot2">
-					<Size x="65" y="65"/>
+					<Size x="62" y="62"/>
 					<Anchors>
 						<Anchor point="CENTER"/>
 					</Anchors>
@@ -1566,10 +1565,13 @@
 		</Scripts>
 	</CheckButton>
 
-	<Button name="MJMountDefaultListButtonTemplate" virtual="true">
-		<Anchors>
-			<Anchor point="LEFT" relativeKey="$parent.dragButton" relativePoint="RIGHT" x="0" y="0"/>
-		</Anchors>
+	<Button name="MJMountListButtonScripsTemplate" virtual="true">
+		<Scripts>
+			<OnLoad function="MJMountListButton_OnLoad"/>
+		</Scripts>
+	</Button>
+
+	<Button name="MJMountDefaultListButtonTemplate" inherits="MJMountListButtonScripsTemplate" virtual="true">
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture atlas="PetList-ButtonBackground" parentKey="background"/>
@@ -1760,7 +1762,7 @@
 		</KeyValues>
 	</Button>
 
-	<Button name="MjGridMountButtonDefTemplate" inherits="MJGridMountButtonTemplate" virtual="true">
+	<Button name="MjGridMountButtonDefTemplate" inherits="MJGridMountButtonTemplate,MJMountListButtonScripsTemplate" virtual="true">
 		<Layers>
 			<Layer level="OVERLAY" textureSubLevel="1">
 				<Texture parentKey="toggle1" parentArray="toggle">
@@ -1793,7 +1795,7 @@
 		</Layers>
 	</Button>
 
-	<Button name="MjGridMountButtonWithTypeBtnsTemplate" inherits="MJGridMountButtonTemplate" virtual="true">
+	<Button name="MjGridMountButtonWithTypeBtnsTemplate" inherits="MJGridMountButtonTemplate,MJMountListButtonScripsTemplate" virtual="true">
 		<Frames>
 			<CheckButton parentKey="fly" inherits="MJSetFlyToggleTemplate">
 				<Anchors>
@@ -1813,7 +1815,7 @@
 		</Frames>
 	</Button>
 
-	<Button name="MJGridModelSceneTemplate" propagateMouseInput="Clicks" inherits="BackdropTemplate" virtual="true">
+	<Button name="MJGridModelSceneTemplate" propagateMouseInput="Clicks" inherits="BackdropTemplate,MJMountListButtonScripsTemplate" virtual="true">
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="2">
 				<Texture parentKey="factionIcon">
@@ -2957,7 +2959,7 @@
 						battlePetActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
 
 						MJTooltipModel:ClearAllPoints()
-						MJTooltipModel:SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 0, 0)
+						MJTooltipModel:SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 0, -2)
 						MJTooltipModel:Show()
 
 						GameTooltip:SetOwner(MJTooltipModel, "ANCHOR_NONE")
@@ -3066,7 +3068,7 @@
 					battlePetActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
 
 					MJTooltipModel:ClearAllPoints()
-					MJTooltipModel:SetPoint("BOTTOM", self, "TOP")
+					MJTooltipModel:SetPoint("BOTTOM", self, "TOP", 0, -2)
 					MJTooltipModel:SetPoint("LEFT", parent, "RIGHT")
 					MJTooltipModel:Show()
 
@@ -3409,20 +3411,20 @@
 		</Scripts>
 	</Button>
 
-	<Button name="MJRulePanelTemplate" inherits="MJOptionPanelTemplate,MJHighlightAnimationTemplate" virtual="true">
+	<Button name="MJRulePanelBaseTemplate" inherits="MJOptionPanelTemplate,MJHighlightAnimationTemplate" virtual="true">
 		<Size y="55"/>
 		<Layers>
 			<Layer level="ARTWORK">
-				<FontString parentKey="order" inherits="GameFontNormalLarge" justifyH="CENTER">
-					<Size x="28"/>
+				<FontString parentKey="action" inherits="GameFontNormal" justifyH="LEFT" maxLines="3">
 					<Anchors>
-						<Anchor point="LEFT" x="12"/>
+						<Anchor point="LEFT" x="41"/>
+						<Anchor point="RIGHT" relativePoint="CENTER" x="-20"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="cond2" inherits="GameFontNormal" wordwrap="false" justifyH="LEFT">
 					<Anchors>
-						<Anchor point="LEFT" x="41"/>
-						<Anchor point="RIGHT" relativePoint="CENTER" x="-10"/>
+						<Anchor point="LEFT" relativePoint="CENTER" x="-10"/>
+						<Anchor point="RIGHT" x="-62"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="cond1" inherits="GameFontNormal" wordwrap="false" justifyH="LEFT">
@@ -3437,16 +3439,10 @@
 						<Anchor point="TOPRIGHT" relativeKey="$parent.cond2" relativePoint="BOTTOMRIGHT" y="-1"/>
 					</Anchors>
 				</FontString>
-				<FontString parentKey="action" inherits="GameFontNormal" justifyH="LEFT" maxLines="3">
-					<Anchors>
-						<Anchor point="LEFT" relativePoint="CENTER" x="0"/>
-						<Anchor point="RIGHT" x="-62"/>
-					</Anchors>
-				</FontString>
 				<Texture atlas="glues-characterSelect-TopHUD-BG-divider-dis">
 					<Size x="2" y="35"/>
 					<Anchors>
-						<Anchor point="RIGHT" relativeKey="$parent.action" relativePoint="LEFT" x="-4"/>
+						<Anchor point="LEFT" relativeKey="$parent.action" relativePoint="RIGHT" x="4"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -3478,16 +3474,61 @@
 		</Frames>
 	</Button>
 
-	<Button name="MJRuleGroupTemplate" inherits="MJRulePanelTemplate" virtual="true">
+	<Button name="MJRulePanelTemplate" inherits="MJRulePanelBaseTemplate" virtual="true">
+		<Size y="55"/>
+		<Layers>
+			<Layer level="ARTWORK" textureSubLevel="1">
+				<Texture parentKey="icon">
+					<Size x="34" y="34"/>
+					<Anchors>
+						<Anchor point="LEFT" x="4" y="-1"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSubLevel="2">
+				<FontString parentKey="iconText" inherits="GameFontHighlightOutline" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativeKey="$parent.icon" x="2" y="2"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="order" inherits="GameFontHighlightOutline" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeKey="$parent.icon" x="1" y="-4"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="MJRuleGroupTemplate" inherits="MJRulePanelBaseTemplate" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString parentKey="order" inherits="GameFontHighlightOutline" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="1" y="-4"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
 		<Frames>
 			<Button parentKey="collapseExpand" propagateMouseInput="Motion">
 				<Size x="10" y="16"/>
+				<HitRectInsets left="-10" right="-10" top="-10" bottom="-10"/>
 				<Anchors>
-					<Anchor point="LEFT" x="4"/>
+					<Anchor point="LEFT" x="16"/>
 				</Anchors>
 				<NormalTexture parentKey="normal" atlas="bag-arrow"/>
-				<PushedTexture parentKey="pushed" atlas="bag-arrow"/>
 				<HighlightTexture parentKey="highlight" alpha="0.4" alphaMode="ADD" atlas="bag-arrow"/>
+				<Scripts>
+					<OnMouseDown>
+						self.normal:AdjustPointsOffset(1, -1)
+						self.highlight:AdjustPointsOffset(1, -1)
+					</OnMouseDown>
+					<OnMouseUp>
+						self.normal:AdjustPointsOffset(-1, 1)
+						self.highlight:AdjustPointsOffset(-1, 1)
+					</OnMouseUp>
+				</Scripts>
 			</Button>
 		</Frames>
 	</Button>

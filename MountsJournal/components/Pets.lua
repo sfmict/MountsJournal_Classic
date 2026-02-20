@@ -3,8 +3,7 @@ local mounts, util = ns.mounts, ns.util
 local random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown, UnitIsAFK, DoEmote = random, C_PetJournal, UnitBuff, C_Timer, wipe, InCombatLockdown, IsFlying, IsMounted, UnitHasVehicleUI, UnitCastingInfo, UnitChannelInfo, IsStealthed, UnitIsGhost, GetSpellCooldown, UnitIsAFK, DoEmote
 local curRegion = GetCurrentRegion()
 local pets = CreateFrame("FRAME")
-ns.pets = pets
-util.setEventsMixin(pets)
+ns.pets = util.setEventsMixin(pets)
 
 
 pets.petJournalFiltersBackup = {
@@ -140,14 +139,7 @@ do
 		else
 			self:UnregisterEvent("PLAYER_STARTED_MOVING")
 			self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-			if UnitIsAFK("player") then
-				if util.isMidnight then
-					-- tainted
-					--C_ChatInfo.PerformEmote("STAND")
-				else
-					DoEmote("STAND")
-				end
-			end
+			if UnitIsAFK("player") then util.doEmote("STAND") end
 			self:summonRandomPet(mounts.config.summonPetOnlyFavorites)
 			if not self.ticker then self:setSummonEvery() end
 		end

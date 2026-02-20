@@ -5,9 +5,7 @@ local C_MountJournal, C_PetJournal, InCombatLockdown = C_MountJournal, C_PetJour
 local next, pairs, ipairs, type, select, math = next, pairs, ipairs, type, select, math
 local wipe, tinsert, sort, concat = wipe, table.insert, table.sort, table.concat
 local journal = CreateFrame("FRAME", "MountsJournalFrame")
-ns.journal = journal
-journal.mountTypes = util.mountTypes
-util.setEventsMixin(journal)
+ns.journal = util.setEventsMixin(journal)
 
 
 -- local COLLECTION_ACHIEVEMENT_CATEGORY = 15246
@@ -575,7 +573,6 @@ function journal:init()
 
 	-- SCROLL FRAME
 	self.view = CreateScrollBoxListGridView()
-	self:setScrollGridMounts()
 	ScrollUtil.InitScrollBoxListWithScrollBar(self.scrollBox, self.leftInset.scrollBar, self.view)
 
 	-- MODELSCENE
@@ -1213,7 +1210,6 @@ function journal:init()
 
 	-- RESIZE BUTTON
 	local resize = self.bgFrame.resize
-	resize:RegisterForDrag("LeftButton")
 	resize:SetScript("OnDragStart", function(btn)
 		if InCombatLockdown() then return end
 		local parent = btn:GetParent()
@@ -1223,9 +1219,14 @@ function journal:init()
 		parent:SetResizeBounds(max(minWidth, self.minTabWidth), minHeight, maxWidth, maxHeight)
 		parent.isSizing = true
 		parent:StartSizing("BOTTOMRIGHT", true)
+		btn:SetScript("OnUpdate", function()
+			self:setScrollGridMounts(true)
+			self:event("JOURNAL_RESIZED")
+		end)
 	end)
 	resize:SetScript("OnDragStop", function(btn)
 		if InCombatLockdown() then return end
+		btn:SetScript("OnUpdate", nil)
 		local parent = btn:GetParent()
 		parent:StopMovingOrSizing()
 		parent.isSizing = nil
@@ -1234,12 +1235,6 @@ function journal:init()
 		self.bgFrame:SetPoint("TOPLEFT", self.CollectionsJournal, "TOPLEFT", 0, 0)
 		self:setScrollGridMounts(true)
 		self:event("JOURNAL_RESIZED")
-	end)
-	resize:SetScript("OnEnter", function()
-		if SetCursor then SetCursor("UI_RESIZE_CURSOR") end
-	end)
-	resize:SetScript("OnLeave", function()
-		if SetCursor then SetCursor(nil) end
 	end)
 
 	-- MOUNT SPECIAL
@@ -1259,7 +1254,7 @@ function journal:init()
 	end)
 	self.mountSpecial:SetScript("OnClick", function()
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		DoEmote("MountSpecial")
+		util.doEmote("MountSpecial")
 	end)
 
 	-- MOUNT SPEED
@@ -1302,6 +1297,7 @@ function journal:init()
 	self:on("PET_STATUS_UPDATE", self.updateMountsList)
 
 	self:updateCollectionTabs(true)
+	self:setScrollGridMounts()
 	self:setArrowSelectMount(mounts.config.arrowButtonsBrowse)
 	self:setMJFiltersBackup()
 	self:hideFrames()
@@ -1531,7 +1527,7 @@ function journal:setMountTooltip(mountID, spellID, showDescription)
 	GameTooltip:SetText(name, nil, nil, nil, nil, true)
 
 	-- type
-	local mType, typeStr = self.mountTypes[mountType]
+	local mType, typeStr = util.mountTypes[mountType]
 	if type(mType) == "table" then
 		typeStr = L["MOUNT_TYPE_"..mType[1]]
 		for i = 2, #mType do
@@ -1666,14 +1662,15 @@ function journal:setScrollGridMounts(force)
 	local index = self.view:CalculateDataIndices(self.scrollBox)
 	local grid = self:getGridToggle()
 
-	if self.inspectFrame then self.inspectFrame:Hide() end
 	self.filtersPanel:ClearAllPoints()
 	if self.navBar:IsShown() then
 		self.filtersPanel:SetPoint("TOPLEFT", self.navBar, "BOTTOMLEFT", -1, -1)
 	else
 		self.filtersPanel:SetPoint("TOPLEFT", 4, -60)
 	end
+
 	if grid ~= 3 then
+		self.inspectFrame:Hide()
 		self.filtersToggle:Show()
 		self.filtersToggle.setFiltersToggleCheck(mounts.config.filterToggle)
 		self.searchBox:SetWidth(131)
@@ -1688,8 +1685,10 @@ function journal:setScrollGridMounts(force)
 		self.filtersToggle.setFiltersToggleCheck(false)
 		self.searchBox:SetWidth(131 + 22)
 		self.gridModelSettings:Show()
-		self.mountDisplay:Hide()
-		self.rightInset:Hide()
+		if not self.inspectFrame:IsShown() then
+			self.mountDisplay:Hide()
+			self.rightInset:Hide()
+		end
 	end
 
 	if self.curGrid == grid and not force then return end
@@ -1736,7 +1735,6 @@ function journal:setScrollGridMounts(force)
 		self.gridN = mounts.config.gridModelStride
 		extent = math.floor((scrollWidth - (self.gridN - 1) * hSpacing) / self.gridN)
 		sizeCalculator = function(dataIndex, elementData) return extent, extent end
-		self.gmsWidth = extent
 		self.initMountButton = self.gridModelSceneInit
 	end
 
@@ -1938,7 +1936,6 @@ end
 
 
 function journal:gridModelSceneInit(btn, data, force)
-	btn:SetSize(self.gmsWidth, self.gmsWidth)
 	local mountID = data.mountID
 	local oldMountID = btn.mountID
 	local creatureName, spellID, icon, active, isUsable, sourceType, isFavorite, isFactionSpecific, faction, isFiltered, isCollected = util.getMountInfo(mountID)
@@ -2156,7 +2153,7 @@ function journal:sortMounts()
 	local function getByMountID(by, mount, data)
 		if by == "type" then
 			local _,_,_,_, mType = C_MountJournal.GetMountInfoExtraByID(mount)
-			mType = self.mountTypes[mType]
+			mType = util.mountTypes[mType]
 			return type(mType) == "number" and mType or mType[1]
 		elseif by == "family" then
 			local family = db[mount][2]
@@ -2175,7 +2172,7 @@ function journal:sortMounts()
 
 	local function getByMount(by, mount, data)
 		if by == "type" then
-			local mType = self.mountTypes[mount.mountType]
+			local mType = util.mountTypes[mount.mountType]
 			return type(mType) == "number" and mType or mType[1]
 		elseif by == "family" then
 			local family = mount.familyID
@@ -3192,7 +3189,7 @@ end
 
 function journal:getFilterType(mountType)
 	local types = mounts.filters.types
-	local mType = self.mountTypes[mountType]
+	local mType = util.mountTypes[mountType]
 	if type(mType) == "table" then
 		for i = 1, #mType do
 			if types[mType[i]] then return true end
@@ -3232,7 +3229,7 @@ end
 
 
 function journal:updateMountsList()
-	local filters, list, mountTypes, tags, pets, getMountInfo = mounts.filters, self.list, self.mountTypes, self.tags, ns.pets, util.getMountInfo
+	local filters, tags, pets, getMountInfo = mounts.filters, self.tags, ns.pets, util.getMountInfo
 	local sources, factions, pet, expansions = filters.sources, filters.factions, filters.pet, filters.expansions
 	local text = util.cleanText(self.searchBox:GetText())
 	local numMounts = 0

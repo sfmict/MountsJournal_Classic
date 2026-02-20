@@ -16,9 +16,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 		GameTooltip:AddLine(L["ProfilesTooltipDescription"], 1, 1, 1, true)
 		GameTooltip:Show()
 	end)
-
-	util.setEventsMixin(dd)
-	journal.bgFrame.profilesMenu = dd
+	journal.bgFrame.profilesMenu = util.setEventsMixin(dd)
 
 	-- POPUP
 	StaticPopupDialogs[util.addonName.."NEW_PROFILE"] = {

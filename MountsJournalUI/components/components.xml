@@ -5,6 +5,7 @@
 	<Script file="MountAnimations.lua"/>
 	<Script file="DungeonRaidButton.lua"/>
 	<Script file="Profiles.lua"/>
+	<Script file="InspectFrame.lua"/>
 	<Script file="MountListButtonInit.lua"/>
 	<Script file="SummonPanelSettings.lua"/>
 	<Script file="TargetMount.lua"/>

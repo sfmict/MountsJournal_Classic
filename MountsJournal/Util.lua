@@ -104,7 +104,7 @@ util.mountTypes = setmetatable({
 
 
 function util.setMixin(obj, mixin)
-	for k, v in pairs(mixin) do
+	for k, v in next, mixin do
 		obj[k] = v
 	end
 	return obj
@@ -117,7 +117,7 @@ end
 
 
 function util.setEventsMixin(frame)
-	util.setMixin(frame, eventsMixin)
+	return util.setMixin(frame, eventsMixin)
 end
 
 
@@ -143,7 +143,7 @@ end
 
 function util:copyTable(t)
 	local n = {}
-	for k, v in pairs(t) do
+	for k, v in next, t do
 		n[k] = type(v) == "table" and self:copyTable(v) or v
 	end
 	return n
@@ -417,4 +417,9 @@ do
 	function util:getFormattedSpeed(speed)
 		return text:format(speedFormat(speed * 3600))
 	end
+end
+
+
+function util.doEmote(...)
+	DoEmote(...)
 end
