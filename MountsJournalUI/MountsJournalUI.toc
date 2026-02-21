@@ -1,5 +1,5 @@
 ## Interface: 50503, 50502
-## Title: MountsJournal
+## Title: MountsJournalUI
 ## Author: sfmict
 ## Version: @project-version@
 ## IconTexture: 303868
@@ -22,6 +22,7 @@
 embeds.xml
 database\ClassDB.lua
 database\FamilyDB.lua
+database\ColorDB.lua
 Util.lua
 templates.xml
 Journal.lua

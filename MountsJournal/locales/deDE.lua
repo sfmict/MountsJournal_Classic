@@ -90,6 +90,7 @@ L["PET_2"] = "Mit zufälligem Haustier"
 L["PET_3"] = "Mit Haustier"
 L["PET_4"] = "Ohne Haustier"
 L["expansions"] = "Erweiterungen"
+L["Tolerance"] = "Tolerance" -- missing
 L["Receipt date"] = "Receipt date" -- missing
 L["Travel time"] = "Travel time" -- missing
 L["Travel distance"] = "Travel distance" -- missing

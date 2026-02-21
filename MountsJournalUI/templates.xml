@@ -942,6 +942,76 @@
 				</Frames>
 			</Frame>
 
+			<Frame parentKey="mountColor" hidden="true">
+				<Size x="283" y="206"/>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture parentKey="curColor">
+							<Size x="47" y="47"/>
+							<Anchors>
+								<Anchor point="TOPRIGHT" x="-7" y="-7"/>
+							</Anchors>
+							<Color r="1.0" g="1.0" b="1.0" a="1.0"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<ColorSelect parentKey="colorPicker">
+						<Size x="200" y="142"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" x="6"/>
+						</Anchors>
+						<ColorWheelTexture parentKey="wheel">
+							<Size x="128" y="128"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" y="-7"/>
+							</Anchors>
+						</ColorWheelTexture>
+						<ColorWheelThumbTexture parentKey="wheelThumb" file="Interface\Buttons\UI-ColorPicker-Buttons">
+							<Size x="10" y="10"/>
+							<TexCoords left="0" right="0.15625" top="0" bottom="0.625"/>
+						</ColorWheelThumbTexture>
+						<ColorValueTexture parentKey="value">
+							<Size x="32" y="128"/>
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent.wheel" relativePoint="RIGHT" x="24"/>
+							</Anchors>
+						</ColorValueTexture>
+						<ColorValueThumbTexture parentKey="valueThumb" file="Interface\Buttons\UI-ColorPicker-Buttons">
+							<Size x="48" y="14"/>
+							<TexCoords left="0.25" right="1.0" top="0" bottom="0.875"/>
+						</ColorValueThumbTexture>
+					</ColorSelect>
+					<EditBox parentKey="hexBox" inherits="MJEditBoxTemplate" bytes="7">
+						<Size x="70" y="17"/>
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativeKey="$parent.colorPicker" relativePoint="BOTTOMRIGHT" y="7"/>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString parentKey="hash" inherits="GameFontNormalLarge" text="#">
+									<Anchors>
+										<Anchor point="LEFT" x="1"/>
+									</Anchors>
+									<Color r="0.6" g="0.6" b="0.6" />
+								</FontString>
+							</Layer>
+						</Layers>
+					</EditBox>
+					<Frame parentKey="threshold" inherits="MJSliderFrameTemplate" hidden="false">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.colorPicker" relativePoint="BOTTOMLEFT" x="-2"/>
+							<Anchor point="RIGHT" x="-6"/>
+						</Anchors>
+					</Frame>
+					<Button parentKey="reset" text="RESET" inherits="UIPanelButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.threshold" relativePoint="BOTTOMLEFT" x="4" y="-6"/>
+						</Anchors>
+					</Button>
+				</Frames>
+			</Frame>
+
 			<Frame parentKey="settingsBackground" inherits="MJOptionBackgroundTemplate" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="TOPLEFT" y="-60" x="4"/>

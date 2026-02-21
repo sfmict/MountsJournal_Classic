@@ -90,6 +90,7 @@ L["PET_2"] = "Avec une mascotte au hasard"
 L["PET_3"] = "Avec une mascotte"
 L["PET_4"] = "Sans mascotte"
 L["expansions"] = "Extensions"
+L["Tolerance"] = "Tolerance" -- missing
 L["Receipt date"] = "Date d'obtention"
 L["Travel time"] = "Temps de trajet"
 L["Travel distance"] = "Distance parcourue"
