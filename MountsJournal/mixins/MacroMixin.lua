@@ -293,7 +293,7 @@ function macroFrame:setRuleFuncs()
 	local t_then = "\nthen\n"
 	local t_end = "\nend\n"
 
-	local function addRules(rules, offset, func, keys)
+	local function addRules(rules, offset, func, addKey, ...)
 		for i = 1, #rules do
 			local rule = rules[i]
 
@@ -301,16 +301,16 @@ function macroFrame:setRuleFuncs()
 				offset = offset + 1
 				func[offset] = t_if
 				offset = offset + 1
-				func[offset] = self.conditions:getFuncText(rule, keys, rule.name)
+				func[offset] = self.conditions:getFuncText(rule, addKey, rule.name, i, ...)
 				offset = offset + 1
 				func[offset] = t_then
 			end
 
 			if rule.action then
 				offset = offset + 1
-				func[offset] = self.actions:getFuncText(rule.action, keys)
+				func[offset] = self.actions:getFuncText(rule.action, addKey)
 			else
-				offset = addRules(rule.rules, offset, func, keys)
+				offset = addRules(rule.rules, offset, func, addKey, i, ...)
 			end
 
 			if rule[1] or rule.action then
@@ -323,9 +323,18 @@ function macroFrame:setRuleFuncs()
 
 	for i = 1, #self.currentRuleSet do
 		local rules = self.currentRuleSet[i]
-		local keys = {"wipe", wipe = 1}
+		local keys = {"local wipe = wipe"}
 		local func = {}
-		func[5] = [[
+
+		local function addKey(var)
+			if keys[var] == nil then
+				keys[var] = 1
+				keys[#keys + 1] = var
+			end
+		end
+
+		-- C_Secrets.ShouldUnitIdentityBeSecret("party1")
+		func[2] = [[
 
 return function(self, button, profileLoad, noMacro)
 	self.mounts:setFlags()
@@ -336,12 +345,8 @@ return function(self, button, profileLoad, noMacro)
 	wipe(self.state)
 		]]
 
-		local offset = addRules(rules, 5, func, keys)
-		local varsText = concat(keys, ", ")
-		func[1] = "local "
-		func[2] = varsText
-		func[3] = " = "
-		func[4] = varsText
+		local offset = addRules(rules, 2, func, addKey)
+		func[1] = concat(keys, "\n")
 
 		func[offset + 1] = [[
 	self.mounts:updateFlagsWithMap()

@@ -40,16 +40,7 @@ do
 	model:Hide()
 	model:SetUnit("player", false, true, false, true)
 
-	function macroFrame:isTtransmogOutfitActive(name)
-		local outfitID
-		for _, id in ipairs(C_TransmogCollection.GetOutfits()) do
-			if name == C_TransmogCollection.GetOutfitInfo(id) then
-				outfitID = id
-				break
-			end
-		end
-		if not outfitID then return end
-
+	local function isOutfitEquipped(outfitID)
 		local outfitItemTransmogInfoList = C_TransmogCollection.GetOutfitItemTransmogInfoList(outfitID)
 		if not outfitItemTransmogInfoList then return end
 
@@ -58,13 +49,35 @@ do
 		model:Hide()
 		if not currentItemTransmogInfoList then return end
 
-		for slotID = 1, #currentItemTransmogInfoList do
-			local itemTransmogInfo = currentItemTransmogInfoList[slotID]
-			if itemTransmogInfo.appearanceID ~= noTransmogID and not itemTransmogInfo:IsEqual(outfitItemTransmogInfoList[slotID]) then
+		for slotID = 1, #outfitItemTransmogInfoList do
+			local itemTransmogInfo = outfitItemTransmogInfoList[slotID]
+			if itemTransmogInfo.appearanceID ~= noTransmogID and not itemTransmogInfo:IsEqual(currentItemTransmogInfoList[slotID]) then
 				return
 			end
 		end
 		return true
+	end
+
+	function macroFrame:isTtransmogOutfitActive(name)
+		local outfints = C_TransmogCollection.GetOutfits()
+		for i = 1, #outfints do
+			local id = outfints[i]
+			if name == C_TransmogCollection.GetOutfitInfo(id) then
+				return isOutfitEquipped(id)
+			end
+		end
+		return false
+	end
+
+	function macroFrame:anyTtransmogOutfitActive(values)
+		local outfints = C_TransmogCollection.GetOutfits()
+		for i = 1, #outfints do
+			local id = outfints[i]
+			if values[C_TransmogCollection.GetOutfitInfo(id)] and isOutfitEquipped(id) then
+				return true
+			end
+		end
+		return false
 	end
 end
 
@@ -86,54 +99,12 @@ function macroFrame:checkEquipmentSet(setID)
 end
 
 
-do
-	local updateFrame = CreateFrame("FRAME")
-	local guids = {}
-
-	local function update(self, elapsed)
-		self.time = self.time - elapsed
-
-		if self.time <= 0 then
-			local updated = false
-			for guid in next, guids do
-				if GetPlayerInfoByGUID(guid) then
-					guids[guid] = nil
-					updated = true
-				end
-			end
-
-			if updated then
-				macroFrame:event("RULE_LIST_UPDATE")
-				if not next(guids) then
-					self:SetScript("OnUpdate", nil)
-					return
-				end
-			end
-
-			self.attempts = self.attempts - 1
-			if self.attempts == 0 then
-				wipe(guids)
-				self:SetScript("OnUpdate", nil)
-				return
-			end
-			self.time = .5
-		end
+function macroFrame:checkEquipmentSets(setIDs)
+	for i = 1, #setIDs do
+		local _,_,_, isEquipped = C_EquipmentSet.GetEquipmentSetInfo(setIDs[i])
+		if isEquipped then return true end
 	end
-
-	function macroFrame:getNameByGUID(guid)
-		local _,_,_,_,_, name, realmName = GetPlayerInfoByGUID(guid)
-
-		if name then
-			if realmName == "" then realmName = GetRealmName() end
-			return ("%s - %s"):format(name, realmName)
-		end
-
-		updateFrame.time = .5
-		updateFrame.attempts = 5
-		guids[guid] = true
-		updateFrame:SetScript("OnUpdate", update)
-		return "?? - ??"
-	end
+	return false
 end
 
 
@@ -211,4 +182,21 @@ do
 		end
 		return false
 	end
+end
+
+
+function macroFrame:hasProfession(values)
+	local profs = self.mounts.profs
+	for i = 1, #values do
+		if profs[values[i]] then return true end
+	end
+	return false
+end
+
+
+function macroFrame:anyHoldayActive(values)
+	for i = 1, #values do
+		if self.calendar:isHolidayActive(values[i]) then return true end
+	end
+	return false
 end

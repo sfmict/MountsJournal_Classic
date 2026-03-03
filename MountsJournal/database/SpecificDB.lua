@@ -5,6 +5,7 @@ ns.specificDB = {
 	repair = {
 		[61425] = true, -- 280 Traveler's Tundra Mammoth (Alliance)
 		[61447] = true, -- 284 Traveler's Tundra Mammoth (Horde)
+		[122708] = true, -- 460 Grand Expedition Yak
 	},
 	passenger = {
 		[55531] = true, -- 240 Mechano-Hog (Horde)

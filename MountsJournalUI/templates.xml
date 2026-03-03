@@ -3652,7 +3652,7 @@
 			</Anchors>
 		</HighlightTexture>
 		<NormalFont style="GameFontHighlight"/>
-		<ButtonText maxLines="1" justifyH="LEFT" parentKey="text">
+		<ButtonText wordwrap="false" justifyH="LEFT" parentKey="text">
 			<Anchors>
 				<Anchor point="LEFT" x="10" y="0"/>
 				<Anchor point="RIGHT" relativeKey="$parent.normal" relativePoint="LEFT" x="-5" y="0"/>
@@ -3681,7 +3681,19 @@
 					end
 					if isTruncated then
 						if tooltip then GameTooltip:AddLine(" ") end
-						GameTooltip:AddLine(self.text:GetText(), 1, 1, 1)
+						local text = self.text:GetText()
+						if self.multi then
+							local mText = text:match("%((.*)%)")
+							if mText then
+								for j, v in ipairs({(";"):split(mText)}) do
+									GameTooltip:AddLine(("|cffeeeeee%s|r"):format(v:trim()))
+								end
+							else
+								GameTooltip:AddLine(text, 1, 1, 1)
+							end
+						else
+							GameTooltip:AddLine(text, 1, 1, 1)
+						end
 					end
 					GameTooltip:Show()
 				end
