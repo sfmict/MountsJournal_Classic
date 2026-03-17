@@ -179,6 +179,10 @@ ns.familyDB = {
 	["Rodent"] = {
 		["Rabbit"] = 2600,
 		-- ["Rats"] = 2601,
+		-- ["Mudnose"] = 2602,
+		-- ["Mice"] = 2603,
+		-- ["Mawrats"] = 2604,
+		["Grovegliders"] = 2605,
 	},
 	["Rylaks"] = 2700,
 	["Ungulates"] = {

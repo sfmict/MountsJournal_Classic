@@ -206,7 +206,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 				},
 			},
 		},
-	},
+	}
 
 	dd:ddSetDisplayMode(addon)
 	dd:ddSetValue(list)
