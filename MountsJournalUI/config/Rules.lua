@@ -869,7 +869,7 @@ function rules:setCondTooltip(rule)
 		if name == nil then
 			GameTooltip:AddLine(condText)
 		elseif conds[cond[2]].sort and type(cond[3]) == "table" then
-			for j, v in ipairs({(";"):split(value:match("%((.*)%)"))}) do
+			for j, v in ipairs({(";"):split(value:match("]|r %((.*)%)"))}) do
 				GameTooltip:AddDoubleLine(j == 1 and name..":|r" or " ", ("|cffeeeeee%s|r"):format(v:trim()))
 			end
 		else
@@ -906,19 +906,22 @@ function rules:ruleButtonInit(btn, node, isDrag)
 	btn.id = data[1]
 	btn.data = data[2]
 	btn.list = data[3]
-	btn.order:SetText(btn.id)
 	btn.action:SetText(self:getActionText(btn.data, true))
 	btn.up:SetShown(btn.id > 1)
 	btn.down:SetShown(#btn.list > btn.id)
 
 	if btn.data.action then
-		local icon, text, r,g,b = self:getActionIcon(btn.data)
-		btn.icon:SetTexture(icon or util.noIcon)
-		btn.icon:SetVertexColor(r or 1, g or 1, b or 1)
-		btn.icon:Show()
-		btn.iconText:SetText(text)
-	elseif btn.icon then
-		btn.icon:Hide()
+		local icon, text, r,g,b, mountID, spellID, itemLink = self:getActionIcon(btn.data)
+		btn.info.mountID = not isDrag and mountID
+		btn.info.spellID = not isDrag and spellID
+		btn.info.itemLink = not isDrag and itemLink
+		btn.info:Show()
+		btn.info.icon:SetTexture(icon or util.noIcon)
+		btn.info.icon:SetVertexColor(r or 1, g or 1, b or 1)
+		btn.info.iconText:SetText(text)
+		btn.info.order:SetText(btn.id)
+	elseif btn.info then
+		btn.info:Hide()
 	end
 
 	btn.cond2:ClearAllPoints()
@@ -950,6 +953,7 @@ end
 
 function rules:ruleGroupInit(btn, node, isDrag)
 	self:ruleButtonInit(btn, node, isDrag)
+	btn.order:SetText(btn.id)
 	btn:updateState()
 end
 

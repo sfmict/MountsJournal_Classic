@@ -6,28 +6,43 @@ local conds = {}
 ns.conditions = conds
 
 
-local function getTableString(values, isNumeric, curValue, addKey, ...)
-	if type(values) == "table" then
-		local var = ("_"):join("var", ...)
-		if isNumeric then
-			addKey(strconcat("local ", var, " = {[", concat(values, "]=true,["), "]=true}"))
-		else
-			addKey(strconcat("local ", var, " = {['", concat(values, "']=true,['"), "']=true}"))
-		end
-		return ("%s[%s]"):format(var, curValue)
-	else
-		if isNumeric then
-			return ("(%s == %s)"):format(curValue, values)
-		else
-			return ("(%s == '%s')"):format(curValue, values)
-		end
+local function genNumInList(values, expr, addKey, ...)
+	if type(values) ~= "table" then
+		return ("(%s == %s)"):format(expr, values)
 	end
+
+	local var = ("_"):join("var", ...)
+	addKey(strconcat("local ", var, " = {[", concat(values, "]=true,["), "]=true}"))
+
+	return ("%s[%s]"):format(var, expr)
 end
 
+local function genStrInList(values, expr, addKey, ...)
+	if type(values) ~= "table" then
+		return ("(%s == '%s')"):format(expr, values)
+	end
 
-local function getFuncString(values, funcStr, addKey, ...)
+	local var = ("_"):join("var", ...)
+	addKey(strconcat("local ", var, " = {['", concat(values, "']=true,['"), "']=true}"))
+
+	return ("%s[%s]"):format(var, expr)
+end
+
+local function genTableCheck(values, funcStr, addKey, ...)
 	local var = ("_"):join("var", ...)
 	addKey(strconcat("local ", var, " = {", concat(values, ","), "}"))
+	return funcStr:format(var)
+end
+
+local function genATableCheck(values, funcStr, addKey, ...)
+	local var = ("_"):join("var", ...)
+	addKey(strconcat("local ", var, " = {[", concat(values, "]=true,["), "]=true}"))
+	return funcStr:format(var)
+end
+
+local function genASTableCheck(values, funcStr, addKey, ...)
+	local var = ("_"):join("var", ...)
+	addKey(strconcat("local ", var, " = {['", concat(values, "']=true,['"), "']=true}"))
 	return funcStr:format(var)
 end
 
@@ -110,7 +125,7 @@ function conds.btn:getFuncText(values, addKey, _, ...)
 	else
 		buttons = self:getButtonKey(values)
 	end
-	return getTableString(buttons, false, "button", addKey, ...)
+	return genStrInList(buttons, "button", addKey, ...)
 end
 
 
@@ -174,7 +189,7 @@ function conds.spec:getFuncText(values, addKey, _, ...)
 	end
 
 	addKey("local GetSpecialization = C_SpecializationInfo.GetSpecialization")
-	return getTableString(vals, true, "GetSpecialization()", addKey, ...)
+	return genNumInList(vals, "GetSpecialization()", addKey, ...)
 end
 
 
@@ -183,7 +198,7 @@ end
 conds.zt = {}
 
 function conds.zt:getFuncText(values, addKey, _, ...)
-	return getTableString(values, false, "self.mounts.instanceType", addKey, ...)
+	return genStrInList(values, "self.mounts.instanceType", addKey, ...)
 end
 
 
@@ -193,7 +208,7 @@ conds.holiday = {}
 
 function conds.holiday:getFuncText(values, addKey, _, ...)
 	if type(values) == "table" then
-		return getFuncString(values, "self:anyHoldayActive(%s)", addKey, ...)
+		return genTableCheck(values, "self:anyHoldayActive(%s)", addKey, ...)
 	end
 	return ("self.calendar:isHolidayActive(%s)"):format(values)
 end
@@ -290,6 +305,36 @@ conds.combat = {}
 function conds.combat:getFuncText(_, addKey)
 	addKey("local InCombatLockdown = InCombatLockdown")
 	return "InCombatLockdown()"
+end
+
+
+---------------------------------------------------
+-- lvlm LEVEL MORE
+conds.lvlm = {}
+
+function conds.lvlm:getFuncText(value, addKey)
+	addKey("local UnitLevel = UnitLevel")
+	return ("(UnitLevel('PLAYER') > %s)"):format(value)
+end
+
+
+---------------------------------------------------
+-- lvll LEVEL LESS
+conds.lvll = {}
+
+function conds.lvll:getFuncText(value, addKey)
+	addKey("local UnitLevel = UnitLevel")
+	return ("(UnitLevel('PLAYER') < %s)"):format(value)
+end
+
+
+---------------------------------------------------
+-- lvleq LEVEL EQUAL
+conds.lvleq = {}
+
+function conds.lvleq:getFuncText(value, addKey)
+	addKey("local UnitLevel = UnitLevel")
+	return ("(UnitLevel('PLAYER') == %s)"):format(value)
 end
 
 
@@ -410,8 +455,11 @@ end
 -- map
 conds.map = {}
 
-function conds.map:getFuncText(value)
-	return ("self:checkMap(%s)"):format(value)
+function conds.map:getFuncText(values, addKey, _, ...)
+	if type(values) == "table" then
+		return genATableCheck(values, "self:checkMaps(%s)", addKey, ...)
+	end
+	return ("self:checkMap(%s)"):format(values)
 end
 
 
@@ -430,7 +478,7 @@ end
 conds.instance = {}
 
 function conds.instance:getFuncText(values, addKey, _, ...)
-	return getTableString(values, true, "self.mounts.instanceID", addKey, ...)
+	return genNumInList(values, "self.mounts.instanceID", addKey, ...)
 end
 
 
@@ -439,7 +487,7 @@ end
 conds.difficulty = {}
 
 function conds.difficulty:getFuncText(values, addKey, _, ...)
-	return getTableString(values, true, "self.mounts.difficultyID", addKey, ...)
+	return genNumInList(values, "self.mounts.difficultyID", addKey, ...)
 end
 
 
@@ -463,9 +511,7 @@ function conds.tmog:getFuncText(values, addKey, _, ...)
 		if num == 0 then return "false"
 		elseif num == 1 then vals = vals[1]
 		else
-			local var = ("_"):join("var", ...)
-			addKey(strconcat("local ", var, " = {['", concat(vals, "']=true,['"), "']=true}"))
-			return ("self:anyTtransmogOutfitActive(%s)"):format(var)
+			return genASTableCheck(vals, "self:anyTtransmogOutfitActive(%s)", addKey, ...)
 		end
 	else
 		local name, guid = ("\n"):split(values, 2)
@@ -473,7 +519,6 @@ function conds.tmog:getFuncText(values, addKey, _, ...)
 		vals = name
 	end
 
-	fprint(vals)
 	return ("self:isTtransmogOutfitActive('%s')"):format(vals:gsub("['\\]", "\\%1"))
 end
 
@@ -505,7 +550,7 @@ conds.prof = {}
 
 function conds.prof:getFuncText(values, addKey, _, ...)
 	if type(values) == "table" then
-		return getFuncString(values, "self:hasProfession(%s)", addKey, ...)
+		return genTableCheck(values, "self:hasProfession(%s)", addKey, ...)
 	end
 	return ("self.mounts.profs[%s]"):format(values)
 end
@@ -530,7 +575,7 @@ function conds.equips:getFuncText(values, addKey, _, ...)
 		end
 		if num == 0 then return "false"
 		elseif num == 1 then vals = vals[1]
-		else return getFuncString(vals, "self:checkEquipmentSets(%s)", addKey, ...) end
+		else return genTableCheck(vals, "self:checkEquipmentSets(%s)", addKey, ...) end
 	else
 		local setID, guid = (":"):split(values, 2)
 		if guid ~= playerGuid then return "false" end
@@ -615,7 +660,7 @@ conds.title = {}
 
 function conds.title:getFuncText(values, addKey, _, ...)
 	addKey("local GetCurrentTitle = GetCurrentTitle")
-	return getTableString(values, true, "GetCurrentTitle()", addKey, ...)
+	return genNumInList(values, "GetCurrentTitle()", addKey, ...)
 end
 
 

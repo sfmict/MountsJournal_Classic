@@ -74,6 +74,7 @@ end
 ---------------------------------------------------
 -- btn MOUSE BUTTON
 conds.btn.text = L["Mouse button"]
+conds.btn.onlyOne = true
 conds.btn.sort = sort
 
 function conds.btn:getValueText(values)
@@ -150,6 +151,7 @@ end
 ---------------------------------------------------
 -- class
 conds.class.text = CLASS
+conds.class.onlyOne = true
 conds.class.sort = sort
 
 function conds.class:getValueText(values)
@@ -193,6 +195,7 @@ end
 ---------------------------------------------------
 -- spec
 conds.spec.text = SPECIALIZATION
+conds.spec.onlyOne = true
 
 function conds.spec:getValueText(values)
 	local names = {}
@@ -240,6 +243,7 @@ end
 ---------------------------------------------------
 -- zt ZONE TYPE
 conds.zt.text = L["Zone type"]
+conds.zt.onlyOne = true
 
 local function getZoneTypeName(value)
 	if value == "scenario" then
@@ -377,51 +381,88 @@ end
 ---------------------------------------------------
 -- falling
 conds.falling.text = L["The player is falling"]
+conds.falling.onlyOne = true
 
 
 ---------------------------------------------------
 -- moving
 conds.moving.text = L["The player is moving"]
+conds.moving.onlyOne = true
 
 
 ---------------------------------------------------
 -- indoors
 conds.indoors.text = L["The player is indoors"]
+conds.indoors.onlyOne = true
 
 
 ---------------------------------------------------
 -- swimming
 conds.swimming.text = L["The player is swimming"]
+conds.swimming.onlyOne = true
 
 
 ---------------------------------------------------
 -- mounted
 conds.mounted.text = L["The player is mounted"]
+conds.mounted.onlyOne = true
 
 
 ---------------------------------------------------
 -- vehicle
 conds.vehicle.text = L["The player is within an vehicle"]
+conds.vehicle.onlyOne = true
 
 
 ---------------------------------------------------
 -- flyable
 conds.flyable.text = L["Flyable area"]
+conds.flyable.onlyOne = true
 
 
 ---------------------------------------------------
 -- dead
 conds.dead.text = L["The player is dead"]
+conds.dead.onlyOne = true
 
 
 ---------------------------------------------------
 -- rest
 conds.rest.text = L["The player is resting"]
+conds.rest.onlyOne = true
 
 
 ---------------------------------------------------
 -- combat
 conds.combat.text = L["The player is in combat"]
+conds.combat.onlyOne = true
+
+
+---------------------------------------------------
+-- lvlm LEVEL MORE
+conds.lvlm.text = LEVEL.." "..L["> (more than)"]
+conds.lvlm.isNumeric = true
+conds.lvlm.onlyOne = true
+
+conds.lvlm.getValueText = conds.mcond.getValueText
+
+
+---------------------------------------------------
+-- lvll LEVEL LESS
+conds.lvll.text = LEVEL.." "..L["< (less than)"]
+conds.lvll.isNumeric = true
+conds.lvll.onlyOne = true
+
+conds.lvll.getValueText = conds.mcond.getValueText
+
+
+---------------------------------------------------
+-- lvleq LEVEL EQUAL
+conds.lvleq.text = LEVEL.." "..L["= (equal to)"]
+conds.lvleq.isNumeric = true
+conds.lvleq.onlyOne = true
+
+conds.lvleq.getValueText = conds.mcond.getValueText
 
 
 ---------------------------------------------------
@@ -614,6 +655,7 @@ conds.qc.getValueText = conds.hitem.getValueText
 ---------------------------------------------------
 -- faction
 conds.faction.text = FACTION
+conds.faction.onlyOne = true
 
 function conds.faction:getValueText(value)
 	return FACTION_LABELS[value]
@@ -631,6 +673,7 @@ end
 ---------------------------------------------------
 -- race
 conds.race.text = RACE
+conds.race.onlyOne = true
 
 local RACE_KEYS = {
 	1, -- Human
@@ -698,14 +741,46 @@ conds.zone.getValueText = conds.mcond.getValueText
 ---------------------------------------------------
 -- map
 conds.map.text = L["Map"]
+conds.map.onlyOne = true
 
-function conds.map:getValueText(value)
+local function getMapName(value)
 	if value == ns.mounts.defMountsListID then
 		return WORLD
 	else
 		local mapInfo = util.getMapFullNameInfo(value)
 		if mapInfo then return mapInfo.name end
 	end
+	return RED_FONT_COLOR:WrapTextInColorCode(value)
+end
+
+function conds.map:getValueText(values)
+	local names = {}
+	for i, value in ipairs(values) do
+		names[i] = getMapName(value)
+	end
+	return concat(names, "; ")
+end
+
+function conds.map.sort(values)
+	sort(values, function(a, b)
+		if a == b then return false end
+		return strcmputf8i(getMapName(a), getMapName(b)) < 0
+	end)
+end
+
+function conds.map:getValueList(values, func)
+	local list = {}
+	local checked = function(btn) return tContains(values, btn.value) end
+
+	for i, value in ipairs(values) do
+		list[i] = createCheckableInfo(getMapName(value), value, func, checked)
+	end
+
+	if #list == 0 then
+		list[1] = createEmptyInfo()
+	end
+
+	return list
 end
 
 
@@ -770,6 +845,7 @@ end
 ---------------------------------------------------
 -- instance
 conds.instance.text = INSTANCE
+conds.instance.onlyOne = true
 conds.instance.sort = sort
 
 function conds.instance:getValueDescription()
@@ -825,6 +901,7 @@ end
 ---------------------------------------------------
 -- difficulty
 conds.difficulty.text = DUNGEON_DIFFICULTY
+conds.difficulty.onlyOne = true
 
 local function getDifficultyName(value)
 	if value == 0 then return WORLD end
@@ -989,7 +1066,7 @@ end
 conds.mtrack.text = TRACKING
 
 function conds.mtrack:getValueText(value)
-	local k, v, name = (":"):split(value, 2)
+	local k, v, name, icon = (":"):split(value, 2)
 	v = tonumber(v)
 	for i = 1, C_Minimap.GetNumTrackingTypes() do
 		local trackingInfo = C_Minimap.GetTrackingInfo(i)
@@ -1002,7 +1079,12 @@ function conds.mtrack:getValueText(value)
 		name = C_Spell.GetSpellName(v)
 	end
 	if name then
-		return sName_ID:format(name, value)
+		if icon and C_Texture.GetAtlasInfo(icon) then
+			icon = CreateAtlasMarkup(icon, ns.RULE_ICON_SIZE, ns.RULE_ICON_SIZE)
+		else
+			icon = CreateSimpleTextureMarkup(icon or util.noIcon, ns.RULE_ICON_SIZE)
+		end
+		return sIcon_Name_ID:format(icon, name, value)
 	end
 	return value
 end
@@ -1055,7 +1137,9 @@ conds.prof.text = TRADE_SKILLS
 function conds.prof:getValueText(values)
 	local names = {}
 	for i, value in ipairs(values) do
-		names[i] = C_TradeSkillUI.GetTradeSkillDisplayName(value) or RED_FONT_COLOR:WrapTextInColorCode(value)
+		local name = C_TradeSkillUI.GetTradeSkillDisplayName(value) or RED_FONT_COLOR:WrapTextInColorCode(value)
+		local icon = CreateSimpleTextureMarkup(C_TradeSkillUI.GetTradeSkillTexture(value) or util.noIcon, ns.RULE_ICON_SIZE)
+		names[i] = icon..name
 	end
 	return concat(names, "; ")
 end
@@ -1205,6 +1289,7 @@ end
 ---------------------------------------------------
 -- group GROUP TYPE
 conds.group.text = L["Group Type"]
+conds.group.onlyOne = true
 
 function conds.group:getValueText(value)
 	if value == "group" then
@@ -1379,6 +1464,7 @@ end
 ---------------------------------------------------
 -- title
 conds.title.text = PAPERDOLL_SIDEBAR_TITLES
+conds.title.onlyOne = true
 
 function conds.title:getValueText(values)
 	local names = {}
@@ -1429,8 +1515,12 @@ end
 
 ---------------------------------------------------
 -- METHODS
-function conds:getMenuList(value, func)
-	local list = {}
+function conds:getMenuList(value, func, rule)
+	local list, keys = {}, {}
+
+	for i, cond in ipairs(rule) do
+		if cond[2] and cond[2] ~= value then keys[cond[2]] = true end
+	end
 
 	local OnTooltipShow = function(btn, tooltip, v)
 		GameTooltip_SetTitle(tooltip, v.text)
@@ -1438,7 +1528,7 @@ function conds:getMenuList(value, func)
 	end
 
 	for k, v in next, self do
-		if type(v) == "table" then
+		if type(v) == "table" and not (v.onlyOne and keys[k]) then
 			local info = createRadioInfo(v.text, k, func, k == value)
 			info.arg1 = v
 			if v.description then

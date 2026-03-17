@@ -4,8 +4,6 @@ local specificDB = ns.specificDB
 local config = CreateFrame("FRAME", "MountsJournalConfig")
 ns.config = config
 config:Hide()
---config.macroName = "MJMacro"
---config.secondMacroName = "MJSecondMacro"
 
 
 -- SHOW CONFIG
@@ -20,26 +18,13 @@ config:SetScript("OnShow", function(self)
 		self.cancelBtn:Enable()
 	end
 
-	-- TOOLTIP
-	local function setTooltip(frame, anchor, title, text)
-		frame:SetScript("OnEnter", function()
-			GameTooltip:SetOwner(frame, anchor)
-			GameTooltip:SetText(title)
-			GameTooltip:AddLine(text, 1, 1, 1, 1, true)
-			GameTooltip:Show()
-		end)
-
-		frame:SetScript("OnLeave", function()
-			GameTooltip_Hide()
-		end)
-	end
-
 	-- GROUP
-	local function createGropPanel(parent, numCheck, numComboBox)
+	local grx, gry = 6, -8
+	local function createGroupPanel(parent, numCheck, numComboBox)
 		local group = CreateFrame("FRAME", nil, parent, "MJOptionsPanel")
 		group:SetPoint("RIGHT", parent:GetParent(), 0, 0)
-		-- check = 26 + 3, combobox = 24 + 8 + 1
-		group:SetHeight(29 * numCheck + 33 * (numComboBox or 0) + 3)
+		-- check = 26 + 3, combobox = 24 + 8 + 1, 5*2+3
+		group:SetHeight(29 * numCheck + 33 * (numComboBox or 0) - gry * 2 - 3)
 		return group
 	end
 
@@ -156,12 +141,12 @@ config:SetScript("OnShow", function(self)
 	self.rightPanelScroll:SetPoint("BOTTOMRIGHT", self.rightPanel, -26, 5)
 
 	-- MINIMAP GROUP
-	self.minimapGroup = createGropPanel(self.rightPanelScroll.child, 2)
+	self.minimapGroup = createGroupPanel(self.rightPanelScroll.child, 2)
 	self.minimapGroup:SetPoint("TOPLEFT", 3, -2)
 
 	-- SHOW MINIMAP BUTTON
 	self.showMinimapButton = CreateFrame("CheckButton", nil, self.minimapGroup, "MJCheckButtonTemplate")
-	self.showMinimapButton:SetPoint("TOPLEFT", self.minimapGroup, 3, -3)
+	self.showMinimapButton:SetPoint("TOPLEFT", self.minimapGroup, grx, gry)
 	self.showMinimapButton.Text:SetText(L["Show Minimap Button"])
 	self.showMinimapButton:HookScript("OnClick", enableBtns)
 
@@ -170,12 +155,12 @@ config:SetScript("OnShow", function(self)
 	self.lockMinimapButton:HookScript("OnClick", enableBtns)
 
 	-- REPAIR GROUP
-	self.repairGroup = createGropPanel(self.rightPanelScroll.child, 3, 1)
+	self.repairGroup = createGroupPanel(self.rightPanelScroll.child, 3, 1)
 	self.repairGroup:SetPoint("TOPLEFT", self.minimapGroup, "BOTTOMLEFT", 0, -5)
 
 	-- USE REPAIR MOUNTS
 	self.useRepairMounts = CreateFrame("CheckButton", nil, self.repairGroup, "MJCheckButtonTemplate")
-	self.useRepairMounts:SetPoint("TOPLEFT", self.repairGroup, 3, -3)
+	self.useRepairMounts:SetPoint("TOPLEFT", self.repairGroup, grx, gry)
 	self.useRepairMounts.Text:SetText(L["If item durability is less than"])
 	self.useRepairMounts.tooltipText = L["If item durability is less than"]
 	self.useRepairMounts.tooltipRequirement = L["UseRepairMountsDescription"]
@@ -330,12 +315,12 @@ config:SetScript("OnShow", function(self)
 	self.useMagicBroom:HookScript("OnClick", enableBtns)
 
 	-- PET GROUP
-	self.petGroup = createGropPanel(self.rightPanelScroll.child, 4)
-	self.petGroup:SetPoint("TOPLEFT", self.useMagicBroom, "BOTTOMLEFT", -3, -12)
+	self.petGroup = createGroupPanel(self.rightPanelScroll.child, 4)
+	self.petGroup:SetPoint("TOPLEFT", self.useMagicBroom, "BOTTOMLEFT", -grx, -12)
 
 	-- SUMMON PET EVERY N MINUTES
 	self.summonPetEvery = CreateFrame("CheckButton", nil, self.petGroup, "MJCheckButtonTemplate")
-	self.summonPetEvery:SetPoint("TOPLEFT", self.petGroup, 3, -3)
+	self.summonPetEvery:SetPoint("TOPLEFT", self.petGroup, grx, gry)
 	self.summonPetEvery.Text:SetText(L["Summon a pet every"])
 	self.summonPetEvery:HookScript("OnClick", enableBtns)
 
@@ -389,12 +374,12 @@ config:SetScript("OnShow", function(self)
 	self.noPetInGroup:HookScript("OnClick", enableBtns)
 
 	-- MOUNT LIST GROUP
-	self.mountListGroup = createGropPanel(self.rightPanelScroll.child, 2)
+	self.mountListGroup = createGroupPanel(self.rightPanelScroll.child, 2)
 	self.mountListGroup:SetPoint("TOPLEFT", self.petGroup, "BOTTOMLEFT", 0, -5)
 
 	-- ARROW BUTTONS
 	self.arrowButtons = CreateFrame("CheckButton", nil, self.mountListGroup, "MJCheckButtonTemplate")
-	self.arrowButtons:SetPoint("TOPLEFT", self.mountListGroup, 3, -3)
+	self.arrowButtons:SetPoint("TOPLEFT", self.mountListGroup, grx, gry)
 	self.arrowButtons.Text:SetPoint("RIGHT", self.mountListGroup, -4, 0)
 	self.arrowButtons.Text:SetText(L["Enable arrow buttons to browse mounts"])
 	self.arrowButtons:HookScript("OnClick", enableBtns)

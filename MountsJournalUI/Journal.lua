@@ -1561,7 +1561,7 @@ function journal:setMountTooltip(mountID, spellID, showDescription)
 		util.addTooltipDLine(L["Avg. speed"], util:getFormattedAvgSpeed(mountDistance, mountTime))
 	end
 
-	--if showDescription then
+	--if showDescription or not mounts.config.mountDescriptionToggle then
 	--	GameTooltip:AddLine(" ")
 	--	GameTooltip:AddLine(sourceText, 1,1,1, true)
 	--	GameTooltip:AddLine(descriptionText, 1,1,1, true)
@@ -2512,18 +2512,16 @@ function journal:setMountToModelScene(modelScene, creatureID, isSelfMount, animI
 	if mountActor then
 		if creatureID == "player" then
 			modelScene:GetActorByTag("player-rider"):ClearModel()
+			mountActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
+			mountActor:SetAnimation(618)
 			local sheathWeapons = true
 			local autoDress = true
 			local hideWeapons = false
 			local usePlayerNativeForm = true
-			if mountActor:SetModelByUnit("player", sheathWeapons, autoDress, hideWeapons, usePlayerNativeForm) then
-				mountActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
-				mountActor:SetAnimation(618)
-			else
+			if not mountActor:SetModelByUnit("player", sheathWeapons, autoDress, hideWeapons, usePlayerNativeForm) then
 				mountActor:ClearModel()
 			end
 		else
-			mountActor:SetModelByCreatureDisplayID(creatureID, true)
 			-- mount self idle animation
 			if isSelfMount then
 				mountActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.None)
@@ -2532,6 +2530,7 @@ function journal:setMountToModelScene(modelScene, creatureID, isSelfMount, animI
 				mountActor:SetAnimationBlendOperation(Enum.ModelBlendOperation.Anim)
 				mountActor:SetAnimation(0)
 			end
+			mountActor:SetModelByCreatureDisplayID(creatureID, true)
 			--modelScene:AttachPlayerToMount(mountActor, animID, isSelfMount, disablePlayerMountPreview or not GetCVarBool("mountJournalShowPlayer"), spellVisualKitID, PlayerUtil.ShouldUseNativeFormInModelScene())
 		end
 	end
