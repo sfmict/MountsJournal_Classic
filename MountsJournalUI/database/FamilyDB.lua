@@ -346,6 +346,7 @@ ns.familyDBIcons = {
 	},
 	["Rodent"] = {
 		[0] = 4687496,
+		["Grovegliders"] = 7262713,
 		["Rabbit"] = 4687496,
 	},
 	["Rylaks"] = 943739,
