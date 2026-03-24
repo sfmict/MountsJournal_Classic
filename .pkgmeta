@@ -6,14 +6,8 @@ externals:
 		site: https://www.curseforge.com/wow/addons/libthingsload
 		url: https://github.com/sfmict/LibThingsLoad
 		tag: latest
-	MountsJournal/libs/LibSerialize:
-		url: https://github.com/rossnichols/LibSerialize
-		tag: latest
-	MountsJournal/libs/LibDeflate:
-		site: https://www.curseforge.com/wow/addons/libdeflate
-		url: https://github.com/SafeteeWoW/LibDeflate
-	MountsJournal/libs/AceComm-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceComm-3.0
 	MountsJournal/libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+	MountsJournal/libs/AceComm-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceComm-3.0
 	MountsJournal/libs/LibDataBroker-1.1:
 		site: https://www.curseforge.com/wow/addons/libdatabroker-1-1
 		url: https://github.com/tekkub/libdatabroker-1-1
@@ -31,15 +25,6 @@ ignore:
 	- libs/.*\.toc$
 	- libs/LibStub/tests
 	- libs/LibDataBroker-1\.1/README\.textile
-	- libs/LibSerialize/archive
-	- libs/LibSerialize/buildreadme.lua
-	- libs/LibSerialize/tests.lua
-	- libs/LibDeflate/docs
-	- libs/LibDeflate/examples
-	- libs/LibDeflate/dev_docs
-	- libs/LibDeflate/rockspecs
-	- libs/LibDeflate/tests
-	- libs/LibDeflate/tools
 
 move-folders:
 	MountsJournal/MountsJournal: MountsJournal
