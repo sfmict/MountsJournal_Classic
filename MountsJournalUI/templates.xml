@@ -313,7 +313,7 @@
 					<Anchor point="RIGHT" relativeKey="$parent.filtersPanel.searchBox" relativePoint="LEFT" x="-6"/>
 				</Anchors>
 				<Frames>
-					<Frame parentKey="strideSlider" inherits="MJSliderFrameTemplate">
+					<Frame parentKey="strideSlider" inherits="MJSliderFrameTemplate" hidden="false">
 						<Anchors>
 							<Anchor point="TOPLEFT" x="4" y="5"/>
 							<Anchor point="RIGHT" x="-160"/>
@@ -869,7 +869,7 @@
 				</Anchors>
 			</Button>
 
-			<Frame parentKey="percentSlider" inherits="MJSliderFrameTemplate" hidden="true">
+			<Frame parentKey="percentSlider" inherits="MJSliderFrameTemplate">
 				<Layers>
 					<Layer level="ARTWORK">
 						<FontString parentKey="label" text="%" inherits="GameFontHighlightSmall">
@@ -1101,7 +1101,7 @@
 			<Button name="$parentTab1" parentArray="Tabs" parentKey="settingsTab" inherits="CharacterFrameTabButtonTemplate,SecureHandlerClickTemplate">
 				<Size x="10" y="32"/>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="-6" y="2"/>
+					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="-6" y="1"/>
 				</Anchors>
 			</Button>
 
@@ -3271,7 +3271,7 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="MJSliderFrameTemplate" virtual="true">
+	<Frame name="MJSliderFrameTemplate" hidden="true" virtual="true">
 		<Size x="250" y="31"/>
 		<Frames>
 			<EditBox parentKey="edit" inherits="MJEditBoxTemplate" letters="3">
