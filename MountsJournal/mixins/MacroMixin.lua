@@ -245,7 +245,7 @@ macroFrame:on("ADDON_INIT", function(self)
 	self.getDefMacro = self:loadString(defMacro)
 	self:setRuleSet()
 
-	self:RegisterEvent("LEARNED_SPELL_IN_TAB")
+	self:RegisterEvent("LEARNED_SPELL_IN_SKILL_LINE")
 
 	self:refresh()
 	self:getClassMacro(self.class, false, function() self:refresh() end)
@@ -395,7 +395,7 @@ function macroFrame:refresh()
 	self:setMacro()
 	self:setCombatMacro()
 end
-macroFrame.LEARNED_SPELL_IN_TAB = macroFrame.refresh
+macroFrame.LEARNED_SPELL_IN_SKILL_LINE = macroFrame.refresh
 
 
 function macroFrame:addLine(text, line)
