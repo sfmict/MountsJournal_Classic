@@ -116,7 +116,7 @@ actions.mount = {}
 actions.mount.condText = "(not profileLoad or profileLoad == true) and not self.useMount"
 
 function actions.mount:getFuncText(value, addKey)
-	addKey("local GetTime = GetTime")
+	addKey("v.GetTime = GetTime")
 	return ([[
 		%s
 		-- EXIT VEHICLE
@@ -124,7 +124,7 @@ function actions.mount:getFuncText(value, addKey)
 			return "/leavevehicle"
 		-- DISMOUNT
 		elseif self.sFlags.isMounted then
-			if not self.lastUseTime or GetTime() - self.lastUseTime > .5 then
+			if not self.lastUseTime or v.GetTime() - self.lastUseTime > .5 then
 				return "/dismount"
 			end
 			return ""
@@ -142,7 +142,7 @@ actions.tmount = {}
 actions.tmount.condText = actions.mount.condText
 
 function actions.tmount:getFuncText(_, addKey)
-	addKey("local GetTime = GetTime")
+	addKey("v.GetTime = GetTime")
 	return ([[
 		%s
 		-- EXIT VEHICLE
@@ -150,7 +150,7 @@ function actions.tmount:getFuncText(_, addKey)
 			return "/leavevehicle"
 		-- DISMOUNT
 		elseif self.sFlags.isMounted then
-			if not self.lastUseTime or GetTime() - self.lastUseTime > .5 then
+			if not self.lastUseTime or v.GetTime() - self.lastUseTime > .5 then
 				return "/dismount"
 			end
 			return ""
@@ -167,7 +167,7 @@ end
 actions.dmount = {}
 
 function actions.dmount:getFuncText(_, addKey)
-	addKey("local GetTime = GetTime")
+	addKey("v.GetTime = GetTime")
 	return ([[
 		%s
 		-- EXIT VEHICLE
@@ -175,7 +175,7 @@ function actions.dmount:getFuncText(_, addKey)
 			return "/leavevehicle"
 		-- DISMOUNT
 		elseif self.sFlags.isMounted then
-			if not self.lastUseTime or GetTime() - self.lastUseTime > .5 then
+			if not self.lastUseTime or v.GetTime() - self.lastUseTime > .5 then
 				return "/dismount"
 			end
 			return ""
@@ -249,10 +249,10 @@ end
 actions.snip = {}
 
 function actions.snip:getFuncText(value, addKey)
-	addKey("local type = type")
+	addKey("v.type = type")
 	return ([[
 		local text = self:callSnippet('%s')
-		return type(text) == "string" and text or nil
+		return v.type(text) == "string" and text or nil
 	]]):format(value:gsub("['\\]", "\\%1"))
 end
 

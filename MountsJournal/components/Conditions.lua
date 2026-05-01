@@ -8,35 +8,35 @@ ns.conditions = conds
 
 local function genNumInList(values, expr, addKey, ...)
 	if type(values) ~= "table" then
-		return ("(%s == %s)"):format(expr, values)
+		return strconcat(expr, ' == ', values)
 	end
 
-	local var = ("_"):join("var", ...)
-	addKey(strconcat("local ", var, " = {[", concat(values, "]=true,["), "]=true}"))
+	local var = ("_"):join("v.t", ...)
+	addKey(strconcat(var, " = {[", concat(values, "]=true,["), "]=true}"))
 
-	return ("%s[%s]"):format(var, expr)
+	return strconcat(var, "[", expr, "]")
 end
 
 local function genStrInList(values, expr, addKey, ...)
 	if type(values) ~= "table" then
-		return ("(%s == '%s')"):format(expr, values)
+		return strconcat(expr, " == '", values, "'")
 	end
 
-	local var = ("_"):join("var", ...)
-	addKey(strconcat("local ", var, " = {['", concat(values, "']=true,['"), "']=true}"))
+	local var = ("_"):join("v.t", ...)
+	addKey(strconcat(var, " = {['", concat(values, "']=true,['"), "']=true}"))
 
-	return ("%s[%s]"):format(var, expr)
+	return strconcat(var, "[", expr, "]")
 end
 
 local function genTableCheck(values, funcStr, addKey, ...)
-	local var = ("_"):join("var", ...)
-	addKey(strconcat("local ", var, " = {", concat(values, ","), "}"))
+	local var = ("_"):join("v.t", ...)
+	addKey(strconcat(var, " = {", concat(values, ","), "}"))
 	return funcStr:format(var)
 end
 
 local function genATableCheck(values, funcStr, addKey, ...)
-	local var = ("_"):join("var", ...)
-	addKey(strconcat("local ", var, " = {[", concat(values, "]=true,["), "]=true}"))
+	local var = ("_"):join("v.t", ...)
+	addKey(strconcat(var, " = {[", concat(values, "]=true,["), "]=true}"))
 	return funcStr:format(var)
 end
 
@@ -53,35 +53,35 @@ conds.mod = {}
 
 function conds.mod:getFuncString(value, addKey)
 	if value == "any" then
-		addKey("local IsModifierKeyDown = IsModifierKeyDown")
-		return "IsModifierKeyDown()"
+		addKey("v.IsModifierKeyDown = IsModifierKeyDown")
+		return "v.IsModifierKeyDown()"
 	elseif value == "alt" then
-		addKey("local IsAltKeyDown = IsAltKeyDown")
-		return "IsAltKeyDown()"
+		addKey("v.IsAltKeyDown = IsAltKeyDown")
+		return "v.IsAltKeyDown()"
 	elseif value == "ctrl" then
-		addKey("local IsControlKeyDown = IsControlKeyDown")
-		return "IsControlKeyDown()"
+		addKey("v.IsControlKeyDown = IsControlKeyDown")
+		return "v.IsControlKeyDown()"
 	elseif value == "shift" then
-		addKey("local IsShiftKeyDown = IsShiftKeyDown")
-		return "IsShiftKeyDown()"
+		addKey("v.IsShiftKeyDown = IsShiftKeyDown")
+		return "v.IsShiftKeyDown()"
 	elseif value == "lalt" then
-		addKey("local IsLeftAltKeyDown = IsLeftAltKeyDown")
-		return "IsLeftAltKeyDown()"
+		addKey("v.IsLeftAltKeyDown = IsLeftAltKeyDown")
+		return "v.IsLeftAltKeyDown()"
 	elseif value == "ralt" then
-		addKey("local IsRightAltKeyDown = IsRightAltKeyDown")
-		return "IsRightAltKeyDown()"
+		addKey("v.IsRightAltKeyDown = IsRightAltKeyDown")
+		return "v.IsRightAltKeyDown()"
 	elseif value == "lctrl" then
-		addKey("local IsLeftControlKeyDown = IsLeftControlKeyDown")
-		return "IsLeftControlKeyDown()"
+		addKey("v.IsLeftControlKeyDown = IsLeftControlKeyDown")
+		return "v.IsLeftControlKeyDown()"
 	elseif value == "rctrl" then
-		addKey("local IsRightControlKeyDown = IsRightControlKeyDown")
-		return "IsRightControlKeyDown()"
+		addKey("v.IsRightControlKeyDown = IsRightControlKeyDown")
+		return "v.IsRightControlKeyDown()"
 	elseif value == "lshift" then
-		addKey("local IsLeftShiftKeyDown = IsLeftShiftKeyDown")
-		return "IsLeftShiftKeyDown()"
+		addKey("v.IsLeftShiftKeyDown = IsLeftShiftKeyDown")
+		return "v.IsLeftShiftKeyDown()"
 	elseif value == "rshift" then
-		addKey("local IsRightShiftKeyDown = IsRightShiftKeyDown")
-		return "IsRightShiftKeyDown()"
+		addKey("v.IsRightShiftKeyDown = IsRightShiftKeyDown")
+		return "v.IsRightShiftKeyDown()"
 	else
 		return "false"
 	end
@@ -134,8 +134,8 @@ end
 conds.mcond = {}
 
 function conds.mcond:getFuncText(value, addKey)
-	addKey("local SecureCmdOptionParse = SecureCmdOptionParse")
-	return ("SecureCmdOptionParse('%s')"):format(value:gsub("['\\]", "\\%1"))
+	addKey("v.SecureCmdOptionParse = SecureCmdOptionParse")
+	return ("v.SecureCmdOptionParse('%s')"):format(value:gsub("['\\]", "\\%1"))
 end
 
 
@@ -188,8 +188,8 @@ function conds.spec:getFuncText(values, addKey, _, ...)
 		if vals == nil then return "false" end
 	end
 
-	addKey("local GetSpecialization = C_SpecializationInfo.GetSpecialization")
-	return genNumInList(vals, "GetSpecialization()", addKey, ...)
+	addKey("v.GetSpecialization = C_SpecializationInfo.GetSpecialization")
+	return genNumInList(vals, "v.GetSpecialization()", addKey, ...)
 end
 
 
@@ -219,8 +219,8 @@ end
 conds.falling = {}
 
 function conds.falling:getFuncText(_, addKey)
-	addKey("local IsFalling = IsFalling")
-	return "IsFalling()"
+	addKey("v.IsFalling = IsFalling")
+	return "v.IsFalling()"
 end
 
 
@@ -283,8 +283,8 @@ end
 conds.dead = {}
 
 function conds.dead:getFuncText(_, addKey)
-	addKey("local UnitIsDead = UnitIsDead")
-	return "UnitIsDead('Player')"
+	addKey("v.UnitIsDead = UnitIsDead")
+	return "v.UnitIsDead('Player')"
 end
 
 
@@ -293,8 +293,8 @@ end
 conds.rest = {}
 
 function conds.rest:getFuncText(_, addKey)
-	addKey("local IsResting = IsResting")
-	return "IsResting()"
+	addKey("v.IsResting = IsResting")
+	return "v.IsResting()"
 end
 
 
@@ -303,8 +303,8 @@ end
 conds.combat = {}
 
 function conds.combat:getFuncText(_, addKey)
-	addKey("local InCombatLockdown = InCombatLockdown")
-	return "InCombatLockdown()"
+	addKey("v.InCombatLockdown = InCombatLockdown")
+	return "v.InCombatLockdown()"
 end
 
 
@@ -313,8 +313,8 @@ end
 conds.lvlm = {}
 
 function conds.lvlm:getFuncText(value, addKey)
-	addKey("local UnitLevel = UnitLevel")
-	return ("(UnitLevel('PLAYER') > %s)"):format(value)
+	addKey("v.UnitLevel = UnitLevel")
+	return ("(v.UnitLevel('PLAYER') > %s)"):format(value)
 end
 
 
@@ -323,8 +323,8 @@ end
 conds.lvll = {}
 
 function conds.lvll:getFuncText(value, addKey)
-	addKey("local UnitLevel = UnitLevel")
-	return ("(UnitLevel('PLAYER') < %s)"):format(value)
+	addKey("v.UnitLevel = UnitLevel")
+	return ("(v.UnitLevel('PLAYER') < %s)"):format(value)
 end
 
 
@@ -333,8 +333,8 @@ end
 conds.lvleq = {}
 
 function conds.lvleq:getFuncText(value, addKey)
-	addKey("local UnitLevel = UnitLevel")
-	return ("(UnitLevel('PLAYER') == %s)"):format(value)
+	addKey("v.UnitLevel = UnitLevel")
+	return ("(v.UnitLevel('PLAYER') == %s)"):format(value)
 end
 
 
@@ -343,8 +343,8 @@ end
 conds.hitem = {}
 
 function conds.hitem:getFuncText(value, addKey)
-	addKey("local GetItemCount = C_Item.GetItemCount")
-	return ("(GetItemCount(%s) > 0)"):format(value)
+	addKey("v.GetItemCount = C_Item.GetItemCount")
+	return ("(v.GetItemCount(%s) > 0)"):format(value)
 end
 
 
@@ -353,8 +353,8 @@ end
 conds.ritem = {}
 
 function conds.ritem:getFuncText(value, addKey)
-	addKey("local GetItemCooldown = C_Container.GetItemCooldown")
-	return ("(GetItemCooldown(%s) == 0)"):format(value)
+	addKey("v.GetItemCooldown = C_Container.GetItemCooldown")
+	return ("(v.GetItemCooldown(%s) == 0)"):format(value)
 end
 
 
@@ -381,8 +381,8 @@ end
 conds.uspell = {}
 
 function conds.uspell:getFuncText(value, addKey)
-	addKey("local IsSpellUsable = C_Spell.IsSpellUsable")
-	return ("IsSpellUsable(%s)"):format(value)
+	addKey("v.IsSpellUsable = C_Spell.IsSpellUsable")
+	return ("v.IsSpellUsable(%s)"):format(value)
 end
 
 
@@ -409,8 +409,8 @@ end
 conds.qc = {}
 
 function conds.qc:getFuncText(value, addKey)
-	addKey("local IsQuestFlaggedCompleted = C_QuestLog.IsQuestFlaggedCompleted")
-	return ("IsQuestFlaggedCompleted(%s)"):format(value)
+	addKey("v.IsQuestFlaggedCompleted = C_QuestLog.IsQuestFlaggedCompleted")
+	return ("v.IsQuestFlaggedCompleted(%s)"):format(value)
 end
 
 
@@ -420,8 +420,8 @@ conds.faction = {}
 
 function conds.faction:getFuncText(value, addKey)
 	local faction = PLAYER_FACTION_GROUP[value]
-	addKey("local UnitFactionGroup = UnitFactionGroup")
-	return ("(UnitFactionGroup('player') == '%s')"):format(faction:gsub("['\\]", "\\%1"))
+	addKey("v.UnitFactionGroup = UnitFactionGroup")
+	return ("(v.UnitFactionGroup('player') == '%s')"):format(faction:gsub("['\\]", "\\%1"))
 end
 
 
@@ -529,8 +529,8 @@ conds.sex = {}
 
 function conds.sex:getFuncText(value, addKey)
 	local unit, sex = (":"):split(value, 2)
-	addKey("local UnitSex = UnitSex")
-	return ("(UnitSex('%s') == %s)"):format(unit, sex)
+	addKey("v.UnitSex = UnitSex")
+	return ("(v.UnitSex('%s') == %s)"):format(unit, sex)
 end
 
 
@@ -659,8 +659,8 @@ end
 conds.title = {}
 
 function conds.title:getFuncText(values, addKey, _, ...)
-	addKey("local GetCurrentTitle = GetCurrentTitle")
-	return genNumInList(values, "GetCurrentTitle()", addKey, ...)
+	addKey("v.GetCurrentTitle = GetCurrentTitle")
+	return genNumInList(values, "v.GetCurrentTitle()", addKey, ...)
 end
 
 

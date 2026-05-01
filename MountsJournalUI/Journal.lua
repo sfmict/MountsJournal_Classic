@@ -96,7 +96,7 @@ function journal:init()
 	end
 
 	-- BACKGROUND FRAME
-	self.bgFrame = CreateFrame("FRAME", "MountsJournalBackground", self.CollectionsJournal, "MJMountJournalFrameTemplate")
+	self.bgFrame = CreateFrame("FRAME", "MountsJournalBackground", self.useMountsJournalButton, "MJMountJournalFrameTemplate")
 	self.bgFrame:SetPoint("TOPLEFT", self.CollectionsJournal, "TOPLEFT", 0, 0)
 	self.bgFrame.TitleText:SetText(MOUNTS)
 	SetPortraitToTexture(self.bgFrame.portrait, 303868)
@@ -174,10 +174,13 @@ function journal:init()
 
 	-- USE MountsJournal BUTTON
 	self.useMountsJournalButton:SetParent(self.CollectionsJournal)
-	self.useMountsJournalButton:SetFrameLevel(self.bgFrame:GetFrameLevel() + 10)
 	self.useMountsJournalButton:SetScript("OnShow", nil)
 	self.useMountsJournalButton:SetScript("OnHide", nil)
 	self.useMountsJournalButton:SetPoint("BOTTOMLEFT", self.bgFrame, "BOTTOMLEFT", 281, 2)
+	self.useMountsJournalButton:EnableMouse(false)
+	self.useMountsJournalButton:SetFlattensRenderLayers(true)
+	self.useMountsJournalButton:SetFrameLevel(self.CollectionsJournal:GetFrameLevel() + 1000)
+	self.bgFrame:SetFrameLevel(self.useMountsJournalButton:GetFrameLevel() - 1)
 
 	-- SECURE FRAMES
 	local sMountJournal = CreateFrame("FRAME", nil, self.MountJournal, "SecureHandlerShowHideTemplate")
@@ -329,11 +332,8 @@ function journal:init()
 	sMountJournal:SetAttribute("numTabs", self.bgFrame.numTabs)
 
 	-- SET SIZE
-	local minWidth, minHeight = self.CollectionsJournal:GetSize()
-	local maxWidth = UIParent:GetWidth() - self.bgFrame:GetLeft() - 10
-	local maxHeight = self.bgFrame:GetTop() - CollectionsJournalTab1:GetHeight()
-	self.minTabWidth = (_G["CollectionsJournalTab"..self.CollectionsJournal.numTabs]:GetRight() or 0) - self.CollectionsJournal:GetLeft() + self.bgFrame:GetRight() - self.bgFrame.Tabs[#self.bgFrame.Tabs]:GetLeft() + 20
-	local width = Clamp(mounts.config.journalWidth or minWidth, max(minWidth, self.minTabWidth), maxWidth)
+	local minWidth, minHeight, maxWidth, maxHeight = self:getMinMaxSize()
+	local width = Clamp(mounts.config.journalWidth or minWidth, minWidth, maxWidth)
 	local height = Clamp(mounts.config.journalHeight or minHeight, minHeight, maxHeight)
 	self.bgFrame:SetSize(width, height)
 
@@ -1214,10 +1214,7 @@ function journal:init()
 	resize:SetScript("OnDragStart", function(btn)
 		if InCombatLockdown() then return end
 		local parent = btn:GetParent()
-		local minWidth, minHeight = self.CollectionsJournal:GetSize()
-		local maxWidth = UIParent:GetWidth() - parent:GetLeft() - 10
-		local maxHeight = parent:GetTop() - CollectionsJournalTab1:GetHeight()
-		parent:SetResizeBounds(max(minWidth, self.minTabWidth), minHeight, maxWidth, maxHeight)
+		parent:SetResizeBounds(self:getMinMaxSize())
 		parent.isSizing = true
 		parent:StartSizing("BOTTOMRIGHT", true)
 		btn:SetScript("OnUpdate", function()
@@ -1376,6 +1373,15 @@ journal.useMountsJournalButton:SetScript("OnHide", function()
 	journal:UnregisterEvent("PLAYER_REGEN_DISABLED")
 	journal:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end)
+
+
+function journal:getMinMaxSize()
+	local minWidth, minHeight = self.CollectionsJournal:GetSize()
+	local minTabWidth = (_G["CollectionsJournalTab"..self.CollectionsJournal.numTabs]:GetRight() or 0) - self.CollectionsJournal:GetLeft() + self.bgFrame:GetRight() - self.bgFrame.Tabs[#self.bgFrame.Tabs]:GetLeft() + 20
+	local maxWidth = UIParent:GetWidth() - self.bgFrame:GetLeft() - 10
+	local maxHeight = self.bgFrame:GetTop() - CollectionsJournalTab1:GetHeight()
+	return max(minWidth, minTabWidth), minHeight, maxWidth, maxHeight
+end
 
 
 function journal:setMJFiltersBackup()
@@ -2095,28 +2101,35 @@ function journal:setArrowSelectMount(enabled)
 end
 
 
-function journal:setEditMountsList()
-	self.db = mounts.charDB.currentProfileName and mounts.profiles[mounts.charDB.currentProfileName] or mounts.defProfile
-	self.zoneMounts = self.db.zoneMountsFromProfile and mounts.defProfile.zoneMounts or self.db.zoneMounts
-	local mapID = self.navBar.mapID
-	if mapID == self.navBar.defMapID then
-		self.currentList = self.db
-		self.listMapID = nil
-		self.list = self.currentList
+function journal:getTFromProfile(profile)
+	local mapID = self.navBar.mapID ~= self.navBar.defMapID and self.navBar.mapID or nil
+	local zoneMounts, list, currentList = profile.zoneMountsFromProfile and mounts.defProfile.zoneMounts or profile.zoneMounts
+
+	if mapID == nil then
+		currentList = profile
+		list = currentList
 	else
-		self.currentList = self.zoneMounts[mapID]
-		self.listMapID = mapID
-		self.list = self.currentList
-		while self.list and self.list.listFromID do
-			if self.list.listFromID == self.navBar.defMapID then
-				self.listMapID = nil
-				self.list = self.db
+		currentList = zoneMounts[mapID]
+		list = currentList
+
+		while list and list.listFromID do
+			if list.listFromID == self.navBar.defMapID then
+				mapID = nil
+				list = profile
 			else
-				self.listMapID = self.list.listFromID
-				self.list = self.zoneMounts[self.listMapID]
+				mapID = list.listFromID
+				list = zoneMounts[mapID]
 			end
 		end
 	end
+
+	return list, zoneMounts, currentList, mapID
+end
+
+
+function journal:setEditMountsList()
+	self.db = mounts.charDB.currentProfileName and mounts.profiles[mounts.charDB.currentProfileName] or mounts.defProfile
+	self.list, self.zoneMounts, self.currentList, self.listMapID = self:getTFromProfile(self.db)
 	self.petForMount = self.db.petListFromProfile and mounts.defProfile.petForMount or self.db.petForMount
 	self.mountsWeight = self.db.mountsWeight
 end
@@ -2339,20 +2352,23 @@ function journal:UNIT_PORTRAIT_UPDATE()
 end
 
 
-function journal:createMountList(mapID)
-	self.zoneMounts[mapID] = {
+function journal:createMountList(mapID, zoneMounts)
+	local list = {
 		fly = {},
 		ground = {},
 		swimming = {},
 		flags = {},
 	}
+	(zoneMounts or self.zoneMounts)[mapID] = list
 	self:setEditMountsList()
+	return list
 end
 
 
-function journal:getRemoveMountList(mapID)
+function journal:getRemoveMountList(mapID, zoneMounts)
 	if not mapID then return end
-	local list = self.zoneMounts[mapID]
+	zoneMounts = zoneMounts or self.zoneMounts
+	local list = zoneMounts[mapID]
 
 	local flags
 	for _, value in next, list.flags do
@@ -2365,19 +2381,20 @@ function journal:getRemoveMountList(mapID)
 	if not (next(list.fly) or next(list.ground) or next(list.swimming))
 	and not flags
 	and not list.listFromID then
-		self.zoneMounts[mapID] = nil
+		zoneMounts[mapID] = nil
 		self:setEditMountsList()
 	end
 end
 
 
-function journal:mountToggle(mountType, spellID, mountID)
-	if not self.list then
-		self:createMountList(self.listMapID)
+function journal:mountToggle(mountType, spellID, mountID, list, zoneMounts)
+	if not list then
+		list = self:createMountList(self.listMapID, zoneMounts)
 	end
-	local tbl = self.list[mountType]
-	tbl[spellID] = not tbl[spellID] or nil
-	self:getRemoveMountList(self.listMapID)
+
+	local tList = list[mountType]
+	tList[spellID] = not tList[spellID] or nil
+	self:getRemoveMountList(self.listMapID, zoneMounts)
 
 	local btn = self:getMountButtonByMountID(mountID)
 	if btn then

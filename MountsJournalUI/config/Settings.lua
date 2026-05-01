@@ -1,4 +1,4 @@
-local _, ns = ...
+local addon, ns = ...
 local L = ns.L
 
 
@@ -6,15 +6,24 @@ ns.mounts:on("MODULES_INIT", function()
 	local bg, activeContent = ns.journal.bgFrame.settingsBackground
 	bg.Tabs = {}
 
+	-- VERSION
+	local ver = bg:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	ver:SetPoint("TOPRIGHT", -40, 15)
+	ver:SetTextColor(.5, .5, .5, 1)
+	ver:SetText(C_AddOns.GetAddOnMetadata(addon, "Version"))
+	ns.util.setCopyBox(ver)
+
+	-- TABS
+	local index = 0
 	local function onTabClick(self)
 		PanelTemplates_SetTab(bg, self.id)
 		activeContent:Hide()
 		activeContent = self.content
 		activeContent:Show()
+		ver:SetShown(self.id ~= index)
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 	end
 
-	local index = 0
 	local function addTab(name, content)
 		index = index + 1
 

@@ -25,6 +25,7 @@ ignore:
 	- libs/.*\.toc$
 	- libs/LibStub/tests
 	- libs/LibDataBroker-1\.1/README\.textile
+	- mountMenu/Family\.lua
 
 move-folders:
 	MountsJournal/MountsJournal: MountsJournal

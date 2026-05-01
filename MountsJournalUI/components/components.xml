@@ -13,4 +13,5 @@
 	<Script file="TargetMount.lua"/>
 	<Script file="ForAllIndentsAndPurposes.lua"/>
 	<Include file="filter\filter.xml"/>
+	<Include file="mountMenu\mountMenu.xml"/>
 </Ui>
