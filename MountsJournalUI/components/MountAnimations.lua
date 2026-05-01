@@ -253,7 +253,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 	end
 
 	-- GRID MODEL ANIMATION
-	journal.gridModelAnimation = lsfdd:CreateButtonOriginal(journal.gridModelSettings, 170)
+	journal.gridModelAnimation = lsfdd:CreateButtonOriginal(journal.gridModelSettings, 140)
 	journal.gridModelAnimation:SetPoint("LEFT", journal.gridModelSettings, "RIGHT", -172, -1 / .92)
 	journal.gridModelAnimation:SetScale(.92)
 	journal.gridModelAnimation:ddSetDisplayMode(addon)

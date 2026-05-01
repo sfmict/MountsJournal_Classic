@@ -20,10 +20,8 @@ journal.colors = {
 	mount2 = CreateColor(.62, .502, .424),
 	mount3 = CreateColor(.231, .533, .588),
 }
-
-
-local metaMounts = {__index = {[0] = 0}}
-journal.indexByMountID = setmetatable({}, metaMounts)
+-- local metaMounts = {__index = {[0] = 0}}
+journal.indexByMountID = {}
 
 
 function journal:init()
@@ -582,6 +580,9 @@ function journal:init()
 		modelScene.multipleMountBtn:SetAlpha(.5)
 		modelScene.modelControl:SetAlpha(.5)
 		modelScene.animationsCombobox:SetAlpha(.5)
+		if modelScene.playerToggle:GetParent() == modelScene then
+			modelScene.playerToggle:SetAlpha(.5)
+		end
 	end)
 
 	local function modelSceneControlsHide(mountDisplay, elapsed)
@@ -593,10 +594,16 @@ function journal:init()
 			modelScene.multipleMountBtn:SetAlpha(0)
 			modelScene.modelControl:SetAlpha(0)
 			modelScene.animationsCombobox:SetAlpha(0)
+			if modelScene.playerToggle:GetParent() == modelScene then
+				modelScene.playerToggle:SetAlpha(0)
+			end
 		else
 			modelScene.multipleMountBtn:SetAlpha(alpha)
 			modelScene.modelControl:SetAlpha(alpha)
 			modelScene.animationsCombobox:SetAlpha(alpha)
+			if modelScene.playerToggle:GetParent() == modelScene then
+				modelScene.playerToggle:SetAlpha(alpha)
+			end
 		end
 	end
 
@@ -641,7 +648,7 @@ function journal:init()
 			tw = "繁體中文",
 		}
 
-		local function langSelect(btn)
+		info.func = function(btn)
 			mounts.config.wowheadLinkLang = btn.value
 			langButton:SetText(btn.value)
 			self:updateMountDisplay(true)
@@ -651,7 +658,6 @@ function journal:init()
 			info.value = lang
 			info.text = langs[lang]
 			info.checked = lang == mounts.config.wowheadLinkLang
-			info.func = langSelect
 			langButton:ddAddButton(info)
 		end
 	end)
@@ -1069,6 +1075,35 @@ function journal:init()
 
 	modelControl.reset:SetScript("OnClick", function(self)
 		self:GetParent():GetParent().activeCamera:resetPosition()
+	end)
+
+	-- PLAYER SHOW BUTTON
+	local playerToggle = self.modelScene.playerToggle
+
+	function playerToggle.updateModels()
+		self:updateMountDisplay(true)
+		if mounts.config.gridToggle == 3 then
+			for i, f in ipairs(self.view:GetFrames()) do
+				self:initMountButton(f, f:GetElementData(), true)
+			end
+		end
+	end
+
+	playerToggle:SetChecked(mounts.config.showPlayer)
+	SetPortraitTexture(playerToggle.portrait, "player")
+	playerToggle:RegisterEvent("PORTRAITS_UPDATED")
+	playerToggle:SetScript("OnEvent", function(btn)
+		SetPortraitTexture(btn.portrait, "player")
+		if btn.portrait:GetTexture() then
+			btn:UnregisterEvent("PORTRAITS_UPDATED")
+			btn:SetScript("OnEvent", nil)
+			btn.updateModels()
+		end
+	end)
+	playerToggle:SetScript("OnClick", function(btn)
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+		mounts.config.showPlayer = btn:GetChecked()
+		btn.updateModels()
 	end)
 
 	-- SUMMON BUTTON
@@ -1629,6 +1664,7 @@ end
 
 function journal:setScrollGridMounts(force)
 	local index = self.view:CalculateDataIndices(self.scrollBox)
+	local playerToggle = self.modelScene.playerToggle
 	local grid = self:getGridToggle()
 
 	self.filtersPanel:ClearAllPoints()
@@ -1637,23 +1673,33 @@ function journal:setScrollGridMounts(force)
 	else
 		self.filtersPanel:SetPoint("TOPLEFT", 4, -60)
 	end
+	self.searchBox:ClearAllPoints()
+	self.searchBox:SetPoint("TOPRIGHT", -95, -5)
+	playerToggle:ClearAllPoints()
 
 	if grid ~= 3 then
 		self.inspectFrame:Hide()
 		self.filtersToggle:Show()
 		self.filtersToggle.setFiltersToggleCheck(mounts.config.filterToggle)
-		self.searchBox:SetWidth(131)
 		self.gridModelSettings:Hide()
+		playerToggle:SetParent(self.modelScene)
+		playerToggle:SetScale(.5)
+		playerToggle:SetPoint("LEFT", self.modelScene.modelControl, "RIGHT", 301, 1)
+		playerToggle:SetAlpha(0)
 		if not self.altGrid then
 			self.mountDisplay:Show()
 			self.rightInset:Show()
 		end
 	else
-		self.filtersPanel:SetPoint("Right", -4, 0)
+		self.filtersPanel:SetPoint("RIGHT", -4, 0)
+		self.searchBox:SetPoint("LEFT", self.gridModelSettings, "RIGHT", 6, 0)
 		self.filtersToggle:Hide()
 		self.filtersToggle.setFiltersToggleCheck(false)
-		self.searchBox:SetWidth(131 + 22)
 		self.gridModelSettings:Show()
+		playerToggle:SetParent(self.gridModelSettings)
+		playerToggle:SetScale(.36)
+		playerToggle:SetPoint("RIGHT", -5, -1)
+		playerToggle:SetAlpha(1)
 		if not self.inspectFrame:IsShown() then
 			self.mountDisplay:Hide()
 			self.rightInset:Hide()
@@ -1710,9 +1756,7 @@ function journal:setScrollGridMounts(force)
 	self.scrollBox.wheelPanScalar = panScalar or 2
 	self.view:SetPadding(top,bottom,left,right,hSpacing,vSpacing)
 	self.view:SetElementExtent(extent)
-	if self.view.SetElementSizeCalculator then -- 5.5.3
-		self.view:SetElementSizeCalculator(sizeCalculator)
-	end
+	self.view:SetElementSizeCalculator(sizeCalculator)
 	self.view:SetPanExtent(extent)
 	self.view:SetStride(self.gridN)
 	self.view:SetElementInitializer(template, function(...)
@@ -2517,7 +2561,7 @@ function journal:setMountToModelScene(modelScene, creatureID, isSelfMount, animI
 				mountActor:SetAnimation(0)
 			end
 			mountActor:SetModelByCreatureDisplayID(creatureID, true)
-			--modelScene:AttachPlayerToMount(mountActor, animID, isSelfMount, disablePlayerMountPreview or not GetCVarBool("mountJournalShowPlayer"), spellVisualKitID, PlayerUtil.ShouldUseNativeFormInModelScene())
+			modelScene:AttachPlayerToMount(mountActor, animID, isSelfMount, disablePlayerMountPreview or not mounts.config.showPlayer, spellVisualKitID, PlayerUtil.ShouldUseNativeFormInModelScene())
 		end
 	end
 end

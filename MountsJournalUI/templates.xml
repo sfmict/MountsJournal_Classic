@@ -308,9 +308,9 @@
 			</Frame>
 
 			<Frame parentKey="gridModelSettings">
+				<Size x="400" y="30"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" x="30" y="-60"/>
-					<Anchor point="RIGHT" relativeKey="$parent.filtersPanel.searchBox" relativePoint="LEFT" x="-6"/>
 				</Anchors>
 				<Frames>
 					<Frame parentKey="strideSlider" inherits="MJSliderFrameTemplate" hidden="false">
@@ -699,6 +699,61 @@
 									</Button>
 								</Frames>
 							</Frame>
+							<CheckButton parentKey="playerToggle" alpha="0" scale=".5">
+								<Size x="77" y="77"/>
+								<Anchors>
+									<Anchor point="LEFT" relativeKey="$parent.modelControl" relativePoint="RIGHT" x="301" y="1"/>
+								</Anchors>
+								<Layers>
+									<Layer level="OVERLAY">
+										<Texture parentKey="border" file="Interface\TalentFrame\spec-filagree" setAllPoints="true">
+											<TexCoords left="0.00390625" right="0.27734375" top="0.48437500" bottom="0.75781250"/>
+										</Texture>
+									</Layer>
+									<Layer level="ARTWORK">
+										<Texture parentKey="portrait">
+											<Size x="69" y="69"/>
+											<Anchors>
+												<Anchor point="CENTER" relativeKey="$parent.border"/>
+											</Anchors>
+										</Texture>
+										<MaskTexture parentKey="mask" file="Interface/CHARACTERFRAME/TempPortraitAlphaMask" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+											<Size x="65" y="65"/>
+											<Anchors>
+												<Anchor point="CENTER"/>
+											</Anchors>
+											<MaskedTextures>
+												<MaskedTexture childKey="portrait"/>
+											</MaskedTextures>
+										</MaskTexture>
+									</Layer>
+								</Layers>
+								<HighlightTexture alphaMode="ADD" file="Interface/Minimap/UI-Minimap-ZoomButton-Highlight">
+									<Size x="80" y="80"/>
+									<Anchors>
+										<Anchor point="CENTER" y="-3"/>
+									</Anchors>
+								</HighlightTexture>
+								<CheckedTexture file="Interface/Minimap/ping/ping4" alphaMode="ADD" alpha=".6">
+									<Size x="77" y="77"/>
+									<Anchors>
+										<Anchor point="CENTER"/>
+									</Anchors>
+								</CheckedTexture>
+								<Scripts>
+									<OnEnter>
+										local parent = self:GetParent()
+										local func = parent:GetScript("OnEnter")
+										if func then func(parent) end
+										self:SetAlpha(1)
+									</OnEnter>
+									<OnLeave>
+										local parent = self:GetParent()
+										local func = parent:GetScript("OnLeave")
+										if func then func(parent) end
+									</OnLeave>
+								</Scripts>
+							</CheckButton>
 						</Frames>
 					</ModelScene>
 				</Frames>
