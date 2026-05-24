@@ -472,7 +472,10 @@ function journal:init()
 	end)
 
 	-- FILTERS BAR
-	self.filtersBar.clear:SetScript("OnClick", function() self:clearBtnFilters() end)
+	self.filtersBar.clear:SetScript("OnClick", function()
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+		self:clearBtnFilters()
+	end)
 
 	local function tabClick(self)
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
@@ -709,6 +712,7 @@ function journal:init()
 
 	-- FILTER BUTTONS
 	local function filterClick(btn)
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 		self:setBtnFilters(btn:GetParent():GetParent().id)
 	end
 
@@ -768,7 +772,10 @@ function journal:init()
 
 	-- SHOWN PANEL
 	self.shownPanel.text:SetText(L["Shown:"])
-	self.shownPanel.clear:SetScript("OnClick", function() self:resetToDefaultFilters() end)
+	self.shownPanel.clear:SetScript("OnClick", function()
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+		self:resetToDefaultFilters()
+	end)
 	self.shownPanel.framePool = CreateFramePool("BUTTON", self.shownPanel.resetBar, "MJFilterResetButtonTempalte")
 	self.shownPanel.list = {}
 
@@ -1702,7 +1709,7 @@ function journal:setScrollGridMounts(force)
 
 	if self.curGrid == grid and not force then return end
 	self.curGrid = grid
-	local template, top, bottom, left, right, hSpacing, vSpacing, extent, panScalar, sizeCalculator
+	local template, top, bottom, left, right, hSpacing, vSpacing, extent, panScalar
 
 	if grid == 1 then
 		top = 1
@@ -1743,14 +1750,16 @@ function journal:setScrollGridMounts(force)
 		local scrollWidth = self.scrollBox:GetWidth() - left - right
 		self.gridN = mounts.config.gridModelStride
 		extent = math.floor((scrollWidth - (self.gridN - 1) * hSpacing) / self.gridN)
-		sizeCalculator = function(dataIndex, elementData) return extent, extent end
 		self.initMountButton = self.gridModelSceneInit
 	end
 
 	self.scrollBox.wheelPanScalar = panScalar or 2
 	self.view:SetPadding(top,bottom,left,right,hSpacing,vSpacing)
-	self.view:SetElementExtent(extent)
-	self.view:SetElementSizeCalculator(sizeCalculator)
+	if self.gridN > 1 then
+		self.view:SetElementSize(extent, extent)
+	else
+		self.view:ClearElementSizeData()
+	end
 	self.view:SetPanExtent(extent)
 	self.view:SetStride(self.gridN)
 	self.view:SetElementInitializer(template, function(...)
@@ -2217,7 +2226,6 @@ function journal:mountToggle(mountType, spellID, mountID, list, zoneMounts)
 
 	-- mounts:setMountsList()
 	self.existingLists:refresh()
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 end
 
 

@@ -1,7 +1,7 @@
 local _, ns = ...
 local L, conds, util, macroFrame = ns.L, ns.conditions, ns.util, ns.macroFrame
 local getNameByGUID, createRadioInfo, createCheckableInfo, createArrowInfo, createEmptyInfo = util.getNameByGUID, util.createRadioInfo, util.createCheckableInfo, util.createArrowInfo, util.createEmptyInfo
-local strcmputf8i, type, concat = strcmputf8i, type, table.concat
+local strcmputf8i, type = strcmputf8i, type
 local playerGuid = UnitGUID("player")
 local ltl = LibStub("LibThingsLoad-1.0")
 local sID = "|cff808080%s|r"
@@ -24,12 +24,12 @@ function conds.mod:getModText(value)
 	end
 end
 
-function conds.mod:getValueText(values)
+function conds.mod:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		names[i] = self:getModText(value)
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.mod.sort(values)
@@ -77,12 +77,12 @@ conds.btn.text = L["Mouse button"]
 conds.btn.onlyOne = true
 conds.btn.sort = sort
 
-function conds.btn:getValueText(values)
+function conds.btn:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		names[i] = _G["KEY_BUTTON"..value]
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.btn:getValueList(values, func)
@@ -154,7 +154,7 @@ conds.class.text = CLASS
 conds.class.onlyOne = true
 conds.class.sort = sort
 
-function conds.class:getValueText(values)
+function conds.class:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		local localized, className = GetClassInfo(value)
@@ -165,7 +165,7 @@ function conds.class:getValueText(values)
 			names[#names + 1] = CreateTextureMarkup("Interface/Glues/CharacterCreate/UI-CharacterCreate-Classes", size, size, ns.RULE_ICON_SIZE, ns.RULE_ICON_SIZE, t[1], t[2], t[3], t[4])..classColor:WrapTextInColorCode(localized)
 		end
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.class:getValueList(values, func)
@@ -197,7 +197,7 @@ end
 conds.spec.text = SPECIALIZATION
 conds.spec.onlyOne = true
 
-function conds.spec:getValueText(values)
+function conds.spec:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		local _, name, _, specIcon, _, className, class = GetSpecializationInfoByID(value)
@@ -207,7 +207,7 @@ function conds.spec:getValueText(values)
 			names[#names + 1] = ("%s%s - %s"):format(icon, classColor:WrapTextInColorCode(class), name)
 		end
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.spec.sort(values)
@@ -260,12 +260,12 @@ local function getZoneTypeName(value)
 	return value
 end
 
-function conds.zt:getValueText(values)
+function conds.zt:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		names[i] = getZoneTypeName(value)
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.zt.sort(values)
@@ -298,13 +298,13 @@ end
 -- holiday
 conds.holiday.text = CALENDAR_FILTER_WEEKLY_HOLIDAYS
 
-function conds.holiday:getValueText(values)
+function conds.holiday:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		local holidayName = ns.calendar:getHolidayName(value)
 		names[i] = sName_ID:format(holidayName or RED_FONT_COLOR:WrapTextInColorCode(L["Nameless holiday"]), value)
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.holiday.sort(values)
@@ -698,13 +698,13 @@ for i = 1, #RACE_KEYS do
 	RACE_LABELS[info.clientFileString] = info.raceName
 end
 
-function conds.race:getValueText(values)
+function conds.race:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		local atlasName = util.getRaceAtlas(value, UnitSex("Player"))
 		names[i] = CreateAtlasMarkup(atlasName, ns.RULE_ICON_SIZE, ns.RULE_ICON_SIZE)..RACE_LABELS[value]
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.race.sort(values)
@@ -753,12 +753,12 @@ local function getMapName(value)
 	return RED_FONT_COLOR:WrapTextInColorCode(value)
 end
 
-function conds.map:getValueText(values)
+function conds.map:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		names[i] = getMapName(value)
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.map.sort(values)
@@ -856,12 +856,12 @@ function conds.instance:getValueDescription()
 	}
 end
 
-function conds.instance:getValueText(values)
+function conds.instance:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		names[i] = sName_ID:format(GetRealZoneText(value), value)
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.instance:getValueList(values, func)
@@ -922,12 +922,12 @@ local function getDifficultyName(value)
 	end
 end
 
-function conds.difficulty:getValueText(values)
+function conds.difficulty:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		names[i] = getDifficultyName(value)
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.difficulty.sort(values)
@@ -981,7 +981,7 @@ end
 -- tmog TRANSMOG
 conds.tmog.text = TRANSMOGRIFY
 
-function conds.tmog:getValueText(values)
+function conds.tmog:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		local name, guid = ("\n"):split(value, 2)
@@ -991,7 +991,7 @@ function conds.tmog:getValueText(values)
 			names[i] = sGrayName_ID:format(getNameByGUID(guid), name)
 		end
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.tmog.sort(values)
@@ -1131,14 +1131,14 @@ end
 -- prof PROFESSION
 conds.prof.text = TRADE_SKILLS
 
-function conds.prof:getValueText(values)
+function conds.prof:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		local name = C_TradeSkillUI.GetTradeSkillDisplayName(value) or RED_FONT_COLOR:WrapTextInColorCode(value)
 		local icon = CreateSimpleTextureMarkup(C_TradeSkillUI.GetTradeSkillTexture(value) or util.noIcon, ns.RULE_ICON_SIZE)
 		names[i] = icon..name
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.prof.sort(values)
@@ -1171,7 +1171,7 @@ end
 -- equips EQUIPMENT SET
 conds.equips.text = PAPERDOLL_EQUIPMENTMANAGER
 
-function conds.equips:getValueText(values)
+function conds.equips:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		local setID, guid = (":"):split(value, 2)
@@ -1182,7 +1182,7 @@ function conds.equips:getValueText(values)
 			names[i] = sGrayName_ID:format(getNameByGUID(guid), setID)
 		end
 	end
-	return concat(names, ": ")
+	return names
 end
 
 function conds.equips.sort(values)
@@ -1463,12 +1463,12 @@ end
 conds.title.text = PAPERDOLL_SIDEBAR_TITLES
 conds.title.onlyOne = true
 
-function conds.title:getValueText(values)
+function conds.title:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
 		names[i] = GetTitleName(value)
 	end
-	return concat(names, "; ")
+	return names
 end
 
 function conds.title.sort(values)

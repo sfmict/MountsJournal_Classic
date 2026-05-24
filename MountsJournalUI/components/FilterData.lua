@@ -344,7 +344,6 @@ function journal:clearBtnFilters()
 	self:setAllFilters("sources", true)
 	self:setAllFilters("types", true)
 	self:setAllFilters("selected", true)
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 	self:updateBtnFilters()
 	self:updateMountsList()
 end
@@ -398,7 +397,6 @@ function journal:resetToDefaultFilters()
 		value[2] = defFilters.tags.tags[tag]
 	end
 
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 	self.searchBox:SetText("")
 	self:updateBtnFilters()
 	self:updateMountsList()
@@ -421,7 +419,6 @@ function journal:setBtnFilters(tab)
 		self:setAllFilters(tab, true)
 	end
 
-	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 	self:updateBtnFilters()
 	self:updateMountsList()
 end
