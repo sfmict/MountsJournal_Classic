@@ -1,6 +1,6 @@
 local _, ns = ...
 local util = ns.util
-local type, pairs, next, concat, rawget, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item, GetCVarBool = type, pairs, next, table.concat, rawget, GetUnitSpeed, IsFalling, InCombatLockdown, GetTime, C_Item, GetCVarBool
+local type, concat, IsPlayerMoving, IsFalling, InCombatLockdown, GetTime, C_Item, GetCVarBool = type, table.concat, IsPlayerMoving, IsFalling, InCombatLockdown, GetTime, C_Item, GetCVarBool
 local macroFrame = CreateFrame("FRAME")
 ns.macroFrame = util.setEventsMixin(macroFrame)
 
@@ -213,8 +213,7 @@ macroFrame:on("ADDON_INIT", function(self)
 			and not self.sFlags.isMounted
 			and not self.sFlags.inVehicle
 			and (self.classConfig.useMacroAlways and not self.classConfig.useMacroOnlyCanFly
-			     or not self.magicBroom and (GetUnitSpeed("player") > 0
-			                                 or IsFalling()))
+			     or not self.magicBroom and self:isMovingOrFalling())
 			then
 				if spellID == 783 then
 					return self:addLine(self:getDismountMacro(true), "/cancelform")
@@ -488,7 +487,7 @@ end
 
 
 function macroFrame:isMovingOrFalling()
-	return GetUnitSpeed("player") > 0 or IsFalling()
+	return IsPlayerMoving() or IsFalling()
 end
 
 

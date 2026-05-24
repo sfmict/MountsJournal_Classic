@@ -10,15 +10,96 @@ ns.journal:on("MODULES_INIT", function(journal)
 	dd.navBar = journal.navBar
 	journal.mapSettings.dnr = dd
 
+	ns.mapIDByJInstanceID = {
+		[241] = 219,
+		[247] = 257,
+		[369] = 557,
+		[251] = 274,
+		[253] = 260,
+		[255] = 273,
+		[258] = 267,
+		[262] = 262,
+		[274] = 154,
+		[278] = 184,
+		[282] = 143,
+		[286] = 136,
+		[302] = 440,
+		[322] = 379,
+		[330] = 474,
+		[362] = 508,
+		[184] = 404,
+		[186] = 399,
+		[259] = 246,
+		[271] = 132,
+		[275] = 138,
+		[279] = 131,
+		[283] = 168,
+		[303] = 437,
+		[311] = 431,
+		[226] = 213,
+		[228] = 242,
+		[230] = 236,
+		[232] = 280,
+		[234] = 301,
+		[236] = 317,
+		[238] = 225,
+		[240] = 279,
+		[246] = 476,
+		[248] = 347,
+		[63] = 291,
+		[252] = 258,
+		[64] = 310,
+		[65] = 323,
+		[66] = 283,
+		[67] = 324,
+		[68] = 325,
+		[69] = 277,
+		[70] = 297,
+		[280] = 183,
+		[284] = 171,
+		[73] = 285,
+		[74] = 328,
+		[75] = 282,
+		[76] = 337,
+		[77] = 333,
+		[78] = 367,
+		[312] = 443,
+		[316] = 435,
+		[320] = 456,
+		[324] = 458,
+		[185] = 398,
+		[187] = 409,
+		[257] = 266,
+		[261] = 263,
+		[256] = 261,
+		[273] = 160,
+		[277] = 140,
+		[281] = 129,
+		[285] = 133,
+		[276] = 185,
+		[260] = 265,
+		[250] = 272,
+		[254] = 269,
+		[249] = 349,
+		[72] = 294,
+		[313] = 429,
+		[317] = 471,
+		[321] = 453,
+		[227] = 221,
+		[229] = 252,
+		[231] = 226,
+		[233] = 300,
+		[272] = 159,
+		[237] = 220,
+		[239] = 230,
+		[71] = 293,
+	}
+
 	local drIconInfo = {
 		tCoordLeft = .2,
 		tCoordRight = .8,
 		tCoordTop = .2,
 		tCoordBottom = .8,
-	}
-	local expIconInfo = {
-		tSizeX = 40,
-		tSizeY = 20,
 	}
 	local list = {
 		{
@@ -27,7 +108,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 			name = DUNGEONS,
 			list = {
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 901157,
 					list = {
 						{mapID = 437, icon = 632357},
@@ -42,7 +123,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 					},
 				},
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 536055,
 					list = {
 						{mapID = 325, icon = 460873},
@@ -62,7 +143,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 					},
 				},
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 607688,
 					list = {
 						{mapID = 159, icon = 237593},
@@ -84,7 +165,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 					},
 				},
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 1378987,
 					list = {
 						{mapID = 269, icon = 136362},
@@ -106,7 +187,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 					},
 				},
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 1385726,
 					list = {
 						{mapID = 242, icon = 136326},
@@ -142,7 +223,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 			name = RAIDS,
 			["list"] = {
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 901157,
 					list = {
 						{mapID = 471, icon = 632360},
@@ -153,7 +234,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 					},
 				},
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 536055,
 					list = {
 						{mapID = 282, icon = 464826},
@@ -165,7 +246,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 					},
 				},
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 607688,
 					list = {
 						{mapID = 156, icon = 303841},
@@ -180,7 +261,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 					},
 				},
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 1378987,
 					list = {
 						{mapID = 350, icon = 136343},
@@ -194,7 +275,7 @@ ns.journal:on("MODULES_INIT", function(journal)
 					},
 				},
 				{
-					iconInfo = expIconInfo,
+					iconInfo = util.expIconInfo,
 					icon = 1385726,
 					list = {
 						{mapID = 232, icon = 136346},

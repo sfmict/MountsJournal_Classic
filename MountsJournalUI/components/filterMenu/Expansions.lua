@@ -24,11 +24,10 @@ function journal.filters.expansions(dd, level)
 	end
 	dd:ddAddButton(info, level)
 
+	info.notCheckable = nil
 	local expansions = mounts.filters.expansions
-	info.iconInfo = {
-		tSizeX = 40,
-		tSizeY = 20,
-	}
+
+	info.iconInfo = util.expIconInfo
 	info.widgets = {{
 		icon = "interface/worldmap/worldmappartyicon",
 		OnClick = function(btn)
@@ -45,7 +44,6 @@ function journal.filters.expansions(dd, level)
 	end
 	info.checked = function(btn) return expansions[btn.value] end
 
-	info.notCheckable = nil
 	for i = util.expansion, 1, -1 do
 		info.text = ("|cff%s%s|r"):format(util.expColors[i], _G["EXPANSION_NAME"..(i - 1)])
 		info.icon = util.expIcons[i]
