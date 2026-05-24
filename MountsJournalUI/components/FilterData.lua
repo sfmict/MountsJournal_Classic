@@ -209,10 +209,9 @@ do
 
 		framePool:ReleaseAll()
 		for i = 1, #list do
-			local f = framePool:Acquire()
-			local text = list[i]
-			f.info = list[text]
-			f:SetScript("OnClick", onClick)
+			local f, new = framePool:Acquire()
+			if new then f:SetScript("OnClick", onClick) end
+			f.info = list[list[i]]
 			f:SetPoint("LEFT", width, 0)
 			f.text:SetText(list[i])
 			f:Show()
@@ -550,6 +549,17 @@ function journal:getFilterFamily(familyID)
 end
 
 
+function journal:getFamilySearch(text, familyID)
+	if type(familyID) == "table" then
+		for i = 1, #familyID do
+			if self:getFamilyPath(familyID[i]):lower():find(text, 1, true) then return true end
+		end
+	else
+		return self:getFamilyPath(familyID):lower():find(text, 1, true)
+	end
+end
+
+
 function journal:getFilterWeight(spellID)
 	local filter = mounts.filters.mountsWeight
 	if not filter.sign then
@@ -580,15 +590,23 @@ function journal:getFilterType(mountType)
 end
 
 
-function journal:getCustomSearchFilter(text, mountID, spellID, mountType)
-	local id = text:match("^id:(%d+)")
-	if id then return tonumber(id) == mountID end
+do
+	local f, t, tp, id, sid
+	function journal:setFlagSearchMatches(text)
+		f = text:match("^%-f:?%s*(.-)%s*$")
+		t = text:match("^%-t:?%s*(.-)%s*$")
+		tp = tonumber(text:match("^%-tp:?%s*(%d+)"))
+		id = tonumber(text:match("^%-id:?%s*(%d+)"))
+		sid = tonumber(text:match("^%-sid:?%s*(%d+)"))
+	end
 
-	id = text:match("^spell:(%d+)")
-	if id then return tonumber(id) == spellID end
-
-	id = text:match("^type:(%d+)")
-	if id then return tonumber(id) == mountType end
+	function journal:getFlagSearchFilter(mountID, spellID, mountType, familyID)
+		return f and self:getFamilySearch(f, familyID)
+		    or t and self.tags:find(spellID, t)
+		    or tp == mountType
+		    or id == mountID
+		    or sid == spellID
+	end
 end
 
 
@@ -633,6 +651,7 @@ function journal:updateMountsList()
 	local text = util.cleanText(self.searchBox:GetText())
 	local numMounts = 0
 	self.dataProvider = CreateDataProvider()
+	self:setFlagSearchMatches(text)
 
 	for i = 1, #self.mountIDs do
 		local mountID = self.mountIDs[i]
@@ -661,7 +680,7 @@ function journal:updateMountsList()
 		and (#text == 0
 			or name:lower():find(text, 1, true)
 			or tags:find(spellID, text)
-			or self:getCustomSearchFilter(text, mountID, spellID, mountType))
+			or self:getFlagSearchFilter(mountID, spellID, mountType, familyID))
 		-- TYPE
 		and self:getFilterType(mountType)
 		-- FACTION
