@@ -979,16 +979,17 @@ end
 
 ---------------------------------------------------
 -- tmog TRANSMOG
-conds.tmog.text = TRANSMOGRIFY
+conds.tmog.text = PERKS_VENDOR_CATEGORY_TRANSMOG
 
 function conds.tmog:getValueNames(values)
 	local names = {}
 	for i, value in ipairs(values) do
-		local name, guid = ("\n"):split(value, 2)
-		if guid == playerGuid or guid == nil then
-			names[i] = guid and name or sGrayName:format(name)
-		else
-			names[i] = sGrayName_ID:format(getNameByGUID(guid), name)
+		local outfitID, guid = (":"):split(value, 2)
+		if guid == playerGuid and tonumber(outfitID) then
+			local outfitInfo = C_TransmogOutfitInfo.GetOutfitInfo(tonumber(outfitID))
+			if outfitInfo then names[#names + 1] = sName_ID:format(outfitInfo.name, outfitID) end
+		elseif guid then
+			 names[#names + 1] = sGrayName_ID:format(getNameByGUID(guid), outfitID)
 		end
 	end
 	return names
@@ -996,30 +997,119 @@ end
 
 function conds.tmog.sort(values)
 	sort(values, function(a, b)
-		local aName, aGuid = ("\n"):split(a, 2)
-		local bName, bGuid = ("\n"):split(b, 2)
+		local aOutfitID, aGuid = (":"):split(a, 2)
+		local bOutfitID, bGuid = (":"):split(b, 2)
 
-		if aGuid ~= bGuid then return strcmputf8i(aGuid or "", bGuid or "") < 0 end
-		return strcmputf8i(aName, bName) < 0
+		if aGuid ~= bGuid then return strcmputf8i(aGuid, bGuid) < 0 end
+		return tonumber(aOutfitID) < tonumber(bOutfitID)
 	end)
 end
 
 function conds.tmog:getValueList(values, func)
 	local list = {}
+	local outfitsInfo = C_TransmogOutfitInfo.GetOutfitsInfo()
 	local checked = function(btn) return tContains(values, btn.value) end
 
 	for i, value in ipairs(values) do
-		local name, guid = ("\n"):split(value, 2)
-		if guid ~= playerGuid then
-			local text = guid and sGrayName_ID:format(getNameByGUID(guid), name) or sGrayName:format(name)
-			list[#list + 1] = createCheckableInfo(text, value, func, checked, nil, util.noIcon)
+		local outfitID, guid = (":"):split(value, 2)
+		if guid ~= playerGuid or not tonumber(outfitID) then
+			local text = sGrayName:format(getNameByGUID(guid))
+			list[#list + 1] = createCheckableInfo(text, value, func, checked, sID:format(outfitID), util.noIcon)
 		end
 	end
 
-	for i, id in ipairs(C_TransmogCollection.GetOutfits()) do
-		local name, icon = C_TransmogCollection.GetOutfitInfo(id)
-		local v = name.."\n"..playerGuid
-		list[#list + 1] = createCheckableInfo(name, v, func, checked, nil, icon)
+	local function getSlotTransmogID(location, weaponOption, appearanceID)
+		if not location then return Constants.Transmog.NoTransmogID end
+		if location:IsIllusion() then
+			if appearanceID == Constants.Transmog.NoTransmogID or not TransmogUtil.CanEnchantSource(appearanceID) then
+				return Constants.Transmog.NoTransmogID
+			end
+		end
+		local slotInfo = C_TransmogOutfitInfo.GetViewedOutfitSlotInfo(location:GetSlot(), location:GetType(), weaponOption)
+		return slotInfo and slotInfo.transmogID or Constants.Transmog.NoTransmogID
+	end
+
+	local function onEnter(btn, outfitID)
+		if MJTooltipModel.previousActor then
+			MJTooltipModel.previousActor:ClearModel()
+			MJTooltipModel.previousActor = nil
+		end
+
+		MJTooltipModel.model:SetFromModelSceneID(290)
+		local actor = MJTooltipModel.model:GetPlayerActor()
+		if not actor then return end
+		MJTooltipModel.previousActor = actor
+		actor:SetModelByUnit("player", false, false, false, PlayerUtil.ShouldUseNativeFormInModelScene())
+
+		local hideIgnored = GetCVar("transmogHideIgnoredSlots")
+		SetCVar("transmogHideIgnoredSlots", "1")
+		local curOutfitID = C_TransmogOutfitInfo.GetCurrentlyViewedOutfitID()
+		C_TransmogOutfitInfo.ChangeViewedOutfit(outfitID)
+
+		local tLocations = {}
+		local iLocations = {}
+		for i, groupData in ipairs(C_TransmogOutfitInfo.GetSlotGroupInfo()) do
+			for j, appearanceInfo in ipairs(groupData.appearanceSlotInfo) do
+				tLocations[#tLocations + 1] = TransmogUtil.GetTransmogLocation(appearanceInfo.slotName, appearanceInfo.type, appearanceInfo.isSecondary)
+			end
+			for j, illusionInfo in ipairs(groupData.illusionSlotInfo) do
+				iLocations[illusionInfo.slot] = TransmogUtil.GetTransmogLocation(illusionInfo.slotName, illusionInfo.type, illusionInfo.isSecondary)
+			end
+		end
+		for i, location in ipairs(tLocations) do
+			local slot = location:GetSlot()
+			local linkedSlotInfo = C_TransmogOutfitInfo.GetLinkedSlotInfo(slot)
+
+			if not linkedSlotInfo or linkedSlotInfo.primarySlotInfo.slot == slot then
+				local weaponOption = C_TransmogOutfitInfo.GetEquippedSlotOptionFromTransmogSlot(slot) or Enum.TransmogOutfitSlotOption.None
+				local appearanceID = getSlotTransmogID(location, weaponOption)
+				local secondaryAppearanceID = Constants.Transmog.NoTransmogID
+				if linkedSlotInfo then
+					local outfitSlotInfo = C_TransmogOutfitInfo.GetViewedOutfitSlotInfo(linkedSlotInfo.secondarySlotInfo.slot, linkedSlotInfo.secondarySlotInfo.type, weaponOption)
+					if outfitSlotInfo then
+						secondaryAppearanceID = outfitSlotInfo.transmogID
+					end
+				end
+
+				if appearanceID ~= Constants.Transmog.NoTransmogID or secondaryAppearanceID ~= Constants.Transmog.NoTransmogID then
+					local illusionID = getSlotTransmogID(iLocations[slot], weaponOption, appearanceID)
+					local itemTransmogInfo = ItemUtil.CreateItemTransmogInfo(appearanceID, secondaryAppearanceID, illusionID)
+					local slotID = location:GetSlotID()
+
+					if location:IsMainHand() then
+						local mainHandCategoryID = C_TransmogOutfitInfo.GetItemModifiedAppearanceEffectiveCategory(appearanceID)
+						itemTransmogInfo:ConfigureSecondaryForMainHand(TransmogUtil.IsCategoryLegionArtifact(mainHandCategoryID))
+						-- Don't specify a slot for ranged weapons.
+						if TransmogUtil.IsCategoryRangedWeapon(mainHandCategoryID) then
+							slotID = nil
+						end
+					end
+					actor:SetItemTransmogInfo(itemTransmogInfo, slotID)
+				end
+			end
+		end
+
+		SetCVar("transmogHideIgnoredSlots", hideIgnored)
+		C_TransmogOutfitInfo.ChangeViewedOutfit(curOutfitID)
+
+		MJTooltipModel:ClearAllPoints()
+		MJTooltipModel:SetPoint("LEFT", btn, "RIGHT", 5, 0)
+		MJTooltipModel:Show()
+	end
+
+	local function onLeave()
+		MJTooltipModel:Hide()
+	end
+
+	if outfitsInfo and #outfitsInfo > 0 then
+		for i, outfitInfo in ipairs(outfitsInfo) do
+			local v = ("%s:%s"):format(outfitInfo.outfitID, playerGuid)
+			local info = createCheckableInfo(outfitInfo.name, v, func, checked, sID:format(outfitInfo.outfitID), outfitInfo.icon)
+			info.arg1 = outfitInfo.outfitID
+			info.OnEnter = onEnter
+			info.OnLeave = onLeave
+			list[#list + 1] = info
+		end
 	end
 
 	if #list == 0 then

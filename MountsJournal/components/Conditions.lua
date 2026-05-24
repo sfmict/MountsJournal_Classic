@@ -502,24 +502,22 @@ function conds.tmog:getFuncText(values, addKey, _, ...)
 		local num = 0
 		vals = {}
 		for i = 1, #values do
-			local name, guid = ("\n"):split(values[i], 2)
+			local outfitID, guid = (":"):split(values[i], 2)
 			if guid == playerGuid then
 				num = num + 1
-				vals[num] = name:gsub("['\\]", "\\%1")
+				vals[num] = outfitID
 			end
 		end
 		if num == 0 then return "false"
-		elseif num == 1 then vals = vals[1]
-		else
-			return genASTableCheck(vals, "self:anyTtransmogOutfitActive(%s)", addKey, ...)
-		end
+		elseif num == 1 then vals = vals[1] end
 	else
-		local name, guid = ("\n"):split(values, 2)
-		if guid ~= playerGuid and guid ~= nil then return "false" end
-		vals = name
+		local outfitID, guid = (":"):split(values, 2)
+		if guid ~= playerGuid then return "false" end
+		vals = outfitID
 	end
 
-	return ("self:isTtransmogOutfitActive('%s')"):format(vals:gsub("['\\]", "\\%1"))
+	addKey("v.GetActiveOutfitID = C_TransmogOutfitInfo.GetActiveOutfitID")
+	return genNumInList(vals, "v.GetActiveOutfitID()", addKey, ...)
 end
 
 

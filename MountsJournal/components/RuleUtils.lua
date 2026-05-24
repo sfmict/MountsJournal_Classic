@@ -1,6 +1,6 @@
 local _, ns = ...
 local macroFrame, util = ns.macroFrame, ns.util
-local C_Spell, C_Item, GetRealZoneText, GetSubZoneText, GetZoneText, GetMinimapZoneText, C_TransmogCollection, C_Minimap, C_EquipmentSet, GetNumGroupMembers, GetNumSubgroupMembers, UnitGUID, UnitIsConnected, IsInGroup, BNGetNumFriends, C_BattleNet = C_Spell, C_Item, GetRealZoneText, GetSubZoneText, GetZoneText, GetMinimapZoneText, C_TransmogCollection, C_Minimap, C_EquipmentSet, GetNumGroupMembers, GetNumSubgroupMembers, UnitGUID, UnitIsConnected, IsInGroup, BNGetNumFriends, C_BattleNet
+local C_Spell, C_Item, GetRealZoneText, GetSubZoneText, GetZoneText, GetMinimapZoneText, C_Minimap, C_EquipmentSet, GetNumGroupMembers, GetNumSubgroupMembers, UnitGUID, UnitIsConnected, IsInGroup, BNGetNumFriends, C_BattleNet = C_Spell, C_Item, GetRealZoneText, GetSubZoneText, GetZoneText, GetMinimapZoneText, C_Minimap, C_EquipmentSet, GetNumGroupMembers, GetNumSubgroupMembers, UnitGUID, UnitIsConnected, IsInGroup, BNGetNumFriends, C_BattleNet
 
 
 function macroFrame:isSpellReady(spellID)
@@ -31,54 +31,6 @@ function macroFrame:checkMap(mapID)
 		if mapList[i] == mapID then return true end
 	end
 	return false
-end
-
-
-do
-	local noTransmogID = Constants.Transmog.NoTransmogID
-	local model = CreateFrame("DressUpModel")
-	model:Hide()
-	model:SetUnit("player", false, true, false, true)
-
-	local function isOutfitEquipped(outfitID)
-		local outfitItemTransmogInfoList = C_TransmogCollection.GetOutfitItemTransmogInfoList(outfitID)
-		if not outfitItemTransmogInfoList then return end
-
-		model:Show()
-		local currentItemTransmogInfoList = model:GetItemTransmogInfoList()
-		model:Hide()
-		if not currentItemTransmogInfoList then return end
-
-		for slotID = 1, #outfitItemTransmogInfoList do
-			local itemTransmogInfo = outfitItemTransmogInfoList[slotID]
-			if itemTransmogInfo.appearanceID ~= noTransmogID and not itemTransmogInfo:IsEqual(currentItemTransmogInfoList[slotID]) then
-				return
-			end
-		end
-		return true
-	end
-
-	function macroFrame:isTtransmogOutfitActive(name)
-		local outfints = C_TransmogCollection.GetOutfits()
-		for i = 1, #outfints do
-			local id = outfints[i]
-			if name == C_TransmogCollection.GetOutfitInfo(id) then
-				return isOutfitEquipped(id)
-			end
-		end
-		return false
-	end
-
-	function macroFrame:anyTtransmogOutfitActive(values)
-		local outfints = C_TransmogCollection.GetOutfits()
-		for i = 1, #outfints do
-			local id = outfints[i]
-			if values[C_TransmogCollection.GetOutfitInfo(id)] and isOutfitEquipped(id) then
-				return true
-			end
-		end
-		return false
-	end
 end
 
 
