@@ -374,14 +374,14 @@ function MJMapCanvasMixin:refreshPins()
 		end
 	end
 
-	local areaPOIs = C_AreaPoiInfo.GetDelvesForMap(self.mapID)
-	for i, arePoiID in ipairs(areaPOIs) do
-		local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(self.mapID, arePoiID)
-		if poiInfo and poiInfo.linkedUiMapID then
-			poiInfo.dataProvider = self
-			self:acquirePin("DelveEntrancePinTemplate", poiInfo)
-		end
-	end
+	-- local areaPOIs = C_AreaPoiInfo.GetDelvesForMap(self.mapID)
+	-- for i, arePoiID in ipairs(areaPOIs) do
+	-- 	local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(self.mapID, arePoiID)
+	-- 	if poiInfo and poiInfo.linkedUiMapID then
+	-- 		poiInfo.dataProvider = self
+	-- 		self:acquirePin("DelveEntrancePinTemplate", poiInfo)
+	-- 	end
+	-- end
 end
 
 
