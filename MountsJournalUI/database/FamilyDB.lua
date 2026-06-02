@@ -32,6 +32,8 @@ ns.familyDB = {
 		["Tallstriders"] = 416,
 		["Talonbirds"] = 417,
 		-- ["Vultures"] = 418,
+		["Fire Hawks"] = 419,
+		["Elemental Hawks"] = 422,
 	},
 	["Bovids"] = {
 		-- ["Clefthooves"] = 500,
@@ -105,6 +107,8 @@ ns.familyDB = {
 		-- ["Sporebat"] = 1404,
 		["Stone Drakes"] = 1405,
 		["Wind Drakes"] = 1406,
+		["Fire Hawks"] = 1407,
+		["Elemental Hawks"] = 1408
 	},
 	["Feathermanes"] = {
 		["Gryphons"] = 1500,
@@ -249,10 +253,12 @@ ns.familyDBIcons = {
 		["Cranes"] = 656318,
 		["Crows"] = 6705369,
 		["Dread Ravens"] = 952015,
+		["Elemental Hawks"] = 897087,
+		["Fire Hawks"] = 134336,
 		["Hawkstriders"] = 132232,
 		["Pandaren Phoenixes"] = 657490,
 		["Parrots"] = 5617454,
-		["Phoenixes"] = 464141,
+		["Phoenixes"] = 5905217,
 		["Tallstriders"] = 132198,
 		["Talonbirds"] = 132372,
 	},
@@ -301,7 +307,9 @@ ns.familyDBIcons = {
 		["Wind Drakes"] = 461143,
 	},
 	["Elementals"] = {
-		[0] = 134468,
+		[0] = 134467,
+		["Elemental Hawks"] = 897087,
+		["Fire Hawks"] = 134467,
 		["Others"] = 5332198,
 		["Phoenixes"] = 134468,
 		["Stone Drakes"] = 461140,
